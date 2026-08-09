@@ -94,7 +94,7 @@
     "bwip-js": "^4.8.0",
     "cropperjs": "^1.6.2",
     "diff": "^8.0.3",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.13",
     "embedpdf-snippet": "file:vendor/embedpdf/embedpdf-snippet-2.9.1.tgz",
     "fast-xml-parser": "^5.7.1",
     "heic2any": "^0.0.4",
