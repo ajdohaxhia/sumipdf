@@ -72,6 +72,13 @@ export const formatBytes = (bytes: number, decimals = 1) => {
 };
 
 export const downloadFile = (blob: Blob, filename: string): void => {
+  try {
+    void import('../workspace/session.js').then(({ addWorkspaceFile }) => {
+      addWorkspaceFile(blob, { name: filename });
+    });
+  } catch {
+    /* workspace is optional */
+  }
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

@@ -641,5 +641,18 @@ export async function sanitizePdf(
   }
 
   const savedBytes = await pdfDoc.save();
-  return { pdfDoc, bytes: new Uint8Array(savedBytes) };
+  const report = {
+    engine: 'pdf-lib' as const,
+    items: (Object.keys(options) as (keyof SanitizeOptions)[]).map((key) => ({
+      id: String(key),
+      requested: Boolean(options[key]),
+      status: options[key] ? ('attempted' as const) : ('not-requested' as const),
+    })),
+    unverified: [
+      'Hidden text in raster images cannot be verified by this engine.',
+      'JavaScript and attachments are removed from catalog entries this engine can see.',
+      'This report is not a certification that the file is safe to share.',
+    ],
+  };
+  return { pdfDoc, bytes: new Uint8Array(savedBytes), report };
 }

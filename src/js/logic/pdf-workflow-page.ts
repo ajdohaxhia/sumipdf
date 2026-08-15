@@ -39,10 +39,15 @@ import {
   loadWorkflow,
   exportWorkflow,
   importWorkflow,
+  deserializeWorkflow,
+  serializeWorkflow,
   getSavedTemplateNames,
   templateNameExists,
   deleteTemplate,
 } from '@/js/workflow/serialization';
+import { recipeById } from '@/js/workflow/recipes';
+import { preflightErrors, summarizeWorkflow } from '@/js/workflow/preflight';
+import { renderWorkflowList, swapLinearSteps, isLinearPipeline } from '@/js/workflow/list-editor';
 import { getAvailableTesseractLanguageEntries } from '@/js/utils/tesseract-language-availability.js';
 import { isToolDisabled } from '@/js/utils/disabled-tools.js';
 import { IMAGE_ACCEPT } from '@/js/utils/image-input-utils.js';
@@ -144,7 +149,88 @@ async function initializePage() {
   document.getElementById('import-btn')?.addEventListener('click', async () => {
     await importWorkflow(editor, area);
     updateNodeCount();
+    refreshListView();
   });
+
+  const listHost = document.createElement('section');
+  listHost.id = 'sumi-workflow-list';
+  listHost.className = 'sumi-workflow-list';
+  listHost.hidden = true;
+  const rete = document.getElementById('rete-container');
+  rete?.parentElement?.insertBefore(listHost, rete);
+
+  const listToggle = document.createElement('button');
+  listToggle.id = 'sumi-list-toggle';
+  listToggle.type = 'button';
+  listToggle.className =
+    'bg-gray-700 hover:bg-gray-600 text-white px-2.5 md:px-3 py-1.5 rounded-lg text-sm';
+  listToggle.textContent = 'List view';
+  document.getElementById('workflow-toolbar')?.appendChild(listToggle);
+
+  function refreshListView() {
+    const data = serializeWorkflow(editor, area);
+    renderWorkflowList(listHost, data, async (from, to) => {
+      if (!isLinearPipeline(data)) return;
+      const next = swapLinearSteps(data, from, to);
+      await editor.clear();
+      await deserializeWorkflow(next, editor, area);
+      updateNodeCount();
+      refreshListView();
+    });
+  }
+
+  listToggle.addEventListener('click', () => {
+    const showingList = !listHost.hidden;
+    listHost.hidden = showingList;
+    if (rete) rete.hidden = !showingList;
+    listToggle.textContent = showingList ? 'List view' : 'Canvas view';
+    if (!showingList) refreshListView();
+  });
+
+  editor.addPipe((context) => {
+    if (
+      context.type === 'nodecreated' ||
+      context.type === 'noderemoved' ||
+      context.type === 'connectioncreated' ||
+      context.type === 'connectionremoved'
+    ) {
+      if (!listHost.hidden) refreshListView();
+    }
+    return context;
+  });
+
+  const recipeId = new URLSearchParams(window.location.search).get('recipe');
+  if (recipeId) {
+    const recipe = recipeById(recipeId);
+    if (recipe) {
+      await editor.clear();
+      await deserializeWorkflow(recipe.workflow, editor, area);
+      updateNodeCount();
+      refreshListView();
+      const statusText = document.getElementById('status-text');
+      if (statusText) {
+        statusText.textContent = `${recipe.name}: ${summarizeWorkflow(recipe.workflow)}`;
+      }
+      if (recipe.limitations) {
+        showAlert(recipe.name, `${recipe.summary}\n\n${recipe.limitations}`);
+      }
+    }
+  }
+
+  const originalRun = document.getElementById('run-btn');
+  originalRun?.addEventListener(
+    'click',
+    (event) => {
+      const data = serializeWorkflow(editor, area);
+      const errors = preflightErrors(data);
+      if (errors.length) {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        showAlert('Workflow needs a fix', errors.join('\n'));
+      }
+    },
+    true
+  );
 
   // Mobile toolbox sidebar toggle
   const toolboxSidebar = document.getElementById('toolbox-sidebar');
@@ -260,6 +346,19 @@ async function initializePage() {
     if (nodeId) deleteNodeById(nodeId);
   }) as EventListener;
   document.addEventListener('wf-delete-node', deleteNodeHandler);
+
+  const recipeId = new URLSearchParams(window.location.search).get('recipe');
+  if (recipeId) {
+    const recipe = recipeById(recipeId);
+    if (recipe) {
+      await deserializeWorkflow(recipe.workflow, editor, area);
+      updateNodeCount();
+      const statusText = document.getElementById('status-text');
+      if (statusText) {
+        statusText.textContent = `${recipe.name}: ${recipe.summary}`;
+      }
+    }
+  }
 }
 
 async function deleteNodeById(nodeId: string) {

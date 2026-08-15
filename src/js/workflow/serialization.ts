@@ -18,7 +18,7 @@ function getNodeType(node: BaseWorkflowNode): string | null {
   return node.nodeType || null;
 }
 
-function serializeWorkflow(
+export function serializeWorkflow(
   editor: NodeEditor<ClassicScheme>,
   area: AreaPlugin<ClassicScheme, AreaExtra>
 ): SerializedWorkflow {
@@ -63,7 +63,7 @@ function serializeWorkflow(
   } as SerializedWorkflow;
 }
 
-async function deserializeWorkflow(
+export async function deserializeWorkflow(
   data: SerializedWorkflow,
   editor: NodeEditor<ClassicScheme>,
   area: AreaPlugin<ClassicScheme, AreaExtra>

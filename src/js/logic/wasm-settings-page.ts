@@ -252,4 +252,33 @@ async function initializePage() {
       'success'
     );
   });
+
+  const offlineBtn = document.createElement('button');
+  offlineBtn.type = 'button';
+  offlineBtn.id = 'sumi-clear-offline';
+  offlineBtn.className =
+    'mt-6 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm';
+  offlineBtn.textContent = 'Clear offline assets';
+  clearBtn?.parentElement?.appendChild(offlineBtn);
+  offlineBtn.addEventListener('click', async () => {
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.ready;
+      registration.active?.postMessage({ type: 'CLEAR_CACHE' });
+    }
+    if ('caches' in window) {
+      const names = await caches.keys();
+      await Promise.all(
+        names
+          .filter(
+            (name) => name.startsWith('bentopdf-') || name.startsWith('sumi-pdf-')
+          )
+          .map((name) => caches.delete(name))
+      );
+    }
+    showAlert(
+      'Offline assets cleared',
+      'Cached application and engine files were removed. Tools that need WASM will download them again. User documents were never stored in this cache.',
+      'success'
+    );
+  });
 }

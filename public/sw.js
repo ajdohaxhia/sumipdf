@@ -1,11 +1,11 @@
 /**
- * BentoPDF Service Worker
- * Caches WASM files and static assets for offline support and faster loading
- * Supports both local and CDN delivery with deduplication
- * Version: 1.1.0
+ * Sumi PDF Service Worker
+ * Caches versioned application assets and explicitly selected runtime engines.
+ * Never caches user documents. Documents are not uploaded through this worker.
+ * Version: 1.0.0
  */
 
-const CACHE_VERSION = 'bentopdf-v11';
+const CACHE_VERSION = 'sumi-pdf-v1';
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 
 const trustedCdnOrigins = new Set(['https://cdn.jsdelivr.net']);
@@ -58,7 +58,11 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName.startsWith('bentopdf-') && cacheName !== CACHE_NAME) {
+            if (
+              (cacheName.startsWith('bentopdf-') ||
+                cacheName.startsWith('sumi-pdf-')) &&
+              cacheName !== CACHE_NAME
+            ) {
               // console.log('[ServiceWorker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
@@ -362,9 +366,16 @@ self.addEventListener('message', (event) => {
 
   if (event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
-      caches.delete(CACHE_NAME).then(() => {
-        console.log('[ServiceWorker] Cache cleared');
-      })
+      caches.keys().then((names) =>
+        Promise.all(
+          names
+            .filter(
+              (name) =>
+                name.startsWith('bentopdf-') || name.startsWith('sumi-pdf-')
+            )
+            .map((name) => caches.delete(name))
+        )
+      )
     );
     return;
   }

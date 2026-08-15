@@ -57,8 +57,7 @@ const connectOrigins = uniq([
 const fontOrigins = uniq([ocrFontOrigin].filter(Boolean));
 
 const githubStarsDisabled =
-  process.env.DISABLE_GITHUB_STARS === 'true' ||
-  process.env.SIMPLE_MODE === 'true';
+  process.env.ENABLE_GITHUB_STARS !== 'true';
 const githubApiSource = githubStarsDisabled ? '' : ' https://api.github.com';
 
 const directives = [

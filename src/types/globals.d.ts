@@ -6,6 +6,14 @@ interface ImportMetaEnv {
   readonly VITE_TESSERACT_LANG_URL?: string;
   readonly VITE_TESSERACT_AVAILABLE_LANGUAGES?: string;
   readonly VITE_OCR_FONT_BASE_URL?: string;
+  readonly VITE_SITE_URL?: string;
+  readonly VITE_REPO_URL?: string;
+  readonly VITE_UPSTREAM_URL?: string;
+  readonly VITE_AUTHOR_URL?: string;
+  readonly VITE_BRAND_NAME?: string;
+  readonly VITE_BRAND_LOGO?: string;
+  readonly VITE_NOINDEX?: string;
+  readonly SITE_URL?: string;
 }
 
 interface ImportMeta {

@@ -164,12 +164,11 @@ export const createLanguageSwitcher = (): HTMLElement => {
 };
 
 export const injectLanguageSwitcher = (): void => {
-  const simpleModeContainer = document.getElementById(
-    'simple-mode-language-switcher'
-  );
-  if (simpleModeContainer) {
-    const switcher = createLanguageSwitcher();
-    simpleModeContainer.appendChild(switcher);
+  const slot =
+    document.getElementById('sumi-language-slot') ||
+    document.getElementById('simple-mode-language-switcher');
+  if (slot) {
+    slot.appendChild(createLanguageSwitcher());
     return;
   }
 

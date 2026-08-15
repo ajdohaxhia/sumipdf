@@ -1,15 +1,10 @@
-import { categories } from './config/tools.js';
-import { dom, switchView, hideAlert } from './ui.js';
+import { getToolsByCategory, getToolById } from './config/tool-registry.js';
+import { dom, switchView, hideAlert } from './ui-core.js';
 import { ShortcutsManager } from './logic/shortcuts.js';
 import { createIcons, icons } from 'lucide';
 import '@phosphor-icons/web/regular';
-import * as pdfjsLib from 'pdfjs-dist';
 import '../css/styles.css';
-import {
-  escapeHtml,
-  formatShortcutDisplay,
-  formatStars,
-} from './utils/helpers.js';
+import { escapeHtml, formatShortcutDisplay } from './utils/format.js';
 import {
   initI18n,
   applyTranslations,
@@ -27,13 +22,28 @@ import {
   setStoredItem,
   removeStoredItem,
 } from './utils/safe-storage.js';
+import { brand } from './config/brand.js';
+import { initTheme } from './ui/theme.js';
+import { mountThemeSwitcher } from './ui/theme-switcher.js';
+import { initCommandPalette } from './ui/command-palette.js';
+import { initHomeDrop } from './ui/home-command.js';
+import { initWorkspaceTray } from './ui/workspace-tray.js';
+import { initToolShell } from './ui/tool-shell.js';
+import { WORKFLOW_RECIPES } from './workflow/recipes.js';
+import { getRecentToolIds, recordRecentTool } from './workspace/session.js';
 declare const __BRAND_NAME__: string;
 
 const init = async () => {
+  initTheme();
+  mountThemeSwitcher(document.getElementById('sumi-theme-switcher'));
   await initI18n();
   await loadRuntimeConfig();
   injectLanguageSwitcher();
   applyTranslations();
+  initCommandPalette();
+  initHomeDrop();
+  initWorkspaceTray();
+  initToolShell();
 
   if (isCurrentPageDisabled()) {
     document.title = t('disabledTool.title') || 'Tool Unavailable';
@@ -53,11 +63,6 @@ const init = async () => {
     `;
     return;
   }
-
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url
-  ).toString();
   if (__SIMPLE_MODE__) {
     const hideBrandingSections = () => {
       const heroSection = document.getElementById('hero-section');
@@ -114,7 +119,7 @@ const init = async () => {
         (divider as HTMLElement).style.display = 'none';
       });
 
-      const brandName = __BRAND_NAME__ || 'BentoPDF';
+      const brandName = __BRAND_NAME__ || brand.name;
       document.title = `${brandName} - ${t('simpleMode.title')}`;
 
       const toolsHeader = document.getElementById('tools-header');
@@ -160,10 +165,18 @@ const init = async () => {
   }
 
   const categoryTranslationKeys: Record<string, string> = {
-    'Popular Tools': 'tools:categories.popularTools',
-    'Edit & Annotate': 'tools:categories.editAnnotate',
+    Organize: 'tools:categories.organize',
+    Edit: 'tools:categories.edit',
     'Convert to PDF': 'tools:categories.convertToPdf',
     'Convert from PDF': 'tools:categories.convertFromPdf',
+    'Scan & OCR': 'tools:categories.scanOcr',
+    'Compress & optimize': 'tools:categories.compressOptimize',
+    'Protect & sanitize': 'tools:categories.protectSanitize',
+    'Sign & validate': 'tools:categories.signValidate',
+    'Print & prepare': 'tools:categories.printPrepare',
+    Automate: 'tools:categories.automate',
+    'Popular Tools': 'tools:categories.popularTools',
+    'Edit & Annotate': 'tools:categories.editAnnotate',
     'Organize & Manage': 'tools:categories.organizeManage',
     'Optimize & Repair': 'tools:categories.optimizeRepair',
     'Secure PDF': 'tools:categories.securePdf',
@@ -240,6 +253,7 @@ const init = async () => {
     'Repair PDF': 'tools:repairPdf',
     'Encrypt PDF': 'tools:encryptPdf',
     'Sanitize PDF': 'tools:sanitizePdf',
+    'Redact PDF': 'tools:redactPdf',
     'Decrypt PDF': 'tools:decryptPdf',
     'Flatten PDF': 'tools:flattenPdf',
     'Remove Metadata': 'tools:removeMetadata',
@@ -305,7 +319,7 @@ const init = async () => {
       setStoredItem('collapsedCategories', JSON.stringify(collapsedCategories));
     }
 
-    const filteredCategories = categories
+    const filteredCategories = getToolsByCategory()
       .map((category) => ({
         ...category,
         tools: category.tools.filter((tool) => !isToolDisabled(tool.id)),
@@ -409,6 +423,8 @@ const init = async () => {
             : tool.subtitle;
           toolCard.appendChild(toolSubtitle);
         }
+
+        toolCard.addEventListener('click', () => recordRecentTool(tool.id));
 
         toolsContainer.appendChild(toolCard);
       });
@@ -540,33 +556,44 @@ const init = async () => {
   }
 
   createIcons({ icons });
-  console.log('Please share our tool and share the love!');
 
-  const githubStarsElements = [
-    document.getElementById('github-stars-desktop'),
-    document.getElementById('github-stars-mobile'),
-  ];
+  const recipeGrid = document.getElementById('recipe-grid');
+  if (recipeGrid) {
+    recipeGrid.textContent = '';
+    for (const recipe of WORKFLOW_RECIPES) {
+      const link = document.createElement('a');
+      link.href = `pdf-workflow.html?recipe=${encodeURIComponent(recipe.id)}`;
+      const title = document.createElement('strong');
+      title.textContent = recipe.name;
+      const summary = document.createElement('span');
+      summary.textContent = recipe.summary;
+      link.append(title, summary);
+      recipeGrid.appendChild(link);
+    }
+  }
 
-  if (
-    githubStarsElements.some((el) => el) &&
-    !__SIMPLE_MODE__ &&
-    !__DISABLE_GITHUB_STARS__
-  ) {
-    fetch('https://api.github.com/repos/alam00000/bentopdf')
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.stargazers_count !== undefined) {
-          const formattedStars = formatStars(data.stargazers_count);
-          githubStarsElements.forEach((el) => {
-            if (el) el.textContent = formattedStars;
-          });
-        }
-      })
-      .catch(() => {
-        githubStarsElements.forEach((el) => {
-          if (el) el.textContent = '-';
-        });
-      });
+  const recentWrap = document.getElementById('recent-tools');
+  if (recentWrap) {
+    const recent = getRecentToolIds()
+      .map((id) => getToolById(id))
+      .filter((tool): tool is NonNullable<typeof tool> => Boolean(tool));
+    if (recent.length > 0) {
+      recentWrap.hidden = false;
+      const heading = document.createElement('h3');
+      heading.className = 'text-lg mb-3';
+      heading.textContent = t('tools.recent') || 'Recent tools';
+      const row = document.createElement('div');
+      row.className = 'flex flex-wrap gap-2 mb-6';
+      for (const tool of recent) {
+        const a = document.createElement('a');
+        a.href = tool.href;
+        a.className = 'border px-3 py-1 text-sm';
+        a.style.borderColor = 'var(--sumi-rule)';
+        a.textContent = tool.name;
+        row.appendChild(a);
+      }
+      recentWrap.append(heading, row);
+    }
   }
 
   // Initialize Shortcuts System
@@ -915,7 +942,7 @@ const init = async () => {
 
     const allShortcuts = ShortcutsManager.getAllShortcuts();
     const isMac = navigator.userAgent.toUpperCase().includes('MAC');
-    const shortcutCategories = categories
+    const shortcutCategories = getToolsByCategory()
       .map((category) => ({
         ...category,
         tools: category.tools.filter((tool) => !isToolDisabled(tool.id)),

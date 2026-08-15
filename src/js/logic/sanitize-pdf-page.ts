@@ -147,16 +147,17 @@ async function runSanitize() {
 
     downloadFile(
       new Blob([new Uint8Array(result.bytes)], { type: 'application/pdf' }),
-      pageState.file?.name || 'document.pdf'
+      pageState.file?.name.replace(/\.pdf$/i, '-clean.pdf') || 'document.pdf'
     );
-    showAlert(
-      'Success',
-      'PDF has been sanitized and downloaded.',
-      'success',
-      () => {
-        resetState();
-      }
-    );
+    const reportLines = [
+      'Privacy Clean report (local, pdf-lib)',
+      ...result.report.items.map(
+        (item) =>
+          `${item.id}: ${item.requested ? 'requested — catalog entries updated when present' : 'left unchanged'}`
+      ),
+      ...result.report.unverified,
+    ];
+    showAlert('Sanitized on this device', reportLines.join('\n'));
   } catch (e: unknown) {
     console.error('Sanitization Error:', e);
     const msg = e instanceof Error ? e.message : String(e);

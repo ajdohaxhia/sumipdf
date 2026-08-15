@@ -465,7 +465,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const savingsPercent =
           savings > 0 ? ((savings / originalFile.size) * 100).toFixed(1) : 0;
 
-        downloadFile(resultBlob, originalFile.name);
+        downloadFile(resultBlob, originalFile.name.replace(/\.pdf$/i, '-compressed.pdf'));
+        try {
+          const { addWorkspaceFile } = await import('../workspace/session.js');
+          addWorkspaceFile(originalFile, {
+            name: originalFile.name,
+            sourceToolId: 'compress-pdf-original',
+          });
+        } catch {
+          /* keep going */
+        }
 
         hideLoader();
 

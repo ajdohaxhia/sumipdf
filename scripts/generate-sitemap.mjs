@@ -7,10 +7,19 @@ const __dirname = path.dirname(__filename);
 
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const LOCALES_DIR = path.resolve(__dirname, '../public/locales');
-const SITE_URL = (process.env.SITE_URL || 'https://www.bentopdf.com').replace(
+const SITE_URL = (
+  process.env.SITE_URL ||
+  process.env.VITE_SITE_URL ||
+  ''
+).replace(
   /\/+$/,
   ''
 );
+if (!SITE_URL) {
+  console.warn(
+    '[sitemap] SITE_URL / VITE_SITE_URL is empty. Canonical URLs will be omitted until a public origin is configured.'
+  );
+}
 const EXCLUDED_PAGES = new Set(['404', 'wasm-settings']);
 
 const languages = fs.readdirSync(LOCALES_DIR).filter((file) => {
@@ -56,6 +65,16 @@ function buildUrl(lang, pageName) {
 }
 
 function generateSitemap() {
+  if (!SITE_URL) {
+    console.warn(
+      '[sitemap] Skipping absolute sitemap. Set SITE_URL or VITE_SITE_URL to the public origin before production deploy.'
+    );
+    const empty = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>\n`;
+    if (fs.existsSync(DIST_DIR)) {
+      fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), empty);
+    }
+    return;
+  }
   console.log('🗺️  Generating multilingual sitemap...');
   console.log(`   SITE_URL: ${SITE_URL}`);
   console.log(`   Languages: ${languages.join(', ')}`);

@@ -8,10 +8,11 @@ const __dirname = path.dirname(__filename);
 
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const LOCALES_DIR = path.resolve(__dirname, '../public/locales');
-const SITE_URL = (process.env.SITE_URL || 'https://www.bentopdf.com').replace(
-  /\/+$/,
+const SITE_URL = (
+  process.env.SITE_URL ||
+  process.env.VITE_SITE_URL ||
   ''
-);
+).replace(/\/+$/, '');
 const BASE_PATH = (process.env.BASE_URL || '/').replace(/\/$/, '');
 
 const languages = fs.readdirSync(LOCALES_DIR).filter((file) => {
@@ -80,14 +81,12 @@ function injectOrganizationLd(document) {
   const data = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'BentoPDF',
+    name: process.env.VITE_BRAND_NAME || 'Sumi PDF',
     url: SITE_URL,
-    logo: `${SITE_URL}/images/favicon.svg`,
+    logo: `${SITE_URL}/images/logo-mark.svg`,
     sameAs: [
+      process.env.VITE_REPO_URL || 'https://github.com/ajdohaxhia/sumipdf',
       'https://github.com/alam00000/bentopdf',
-      'https://x.com/BentoPDF',
-      'https://www.linkedin.com/company/bentopdf/',
-      'https://www.instagram.com/thebentopdf/',
     ],
   };
   const script = document.createElement('script');

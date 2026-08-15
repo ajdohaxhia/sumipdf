@@ -60,6 +60,7 @@ function loadPages(): Set<string> {
     'privacy',
     'terms',
     'licensing',
+    'accessibility',
     'tools',
     '404',
     'pdf-converter',
@@ -500,6 +501,39 @@ function rewriteHtmlPathsPlugin(): Plugin {
   };
 }
 
+function sumiBrandHtmlPlugin(): Plugin {
+  const siteUrl = (
+    process.env.VITE_SITE_URL ||
+    process.env.SITE_URL ||
+    ''
+  ).replace(/\/+$/, '');
+  const brandName = process.env.VITE_BRAND_NAME || 'Sumi PDF';
+  return {
+    name: 'sumi-brand-html',
+    transformIndexHtml(html) {
+      let next = html;
+      if (siteUrl) {
+        next = next.replaceAll('https://www.bentopdf.com', siteUrl);
+        next = next.replaceAll('https://bentopdf.com', siteUrl);
+      }
+      next = next.replaceAll('| BentoPDF', `| ${brandName}`);
+      next = next.replaceAll('- BentoPDF', `- ${brandName}`);
+      next = next.replaceAll('content="BentoPDF"', `content="${brandName}"`);
+      next = next.replaceAll(
+        'property="og:site_name" content="BentoPDF"',
+        `property="og:site_name" content="${brandName}"`
+      );
+      next = next.replaceAll(
+        'name="apple-mobile-web-app-title" content="BentoPDF"',
+        `name="apple-mobile-web-app-title" content="${brandName}"`
+      );
+      next = next.replaceAll('name="twitter:site" content="@BentoPDF"', '');
+      next = next.replaceAll('name="twitter:creator" content="@BentoPDF"', '');
+      return next;
+    },
+  };
+}
+
 export default defineConfig(() => {
   const USE_CDN = process.env.VITE_USE_CDN === 'true';
 
@@ -525,12 +559,18 @@ export default defineConfig(() => {
         context: {
           baseUrl: (process.env.BASE_URL || '/').replace(/\/?$/, '/'),
           simpleMode: process.env.SIMPLE_MODE === 'true',
-          brandName: process.env.VITE_BRAND_NAME || '',
-          brandLogo: process.env.VITE_BRAND_LOGO || '',
+          brandName: process.env.VITE_BRAND_NAME || 'Sumi PDF',
+          brandLogo: process.env.VITE_BRAND_LOGO || 'images/logo-mark.svg',
           footerText: process.env.VITE_FOOTER_TEXT || '',
           appVersion: process.env.npm_package_version || 'Unknown',
+          siteUrl: (process.env.VITE_SITE_URL || process.env.SITE_URL || '').replace(/\/+$/, ''),
+          repoUrl: process.env.VITE_REPO_URL || 'https://github.com/ajdohaxhia/sumipdf',
+          upstreamUrl: process.env.VITE_UPSTREAM_URL || 'https://github.com/alam00000/bentopdf',
+          authorUrl: process.env.VITE_AUTHOR_URL || 'https://adelajdo.com',
+          noindex: process.env.VITE_NOINDEX === 'true',
         },
       }),
+      sumiBrandHtmlPlugin(),
       languageRouterPlugin(),
       flattenPagesPlugin(),
       rewriteHtmlPathsPlugin(),
@@ -574,7 +614,7 @@ export default defineConfig(() => {
       __DISABLE_GITHUB_STARS__: JSON.stringify(
         process.env.DISABLE_GITHUB_STARS === 'true'
       ),
-      __BRAND_NAME__: JSON.stringify(process.env.VITE_BRAND_NAME || ''),
+      __BRAND_NAME__: JSON.stringify(process.env.VITE_BRAND_NAME || 'Sumi PDF'),
       __DISABLED_TOOLS__: JSON.stringify(
         (process.env.DISABLE_TOOLS || '')
           .split(',')
@@ -620,6 +660,7 @@ export default defineConfig(() => {
           privacy: resolve(__dirname, 'privacy.html'),
           terms: resolve(__dirname, 'terms.html'),
           licensing: resolve(__dirname, 'licensing.html'),
+          accessibility: resolve(__dirname, 'accessibility.html'),
           tools: resolve(__dirname, 'tools.html'),
           '404': resolve(__dirname, '404.html'),
           // Category Hub Pages
@@ -729,6 +770,7 @@ export default defineConfig(() => {
             'src/pages/change-permissions.html'
           ),
           'sanitize-pdf': resolve(__dirname, 'src/pages/sanitize-pdf.html'),
+          'redact-pdf': resolve(__dirname, 'src/pages/redact-pdf.html'),
           'page-dimensions': resolve(
             __dirname,
             'src/pages/page-dimensions.html'

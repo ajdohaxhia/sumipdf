@@ -769,6 +769,13 @@ const baseCategories = [
         subtitle: 'Remove metadata, annotations, scripts, and more.',
       },
       {
+        href: import.meta.env.BASE_URL + 'redact-pdf.html',
+        name: 'Redact PDF',
+        icon: 'ph-eye-slash',
+        subtitle:
+          'Permanently remove text with the redaction engine. Drawing a black box is not redaction.',
+      },
+      {
         href: import.meta.env.BASE_URL + 'decrypt-pdf.html',
         name: 'Decrypt PDF',
         icon: 'ph-lock-open',
