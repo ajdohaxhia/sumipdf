@@ -1,8 +1,27 @@
-# Security Configuration
+# Security
+
+## Reporting a vulnerability in Sumi PDF
+
+This repository is a fork of BentoPDF. Report Sumi-specific issues privately via GitHub Security Advisories on https://github.com/ajdohaxhia/sumipdf.
+
+Please include:
+
+- browser and version
+- the tool involved
+- a **synthetic** sample if possible
+- never attach confidential documents
+
+Do not use this product to crack PDF passwords. Decrypt requires the password the user already has.
+
+Upstream BentoPDF security contacts remain with that project: https://github.com/alam00000/bentopdf
+
+---
+
+# Docker security notes (inherited)
 
 ## Non-Root User Support
 
-BentoPDF now uses nginx-unprivileged for enhanced security. This follows the Principle of Least Privilege and is essential for production environments.
+BentoPDF (and this fork) can use nginx-unprivileged for enhanced security. This follows the Principle of Least Privilege and is essential for production environments.
 
 ### Security Benefits
 
