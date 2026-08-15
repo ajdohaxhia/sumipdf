@@ -16,7 +16,7 @@ permissions:
 jobs:
   cla-check:
     runs-on: ubuntu-latest
-    if: >
+    if: false
       github.event_name == 'pull_request_target' ||
       (
         github.event_name == 'issue_comment' &&

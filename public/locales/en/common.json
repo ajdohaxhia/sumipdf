@@ -6,6 +6,11 @@
     "licensing": "Licensing",
     "allTools": "All Tools",
     "docs": "Docs",
+    "tools": "Tools",
+    "workflows": "Workflows",
+    "privacy": "Privacy",
+    "source": "Open source",
+    "localBadge": "Processed on this device",
     "openMainMenu": "Open main menu",
     "language": "Language",
     "searchLanguage": "Search language…",
@@ -19,10 +24,13 @@
     "title": "The",
     "pdfToolkit": "PDF Toolkit",
     "builtForPrivacy": "built for privacy",
-    "noSignups": "No Signups",
-    "unlimitedUse": "Unlimited Use",
-    "worksOffline": "Works Offline",
-    "startUsing": "Start Using Now"
+    "noSignups": "No account",
+    "unlimitedUse": "No artificial limits",
+    "worksOffline": "Works offline after engines are cached",
+    "startUsing": "Choose files",
+    "kicker": "Client-side PDF workspace",
+    "headline": "Powerful PDF tools. Your files stay on your device.",
+    "support": "No account. No artificial limits. No document uploads."
   },
   "usedBy": {
     "title": "Used by companies and people working at"
@@ -58,13 +66,17 @@
   "tools": {
     "title": "Get Started with",
     "toolsLabel": "Tools",
-    "subtitle": "Click a tool to open the file uploader",
+    "subtitle": "Click a tool to open the file chooser",
     "searchPlaceholder": "Search for a tool (e.g., 'split', 'organize'...)",
     "backToTools": "Back to Tools",
-    "firstLoadNotice": "First load takes a moment as we download our conversion engine. After that, all loads will be instant."
+    "firstLoadNotice": "First load takes a moment as we download our conversion engine. After that, all loads will be instant.",
+    "catalogTitle": "All tools",
+    "catalogSubtitle": "Search or browse. Engines load only when you open a tool.",
+    "recent": "Recent tools"
   },
   "upload": {
-    "clickToSelect": "Click to select a file",
+    "clickToSelect": "Choose files",
+    "chooseFiles": "Choose files",
     "orDragAndDrop": "or drag and drop",
     "pdfOrImages": "PDFs or Images",
     "filesNeverLeave": "Your files never leave your device.",
@@ -216,7 +228,7 @@
     },
     "analytics": {
       "question": "Do you use cookies or analytics to track me?",
-      "answer": "We care about your privacy. BentoPDF does not track personal information. We use Simple Analytics solely to see anonymous visit counts. This means we can know how many users visit our site, but we never know who you are. Simple Analytics is fully GDPR-compliant and respects your privacy."
+      "answer": "Sumi PDF does not include an analytics SDK. Preferences such as language and theme stay in your browser. Documents, filenames, and processing parameters are not sent to analytics, logs, or third-party services."
     }
   },
   "testimonials": {
@@ -230,16 +242,23 @@
     "buyMeCoffee": "Buy Me a Coffee"
   },
   "footer": {
-    "copyright": "© 2026 BentoPDF. All rights reserved.",
+    "copyright": "© 2026 Adelajdo Haxhiaj. BentoPDF remains © its contributors under AGPL-3.0.",
     "version": "Version",
     "company": "Company",
-    "aboutUs": "About Us",
+    "aboutUs": "About",
     "faqLink": "FAQ",
-    "contactUs": "Contact Us",
+    "contactUs": "Contact",
     "legal": "Legal",
-    "termsAndConditions": "Terms and Conditions",
-    "privacyPolicy": "Privacy Policy",
-    "followUs": "Follow Us"
+    "termsAndConditions": "Terms",
+    "privacyPolicy": "Privacy",
+    "followUs": "Follow",
+    "credit": "Sumi PDF is an open-source project by Adelajdo Haxhiaj, built on BentoPDF.",
+    "product": "Product",
+    "accessibility": "Accessibility",
+    "advanced": "Engine settings",
+    "openSource": "Open source",
+    "sourceCode": "Source code",
+    "upstream": "BentoPDF upstream"
   },
   "merge": {
     "title": "Merge PDFs",
@@ -383,5 +402,49 @@
     "heading": "This tool has been disabled",
     "message": "This tool is not available in your deployment. Contact your administrator for more information.",
     "backHome": "Back to Home"
+  },
+  "command": {
+    "title": "Search tools",
+    "open": "Search tools",
+    "hint": "Type to find a tool. Esc to close.",
+    "empty": "Start typing a tool name",
+    "none": "No tools match"
+  },
+  "workspace": {
+    "title": "Local workspace",
+    "clear": "Clear workspace",
+    "remove": "Remove",
+    "continue": "Continue with another tool",
+    "continueHint": "Results stay in the local workspace. Nothing is uploaded."
+  },
+  "recipes": {
+    "title": "Workflow recipes",
+    "lead": "Saved sequences you can inspect before they run. Recipes never include your documents."
+  },
+  "privacy": {
+    "homeTitle": "Privacy, stated precisely",
+    "homeBody": "Merge, compress, organize, and most edits happen in this browser tab. Some tools fetch versioned engine files (WASM) from a CDN unless you self-host them. Those requests are application code, not your PDFs. There is no account and no analytics SDK.",
+    "readMore": "Read the privacy page"
+  },
+  "opensource": {
+    "homeTitle": "Open source",
+    "homeBody": "Sumi PDF is AGPL-3.0 software derived from BentoPDF. The modified source is public. BentoPDF remains the work of its authors and contributors."
+  },
+  "suggest": {
+    "title": "Suggested next steps",
+    "note": "Suggestions never run automatically. Choose a tool to continue.",
+    "multiplePdfs": "Several PDFs — merge them or run a workflow.",
+    "workflow": "Chain several steps without re-selecting files.",
+    "onePdfOrganize": "Reorder, rotate, or remove pages.",
+    "onePdfCompress": "Reduce size before sending.",
+    "onePdfSign": "Add a visual signature.",
+    "onePdfSanitize": "Inspect and remove hidden data.",
+    "images": "Combine images into a single PDF."
+  },
+  "quick": {
+    "merge": "Combine PDFs, keep bookmarks when possible.",
+    "compress": "Honest size reduction. Not every file shrinks.",
+    "organize": "Reorder, rotate, and delete pages.",
+    "sign": "Visual signature — not a digital certificate."
   }
 }

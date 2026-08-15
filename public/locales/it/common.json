@@ -6,6 +6,11 @@
     "licensing": "Licenze",
     "allTools": "Tutti gli strumenti",
     "docs": "Docs",
+    "tools": "Strumenti",
+    "workflows": "Flussi",
+    "privacy": "Privacy",
+    "source": "Codice sorgente",
+    "localBadge": "Elaborato su questo dispositivo",
     "openMainMenu": "Apri il menu principale",
     "language": "Lingua",
     "searchLanguage": "Cerca lingua…",
@@ -19,10 +24,13 @@
     "title": "Il",
     "pdfToolkit": "kit di strumenti PDF",
     "builtForPrivacy": "pensato per la privacy",
-    "noSignups": "Nessuna registrazione",
-    "unlimitedUse": "Uso illimitato",
-    "worksOffline": "Funziona offline",
-    "startUsing": "Inizia a usarlo ora"
+    "noSignups": "Nessun account",
+    "unlimitedUse": "Nessun limite artificiale",
+    "worksOffline": "Funziona offline dopo la cache dei motori",
+    "startUsing": "Scegli i file",
+    "kicker": "Area di lavoro PDF sul dispositivo",
+    "headline": "Strumenti PDF potenti. I file restano sul tuo dispositivo.",
+    "support": "Nessun account. Nessun limite artificiale. Nessun caricamento di documenti."
   },
   "usedBy": {
     "title": "Usato da aziende e persone che lavorano in"
@@ -64,7 +72,8 @@
     "firstLoadNotice": "Il primo caricamento richiede qualche istante mentre scarichiamo il motore di conversione. Dopo di ciò, tutti i caricamenti saranno immediati."
   },
   "upload": {
-    "clickToSelect": "Clicca per selezionare un file",
+    "clickToSelect": "Scegli i file",
+    "chooseFiles": "Scegli i file",
     "orDragAndDrop": "oppure trascina e rilascia",
     "pdfOrImages": "PDF o immagini",
     "filesNeverLeave": "I tuoi file non lasciano mai il tuo dispositivo.",
@@ -216,7 +225,7 @@
     },
     "analytics": {
       "question": "Usate cookie o analytics per tracciarmi?",
-      "answer": "Ci teniamo alla tua privacy. BentoPDF non traccia informazioni personali. Usiamo Simple Analytics solo per visualizzare conteggi di visite anonime. Questo significa che possiamo sapere quante persone visitano il sito, ma non chi sei. Simple Analytics è pienamente conforme al GDPR e rispetta la tua privacy."
+      "answer": "Sumi PDF non include SDK di analisi. Lingua e tema restano nel browser. Documenti, nomi file e parametri di elaborazione non vengono inviati ad analytics, log o servizi di terzi."
     }
   },
   "testimonials": {
@@ -230,16 +239,23 @@
     "buyMeCoffee": "Offrimi un caffè"
   },
   "footer": {
-    "copyright": "© 2026 BentoPDF. Tutti i diritti riservati.",
+    "copyright": "© 2026 Adelajdo Haxhiaj. BentoPDF resta © dei suoi contributori, AGPL-3.0.",
     "version": "Versione",
     "company": "Azienda",
     "aboutUs": "Chi siamo",
     "faqLink": "FAQ",
-    "contactUs": "Contattaci",
+    "contactUs": "Contatti",
     "legal": "Legale",
-    "termsAndConditions": "Termini e condizioni",
-    "privacyPolicy": "Informativa sulla privacy",
-    "followUs": "Seguici"
+    "termsAndConditions": "Termini",
+    "privacyPolicy": "Privacy",
+    "followUs": "Seguici",
+    "credit": "Sumi PDF è un progetto open source di Adelajdo Haxhiaj, basato su BentoPDF.",
+    "product": "Prodotto",
+    "accessibility": "Accessibilità",
+    "advanced": "Impostazioni motori",
+    "openSource": "Open source",
+    "sourceCode": "Codice sorgente",
+    "upstream": "BentoPDF upstream"
   },
   "merge": {
     "title": "Unisci PDF",
@@ -383,5 +399,49 @@
     "heading": "Questo strumento è stato disabilitato",
     "message": "Questo strumento non è disponibile nella tua distribuzione. Contatta il tuo amministratore per ulteriori informazioni.",
     "backHome": "Torna alla Home"
+  },
+  "command": {
+    "title": "Cerca strumenti",
+    "open": "Cerca strumenti",
+    "hint": "Scrivi per trovare uno strumento. Esc per chiudere.",
+    "empty": "Inizia a scrivere il nome di uno strumento",
+    "none": "Nessuno strumento corrisponde"
+  },
+  "workspace": {
+    "title": "Area di lavoro locale",
+    "clear": "Svuota l'area di lavoro",
+    "remove": "Rimuovi",
+    "continue": "Continua con un altro strumento",
+    "continueHint": "I risultati restano nell'area di lavoro locale. Nulla viene caricato."
+  },
+  "recipes": {
+    "title": "Ricette di flusso",
+    "lead": "Sequenze salvate da ispezionare prima dell'esecuzione. Le ricette non includono i documenti."
+  },
+  "privacy": {
+    "homeTitle": "Privacy, detta con precisione",
+    "homeBody": "Unisci, comprimi, organizza: la maggior parte delle modifiche avviene in questa scheda del browser. Alcuni strumenti scaricano motori WASM da una CDN se non li ospiti tu. Quelle richieste sono codice dell'applicazione, non i tuoi PDF. Non c'è account né SDK di analisi.",
+    "readMore": "Leggi la pagina privacy"
+  },
+  "opensource": {
+    "homeTitle": "Open source",
+    "homeBody": "Sumi PDF è software AGPL-3.0 derivato da BentoPDF. Il codice modificato è pubblico. BentoPDF resta opera dei suoi autori e contributori."
+  },
+  "suggest": {
+    "title": "Passi successivi suggeriti",
+    "note": "I suggerimenti non partono da soli. Scegli uno strumento per continuare.",
+    "multiplePdfs": "Più PDF: uniscili o avvia un flusso.",
+    "workflow": "Collega più passaggi senza riselezionare i file.",
+    "onePdfOrganize": "Riordina, ruota o rimuovi pagine.",
+    "onePdfCompress": "Riduci le dimensioni prima di inviare.",
+    "onePdfSign": "Aggiungi una firma visiva.",
+    "onePdfSanitize": "Ispeziona e rimuovi dati nascosti.",
+    "images": "Unisci le immagini in un PDF."
+  },
+  "quick": {
+    "merge": "Unisci PDF, conservando i segnalibri quando possibile.",
+    "compress": "Riduzione onesta. Non ogni file si rimpicciolisce.",
+    "organize": "Riordina, ruota ed elimina pagine.",
+    "sign": "Firma visiva — non un certificato digitale."
   }
 }

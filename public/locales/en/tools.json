@@ -8,7 +8,15 @@
     "optimizeRepair": "Optimize & Repair",
     "securePdf": "Secure PDF",
     "input": "Input",
-    "output": "Output"
+    "output": "Output",
+    "organize": "Organize",
+    "edit": "Edit",
+    "scanOcr": "Scan & OCR",
+    "compressOptimize": "Compress & optimize",
+    "protectSanitize": "Protect & sanitize",
+    "signValidate": "Sign & validate",
+    "printPrepare": "Print & prepare",
+    "automate": "Automate"
   },
   "convertToPdf": "Convert to PDF",
   "pdfMultiTool": {
@@ -643,6 +651,10 @@
   "sanitizePdf": {
     "name": "Sanitize PDF",
     "subtitle": "Remove metadata, annotations, scripts, and more."
+  },
+  "redactPdf": {
+    "name": "Redact PDF",
+    "subtitle": "Permanently remove matching text. A black box is not redaction."
   },
   "decryptPdf": {
     "name": "Decrypt PDF",

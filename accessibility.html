@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accessibility — Sumi PDF</title>
+    <meta
+      name="description"
+      content="Sumi PDF aims for WCAG 2.2 AA on the application interface: keyboard access, focus, contrast, and reduced motion."
+    />
+    <link rel="canonical" href="{{siteUrl}}/accessibility" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link href="src/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="antialiased">
+    {{> navbar }}
+    <main class="max-w-3xl mx-auto px-4 py-12">
+      <h1 class="text-4xl font-serif mb-6">Accessibility</h1>
+      <p class="mb-4">
+        Sumi PDF targets WCAG 2.2 AA for the application chrome: home, search,
+        tool pages, and the workflow builder. PDF documents themselves may be
+        inaccessible; the tools cannot invent structure that a file does not
+        have.
+      </p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>Visible focus and skip-capable landmarks</li>
+        <li>Keyboard access to search (Control/Command+K)</li>
+        <li>Language and theme controls with accessible names</li>
+        <li><code>prefers-reduced-motion</code> is honored</li>
+        <li>Status text is announced through an aria-live region</li>
+      </ul>
+      <p class="mt-6">
+        Report interface barriers via GitHub issues on
+        <a href="{{repoUrl}}">the source repository</a>. Do not attach
+        confidential PDFs.
+      </p>
+    </main>
+    {{> footer }}
+    <script type="module" src="src/js/main.ts"></script>
+    <script type="module" src="src/js/mobileMenu.ts"></script>
+  </body>
+</html>

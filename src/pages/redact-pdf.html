@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redact PDF — permanently remove text | Sumi PDF</title>
+    <meta
+      name="description"
+      content="Permanently remove matching text from a PDF in the browser using the redaction engine. Drawing a black rectangle is not redaction."
+    />
+    <meta name="author" content="Sumi PDF" />
+    <link rel="canonical" href="{{siteUrl}}/redact-pdf" />
+    <meta property="og:title" content="Redact PDF | Sumi PDF" />
+    <meta property="og:image" content="{{siteUrl}}/images/og-default.png" />
+    <meta property="og:site_name" content="Sumi PDF" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link href="/src/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="antialiased">
+    {{> navbar }}
+    <main class="max-w-3xl mx-auto px-4 py-10">
+      <p class="text-sm mb-4"><a href="index.html">Home</a> / Redact PDF</p>
+      <h1 class="text-3xl font-serif mb-2">Redact PDF</h1>
+      <p class="sumi-status mb-4">Processed on this device</p>
+      <p class="mb-6 text-[color:var(--sumi-ash)]">
+        This tool searches for exact text and runs the PyMuPDF redaction APIs so
+        the content is removed from the file, not merely covered. A black box
+        drawn in the editor is not the same thing.
+      </p>
+      <div id="drop-zone" class="sumi-drop">
+        <strong>Choose a PDF</strong>
+        <p>Files are not uploaded to an application server.</p>
+        <input id="file-input" type="file" accept="application/pdf" />
+      </div>
+      <p id="file-label" class="mt-3 text-sm"></p>
+      <label class="block mt-6 text-sm" for="redact-text">Text to remove</label>
+      <input
+        id="redact-text"
+        class="w-full border mt-1 px-3 py-2"
+        type="text"
+        autocomplete="off"
+      />
+      <button
+        id="redact-btn"
+        type="button"
+        class="mt-4 px-4 py-2 bg-indigo-600 text-white"
+      >
+        Redact and download
+      </button>
+      <pre id="redact-report" class="mt-6 text-sm whitespace-pre-wrap"></pre>
+    </main>
+    {{> footer }}
+    <div
+      id="loader-modal"
+      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    >
+      <div class="bg-paper border p-6">
+        <p id="loader-text">Working…</p>
+      </div>
+    </div>
+    <div
+      id="alert-modal"
+      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    >
+      <div class="bg-paper max-w-sm w-full p-6 border">
+        <h3 id="alert-title"></h3>
+        <p id="alert-message" class="whitespace-pre-line mt-2"></p>
+        <button id="alert-ok" type="button" class="mt-4 px-4 py-2 border">
+          OK
+        </button>
+      </div>
+    </div>
+    {{> settings-modal }} {{> warning-modal }}
+    <script type="module" src="/src/js/utils/lucide-init.ts"></script>
+    <script type="module" src="/src/js/main.ts"></script>
+    <script type="module" src="/src/js/mobileMenu.ts"></script>
+    <script type="module" src="/src/js/logic/redact-pdf-page.ts"></script>
+  </body>
+</html>

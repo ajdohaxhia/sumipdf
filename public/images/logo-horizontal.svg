@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 32" role="img" aria-label="Sumi PDF">
+  <title>Sumi PDF</title>
+  <g transform="translate(0,0)">
+    <rect x="5" y="3.5" width="16" height="21" rx="1.2" fill="none" stroke="#11110F" stroke-width="1.4"/>
+    <rect x="11" y="7.5" width="16" height="21" rx="1.2" fill="#F5F1E8" stroke="#11110F" stroke-width="1.4"/>
+    <path d="M27 7.5v5.2h-5.2z" fill="#11110F"/>
+    <path d="M12.2 11.2c3.4 0 5.2 1.6 5.2 4.1 0 4.8-8.2 3.2-8.2 8.2 0 2.8 2.4 4.6 6.1 4.6" fill="none" stroke="#E24A30" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+  <text x="40" y="22" font-family="Georgia, 'Source Serif 4', serif" font-size="18" fill="#11110F">Sumi</text>
+  <text x="92" y="22" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="600" letter-spacing="0.16em" fill="#6E6A63">PDF</text>
+</svg>

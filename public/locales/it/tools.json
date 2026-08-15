@@ -8,7 +8,15 @@
     "optimizeRepair": "Ottimizza e Ripara",
     "securePdf": "Proteggi PDF",
     "input": "Input",
-    "output": "Output"
+    "output": "Output",
+    "organize": "Organizza",
+    "edit": "Modifica",
+    "scanOcr": "Scansione e OCR",
+    "compressOptimize": "Comprimi e ottimizza",
+    "protectSanitize": "Proteggi e sanifica",
+    "signValidate": "Firma e convalida",
+    "printPrepare": "Stampa e prepara",
+    "automate": "Automatizza"
   },
   "convertToPdf": "Converti in PDF",
   "pdfMultiTool": {
@@ -641,6 +649,10 @@
   "sanitizePdf": {
     "name": "Sanitizza PDF",
     "subtitle": "Rimuovi metadati, annotazioni, script e altro."
+  },
+  "redactPdf": {
+    "name": "Redazione PDF",
+    "subtitle": "Rimuovi permanentemente il testo corrispondente. Un riquadro nero non è una redazione."
   },
   "decryptPdf": {
     "name": "Decrittografa PDF",
