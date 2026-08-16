@@ -488,11 +488,13 @@ function renderPreview(host: HTMLElement): void {
   grid.append(left, right);
   host.append(grid);
   if (!item) return;
-  void fileBytes(item.blob).then((bytes) =>
-    renderPdfPage(bytes, 1, canvasA).catch(() => undefined)
-  );
+  void fileBytes(item.blob).then((bytes) => {
+    void renderPdfPage(bytes, 1, canvasA).catch((): undefined => undefined);
+  });
   if (ctl.previewBytes) {
-    void renderPdfPage(ctl.previewBytes, 1, canvasB).catch(() => undefined);
+    void renderPdfPage(ctl.previewBytes, 1, canvasB).catch(
+      (): undefined => undefined
+    );
   } else {
     right.append(
       el('p', 'sumi-ws__hedge', 'Run Preview to project the flow in memory.')
@@ -829,19 +831,23 @@ export function getWorkspaceCommands(): Array<{
       id: 'execute',
       label: 'Execute flow',
       group: 'Flow',
-      run: () => void runExecute(),
+      run: (): void => {
+        void runExecute();
+      },
     },
     ...SUMI_RECIPES.map((recipe) => ({
       id: `recipe-${recipe.id}`,
       label: `Recipe: ${recipe.name}`,
       group: 'Recipes',
-      run: () => ctl.loadRecipe(recipe.id),
+      run: (): void => {
+        ctl.loadRecipe(recipe.id);
+      },
     })),
     ...FLOW_OPS.map((op) => ({
       id: `op-${op.id}`,
       label: `Add ${op.name}`,
       group: 'Operations',
-      run: () => {
+      run: (): void => {
         ctl.flow.addStep(op.id);
         ctl.setPane('flow');
       },

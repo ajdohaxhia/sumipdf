@@ -448,7 +448,7 @@ export async function executeFlow(
       const bytesIn = current.byteLength;
       try {
         const result = await runStep(step, current, options);
-        current = result.bytes;
+        current = new Uint8Array(result.bytes);
         steps.push({
           stepId: step.id,
           op: step.op,

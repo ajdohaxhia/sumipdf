@@ -8,6 +8,8 @@ export {
 } from './patterns';
 export { groupHits, hitsForSelection } from './group';
 export { applyPrivacyRedaction } from './redact';
+export { validateCustomRegex, matchCustomRegex } from './regex-safe';
+export { runCustomRegexInWorker } from './regex-runner';
 export type {
   PrivacyHit,
   PrivacyGroup,

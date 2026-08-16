@@ -37,8 +37,10 @@ export interface PrivacyGroup {
 
 export interface PrivacyScanOptions {
   customTerms?: string[];
+  customRegexes?: string[];
   includeOcr?: boolean;
   excludedValues?: string[];
+  signal?: AbortSignal;
 }
 
 export interface PrivacyScanResult {

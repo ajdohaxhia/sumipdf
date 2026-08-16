@@ -10,7 +10,7 @@ import { brand } from '../config/brand';
 import { initWorkspaceEntrance, mountWorkspaceApp } from '../ui/workspace-app';
 import { paneFromLocation } from '../workspace/controller';
 import { hidePolarStorefront } from '../workspace/adapters';
-import '../css/styles.css';
+import '../../css/styles.css';
 import { createIcons, icons } from 'lucide';
 
 const init = async () => {

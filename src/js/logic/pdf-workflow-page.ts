@@ -47,7 +47,11 @@ import {
 } from '@/js/workflow/serialization';
 import { recipeById } from '@/js/workflow/recipes';
 import { preflightErrors, summarizeWorkflow } from '@/js/workflow/preflight';
-import { renderWorkflowList, swapLinearSteps, isLinearPipeline } from '@/js/workflow/list-editor';
+import {
+  renderWorkflowList,
+  swapLinearSteps,
+  isLinearPipeline,
+} from '@/js/workflow/list-editor';
 import { getAvailableTesseractLanguageEntries } from '@/js/utils/tesseract-language-availability.js';
 import { isToolDisabled } from '@/js/utils/disabled-tools.js';
 import { IMAGE_ACCEPT } from '@/js/utils/image-input-utils.js';
@@ -347,9 +351,11 @@ async function initializePage() {
   }) as EventListener;
   document.addEventListener('wf-delete-node', deleteNodeHandler);
 
-  const recipeId = new URLSearchParams(window.location.search).get('recipe');
-  if (recipeId) {
-    const recipe = recipeById(recipeId);
+  const recipeFromQuery = new URLSearchParams(window.location.search).get(
+    'recipe'
+  );
+  if (recipeFromQuery) {
+    const recipe = recipeById(recipeFromQuery);
     if (recipe) {
       await deserializeWorkflow(recipe.workflow, editor, area);
       updateNodeCount();

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument, PDFDict, PDFName, StandardFonts } from 'pdf-lib';
 import {
   applyTransform,
   fillBatch,
@@ -10,11 +10,14 @@ import {
   PACKET_TEMPLATES,
   buildPacket,
   packetWarnings,
+  planTocPageCount,
 } from '@/js/sumi/packet-builder';
 import { receiptFromProof, verifyProofReceipt } from '@/js/sumi/proof';
 import { executeFlow } from '@/js/flow/executor';
 import { FlowStack } from '@/js/flow/stack';
 import { buildProofReport } from '@/js/proof/receipt';
+import { documentTextFromStreams } from '@/js/sumi/shared/text';
+import { loadPdf } from '@/js/sumi/shared/pdf';
 
 async function formTemplate(): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
@@ -26,6 +29,14 @@ async function formTemplate(): Promise<Uint8Array> {
   field.addToPage(page, { x: 40, y: 360, width: 200, height: 20 });
   const box = form.createCheckBox('Agree');
   box.addToPage(page, { x: 40, y: 320, width: 12, height: 12 });
+  return doc.save();
+}
+
+async function labeledPdf(label: string): Promise<Uint8Array> {
+  const doc = await PDFDocument.create();
+  const page = doc.addPage([400, 500]);
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  page.drawText(label, { x: 40, y: 400, size: 14, font });
   return doc.save();
 }
 
@@ -57,34 +68,80 @@ describe('Batch Form Studio', () => {
 });
 
 describe('Packet Builder', () => {
-  it('warns on missing required slots and builds a merged packet', async () => {
+  it('warns on missing required slots and builds a packet with real TOC pages', async () => {
     expect(PACKET_TEMPLATES.every((t) => t.legalClaim === false)).toBe(true);
-    const doc = await PDFDocument.create();
-    const page = doc.addPage([400, 500]);
-    const font = await doc.embedFont(StandardFonts.Helvetica);
-    page.drawText('Slot document', { x: 40, y: 400, size: 14, font });
-    const one = await doc.save();
+    expect(planTocPageCount(40)).toBeGreaterThan(1);
+
+    const idPdf = await labeledPdf('Identity document body');
+    const cvPdf = await labeledPdf('Curriculum vitae body');
+    const incomplete = PACKET_TEMPLATES[0].slots.map((slot) => ({
+      ...slot,
+      bytes: undefined as Uint8Array | undefined,
+      fileName: undefined as string | undefined,
+    }));
+    expect(packetWarnings(incomplete).some((w) => w.level === 'missing')).toBe(
+      true
+    );
+
     const slots = PACKET_TEMPLATES[0].slots.map((slot, i) => ({
       ...slot,
-      bytes: i === 1 ? one : undefined,
-      fileName: i === 1 ? 'id.pdf' : undefined,
+      bytes: i === 1 ? idPdf : i === 2 ? cvPdf : undefined,
+      fileName: i === 1 ? 'id.pdf' : i === 2 ? 'cv.pdf' : undefined,
     }));
-    const warnings = packetWarnings(slots);
-    expect(warnings.some((w) => w.level === 'missing')).toBe(true);
-    slots[2].bytes = one;
-    slots[2].fileName = 'cv.pdf';
+
     const built = await buildPacket(slots, {
-      normalize: true,
-      compress: true,
+      normalize: false,
+      compress: false,
       coverTitle: 'Application',
       separators: true,
       bookmarks: true,
       toc: true,
-      pageNumbers: true,
-      cleanMetadata: true,
+      pageNumbers: false,
+      cleanMetadata: false,
     });
     expect(built.bytes.byteLength).toBeGreaterThan(100);
-    expect(built.notes.join(' ')).toMatch(/not legal/i);
+    expect(built.notes.join(' ')).toMatch(/table of contents/i);
+    expect(built.notes.join(' ')).not.toMatch(/was not generated/i);
+
+    const doc = await loadPdf(built.bytes);
+    expect(doc.getPageCount()).toBeGreaterThan(4);
+    expect(doc.catalog.has(PDFName.of('Outlines'))).toBe(true);
+
+    const texts = documentTextFromStreams(doc);
+    const joined = texts.join('\n');
+    expect(joined).toMatch(/Table of Contents/i);
+    expect(joined).toMatch(/Identity|Curriculum|CV|Resume|Document/i);
+
+    // TOC page(s) should appear after the cover.
+    expect(texts[1] || texts[0]).toMatch(/Table of Contents/i);
+  });
+
+  it('produces more than one TOC page for many sections', async () => {
+    const slots = [];
+    for (let i = 0; i < 45; i++) {
+      slots.push({
+        id: `s${i}`,
+        label: `Section title number ${i} for wrapping checks`,
+        required: false,
+        bytes: await labeledPdf(`Body ${i}`),
+        fileName: `s${i}.pdf`,
+      });
+    }
+    expect(planTocPageCount(slots.length)).toBeGreaterThan(1);
+    const built = await buildPacket(slots, {
+      normalize: false,
+      compress: false,
+      coverTitle: 'Long packet',
+      separators: false,
+      bookmarks: true,
+      toc: true,
+      pageNumbers: false,
+      cleanMetadata: false,
+    });
+    const doc = await loadPdf(built.bytes);
+    const texts = documentTextFromStreams(doc);
+    const tocPages = texts.filter((t) => /Table of Contents/i.test(t));
+    expect(tocPages.length).toBeGreaterThan(1);
   });
 });
 

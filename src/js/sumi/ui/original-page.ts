@@ -293,11 +293,13 @@ async function runPrivacy(
     await import('../privacy-finder/index.js');
   const bytes = await bytesOf(file);
   let custom: string[] = [];
+  let customRegexes: string[] = [];
   let excluded: string[] = [];
   const render = async () => {
     body.textContent = '';
     const result = await scanPrivacy(bytes, {
       customTerms: custom,
+      customRegexes,
       excludedValues: excluded,
     });
     status.textContent = `${result.hits.length} hit(s) on the text layer. OCR was not used.`;
@@ -332,6 +334,25 @@ async function runPrivacy(
     addTerm.type = 'button';
     addTerm.addEventListener('click', () => {
       if (term.value.trim()) custom = [...custom, term.value.trim()];
+      void render();
+    });
+    const regexInput = el('input') as HTMLInputElement;
+    regexInput.placeholder = 'Bounded custom regex';
+    const addRegex = el(
+      'button',
+      'sumi-btn sumi-btn--small',
+      'Add regex & rescan'
+    );
+    addRegex.type = 'button';
+    addRegex.addEventListener('click', async () => {
+      const { validateCustomRegex } =
+        await import('../privacy-finder/index.js');
+      const check = validateCustomRegex(regexInput.value);
+      if (check.ok === false) {
+        status.textContent = check.reason;
+        return;
+      }
+      customRegexes = [...customRegexes, regexInput.value.trim()];
       void render();
     });
     const exclude = el('input') as HTMLInputElement;
@@ -369,7 +390,15 @@ async function runPrivacy(
     };
     cover.addEventListener('click', () => void apply('cover'));
     redact.addEventListener('click', () => void apply('true'));
-    body.append(term, addTerm, exclude, addEx, el('div', 'sumi-flow__run'));
+    body.append(
+      term,
+      addTerm,
+      regexInput,
+      addRegex,
+      exclude,
+      addEx,
+      el('div', 'sumi-flow__run')
+    );
     body.lastElementChild?.append(cover, redact);
   };
   await render();
@@ -380,10 +409,18 @@ async function runSplit(
   body: HTMLElement,
   status: HTMLElement
 ): Promise<void> {
-  const { collectPageSignals, planSplit, executeSplitPlan } =
-    await import('../smart-split/index.js');
+  const {
+    collectPageSignals,
+    planSplit,
+    executeSplitPlan,
+    scanPdfBarcodes,
+    detectBarcodeEngines,
+  } = await import('../smart-split/index.js');
   const bytes = await bytesOf(file);
-  const signals = await collectPageSignals(bytes);
+  const engines = await detectBarcodeEngines();
+  status.textContent = engines.note;
+
+  let barcodeByPage: Array<{ page: number; value: string }> = [];
   const rule = el('select') as HTMLSelectElement;
   for (const value of [
     'page-count',
@@ -406,8 +443,40 @@ async function runSplit(
   const template = el('input') as HTMLInputElement;
   template.value = '{original}-{counter}-{pages}.pdf';
   const preview = el('div');
+  const scanBtn = el(
+    'button',
+    'sumi-btn sumi-btn--ghost',
+    'Scan pages for barcodes'
+  );
+  scanBtn.type = 'button';
+  scanBtn.addEventListener('click', async () => {
+    if (engines.unsupported) {
+      status.textContent = engines.note;
+      return;
+    }
+    status.textContent = 'Rendering pages and decoding barcodes locally…';
+    try {
+      const { hits } = await scanPdfBarcodes(bytes, {
+        onProgress: (p) => {
+          status.textContent = p.message;
+        },
+      });
+      barcodeByPage = hits.map((h) => ({ page: h.page, value: h.rawValue }));
+      status.textContent = hits.length
+        ? `Detected ${hits.length} barcode(s) with ${hits[0].engine}. Values stay on this device.`
+        : 'No barcodes detected on rendered pages.';
+      await draw();
+    } catch (error) {
+      status.textContent =
+        error instanceof Error ? error.message : 'Barcode scan failed.';
+    }
+  });
+
   const draw = async () => {
     preview.textContent = '';
+    const signals = await collectPageSignals(bytes, {
+      barcodes: barcodeByPage,
+    });
     const plan = planSplit(signals, {
       rule: rule.value as never,
       pageCount: Number(extra.value) || 1,
@@ -422,7 +491,7 @@ async function runSplit(
       preview,
       plan.groups.map((g) => ({
         title: g.filename + (g.collision ? ' (collision renamed)' : ''),
-        body: `Pages ${g.rangeLabel} · ${g.rule}`,
+        body: `Pages ${g.rangeLabel} · ${g.rule}${g.barcode ? ` · ${g.barcode}` : ''}`,
       }))
     );
     const go = el('button', 'sumi-btn sumi-btn--signal', 'Download ZIP');
@@ -440,7 +509,14 @@ async function runSplit(
   rule.addEventListener('change', () => void draw());
   extra.addEventListener('change', () => void draw());
   template.addEventListener('change', () => void draw());
-  body.append(el('label', undefined, 'Rule'), rule, extra, template, preview);
+  body.append(
+    el('label', undefined, 'Rule'),
+    rule,
+    extra,
+    template,
+    scanBtn,
+    preview
+  );
   await draw();
 }
 

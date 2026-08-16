@@ -1,4 +1,6 @@
 // No leading \b: content streams often glue tokens (`SECRETMAIL_ada@…`).
+import { matchCustomRegex, validateCustomRegex } from './regex-safe';
+
 const EMAIL = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const URL =
   /\bhttps?:\/\/[^\s<>"'()]+|\bwww\.[^\s<>"'()]+\.[A-Z]{2,}[^\s<>"'()]*/gi;
@@ -203,7 +205,9 @@ function collect(re: RegExp, text: string): RegExpExecArray[] {
 
 export function findPatterns(
   text: string,
-  customTerms: string[] = []
+  customTerms: string[] = [],
+  customRegexes: string[] = [],
+  signal?: AbortSignal
 ): PatternMatch[] {
   const out: PatternMatch[] = [];
 
@@ -349,6 +353,19 @@ export function findPatterns(
         confidence: 'high',
       });
       from = at + needle.length;
+    }
+  }
+  for (const source of customRegexes) {
+    const validated = validateCustomRegex(source);
+    if (!validated.ok) continue;
+    for (const hit of matchCustomRegex(text, source, signal)) {
+      pushUnique(out, {
+        kind: 'custom',
+        value: hit.value,
+        start: hit.start,
+        end: hit.end,
+        confidence: 'medium',
+      });
     }
   }
   return out.sort((a, b) => a.start - b.start || a.kind.localeCompare(b.kind));

@@ -30,7 +30,12 @@ export async function scanPrivacy(
   for (let i = 0; i < pages.length; i++) {
     const text = pages[i];
     if (!text.trim()) emptyTextPages.push(i + 1);
-    const matches = findPatterns(text, options.customTerms);
+    const matches = findPatterns(
+      text,
+      options.customTerms,
+      options.customRegexes,
+      options.signal
+    );
     for (const match of matches) {
       if (excluded.has(match.value.toLowerCase())) continue;
       id += 1;

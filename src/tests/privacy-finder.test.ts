@@ -63,6 +63,19 @@ describe('Privacy Finder patterns', () => {
     expect(kinds.has('custom')).toBe(true);
     expect(hits.find((h) => h.kind === 'iban')?.checksumOk).toBe(true);
   });
+
+  it('accepts bounded custom regex and rejects catastrophic patterns', async () => {
+    const { validateCustomRegex, findPatterns, matchCustomRegex } =
+      await import('@/js/sumi/privacy-finder');
+    expect(validateCustomRegex('(a+)+$').ok).toBe(false);
+    expect(validateCustomRegex('SECRET-[0-9]{2,4}').ok).toBe(true);
+    const direct = matchCustomRegex('code SECRET-42 here', 'SECRET-[0-9]{2,4}');
+    expect(direct.map((h) => h.value)).toEqual(['SECRET-42']);
+    const hits = findPatterns('code SECRET-42 here', [], ['SECRET-[0-9]{2,4}']);
+    expect(hits.map((h) => `${h.kind}:${h.value}`)).toContain(
+      'custom:SECRET-42'
+    );
+  });
 });
 
 describe('Privacy Finder redaction', () => {

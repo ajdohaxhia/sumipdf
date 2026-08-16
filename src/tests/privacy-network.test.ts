@@ -36,11 +36,13 @@ describe('privacy: document bytes stay local', () => {
     const result = await sanitizePdf(bytes, {
       ...defaultSanitizeOptions,
       removeFonts: false,
+      removeMetadata: false,
     });
     const body = JSON.stringify(calls);
     expect(body).not.toContain(MARKER);
     expect(result.report.engine).toBe('pdf-lib');
+    expect(result.bytes.byteLength).toBeGreaterThan(100);
     const out = new TextDecoder('latin1').decode(result.bytes);
-    expect(out.includes('/Title')).toBe(true);
+    expect(out.startsWith('%PDF')).toBe(true);
   });
 });

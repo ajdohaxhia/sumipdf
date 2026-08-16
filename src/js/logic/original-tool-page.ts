@@ -7,7 +7,7 @@ import {
   injectLanguageSwitcher,
 } from '../i18n/index';
 import { hidePolarStorefront } from '../workspace/adapters';
-import '../css/styles.css';
+import '../../css/styles.css';
 import { createIcons, icons } from 'lucide';
 
 const init = async () => {

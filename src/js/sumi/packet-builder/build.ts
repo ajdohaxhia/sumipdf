@@ -6,6 +6,7 @@ import {
   fixPageSize,
 } from '../../utils/pdf-operations';
 import { defaultSanitizeOptions, sanitizePdf } from '../../utils/sanitize';
+import { insertTableOfContents, mergeBodyWithMeasuredSections } from './toc';
 import type { PacketOptions, PacketSlot, PacketWarning } from './types';
 
 export function packetWarnings(slots: PacketSlot[]): PacketWarning[] {
@@ -85,17 +86,37 @@ export async function buildPacket(
   if (!filled.length) {
     throw new Error('Add at least one PDF to a slot.');
   }
-  const parts: Uint8Array[] = [];
   const notes: string[] = [
     'Packet Builder merges files in slot order on this device.',
     'Templates are not legal claims.',
   ];
-  if (options.coverTitle) parts.push(await coverPage(options.coverTitle));
-  for (const slot of filled) {
-    if (options.separators) parts.push(await separatorPage(slot.label));
-    parts.push(slot.bytes as Uint8Array);
+
+  const { bodyBytes, sections, coverPages } =
+    await mergeBodyWithMeasuredSections(filled, {
+      separators: Boolean(options.separators),
+      coverBytes: options.coverTitle
+        ? await coverPage(options.coverTitle)
+        : undefined,
+      separatorBytes: (label) => separatorPage(label),
+    });
+
+  let bytes = bodyBytes;
+
+  if (options.toc) {
+    const toc = await insertTableOfContents(bytes, sections, {
+      afterCoverPages: coverPages,
+    });
+    bytes = toc.bytes;
+    notes.push(...toc.notes);
+  } else if (options.bookmarks) {
+    // Bookmarks without a TOC page: still insert outlines via TOC helper with 0 visual pages?
+    // Use insert with toc that only writes outlines — reuse insert which always draws TOC pages.
+    // For bookmarks-only, call insert (creates TOC) only when toc is true; otherwise note:
+    notes.push(
+      'Outline bookmarks are generated when Table of Contents is enabled. Enable TOC for clickable outlines.'
+    );
   }
-  let bytes = await mergePdfs(parts);
+
   if (options.normalize) {
     bytes = await fixPageSize(bytes, {
       targetSize: 'A4',
@@ -112,13 +133,6 @@ export async function buildPacket(
       format: 'page_x_of_y',
       color: { r: 0.2, g: 0.2, b: 0.2 },
     });
-  }
-  if (options.bookmarks || options.toc) {
-    notes.push(
-      options.toc
-        ? 'A full TOC page was not generated; slot labels are recorded in Proof. Use Table of Contents on the merged file if you need a TOC page.'
-        : 'Outline bookmarks are best-effort. Slot order is the source of truth.'
-    );
   }
   if (options.cleanMetadata) {
     const cleaned = await sanitizePdf(bytes, {

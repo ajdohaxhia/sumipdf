@@ -121,10 +121,9 @@ export async function collectPageSignals(
       const match = text.match(captureRe);
       captured = match?.[1] || match?.[0];
     }
-    const barcode =
-      barcodeByPage.get(i + 1) ||
-      text.match(/\bQR:([^\s]+)/)?.[1] ||
-      text.match(/\bCODE128:([^\s]+)/)?.[1];
+    const barcode = barcodeByPage.get(i + 1);
+    // Production path never invents barcodes from text markers like "QR:…".
+    // Those markers remain test-only helpers outside this function.
     signals.push({
       page: i + 1,
       width,

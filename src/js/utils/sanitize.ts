@@ -551,10 +551,20 @@ function removeFontsFromDoc(pdfDoc: PDFDocument) {
   }
 }
 
+export type SanitizeReport = {
+  engine: 'pdf-lib';
+  items: Array<{
+    id: string;
+    requested: boolean;
+    status: 'attempted' | 'not-requested';
+  }>;
+  unverified: string[];
+};
+
 export async function sanitizePdf(
   pdfBytes: Uint8Array,
   options: SanitizeOptions
-): Promise<{ pdfDoc: PDFDocument; bytes: Uint8Array }> {
+): Promise<{ pdfDoc: PDFDocument; bytes: Uint8Array; report: SanitizeReport }> {
   const pdfDoc = await loadPdfDocument(pdfBytes);
 
   if (options.flattenForms) {
@@ -646,7 +656,9 @@ export async function sanitizePdf(
     items: (Object.keys(options) as (keyof SanitizeOptions)[]).map((key) => ({
       id: String(key),
       requested: Boolean(options[key]),
-      status: options[key] ? ('attempted' as const) : ('not-requested' as const),
+      status: options[key]
+        ? ('attempted' as const)
+        : ('not-requested' as const),
     })),
     unverified: [
       'Hidden text in raster images cannot be verified by this engine.',

@@ -85,7 +85,7 @@ export async function stripExtractableHits(
     let current = bytes.slice();
     for (const value of unique) {
       const result = await redactTextFromPdf(current, value);
-      current = result.bytes;
+      current = new Uint8Array(result.bytes);
     }
     return current;
   } catch {
