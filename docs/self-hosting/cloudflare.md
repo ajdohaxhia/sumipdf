@@ -1,154 +1,174 @@
-# Deploy to Cloudflare Pages
+# Deploy Sumi PDF to Cloudflare
 
-[Cloudflare Pages](https://pages.cloudflare.com) offers fast, global static site hosting with unlimited bandwidth.
+Sumi PDF is a **static multi-page app** (MPA). Prefer **Cloudflare Pages** for the site.
+Use a **Worker** only for the optional digital-signature certificate CORS proxy.
 
-## Quick Deploy
+Do **not** add an SPA fallback (`/* → /index.html`). Each tool is a real HTML file.
 
-1. Go to [Cloudflare Pages](https://dash.cloudflare.com/?to=/:account/pages)
-2. Click "Create a project"
-3. Connect your GitHub repository
+## Recommendation
 
-## Build Configuration
+| Piece                      | Product               | Why                                           |
+| -------------------------- | --------------------- | --------------------------------------------- |
+| App (`dist/`)              | **Cloudflare Pages**  | Static HTML/JS/WASM CDN hosting               |
+| Cert CORS proxy (optional) | **Cloudflare Worker** | Only needed for digital signature chain fetch |
+| Document processing        | Browser only          | PDFs never upload to Cloudflare               |
 
-| Setting                | Value           |
-| ---------------------- | --------------- |
-| Framework preset       | None            |
-| Build command          | `npm run build` |
-| Build output directory | `dist`          |
-| Root directory         | `/`             |
+## Prerequisites
 
-## Environment Variables
+- Node.js **≥ 20.19** (see `package.json` `engines`)
+- A Cloudflare account
+- Your production URL (custom domain or `*.pages.dev`)
 
-Add these in Settings → Environment variables:
+---
 
-| Variable                | Value                                      |
-| ----------------------- | ------------------------------------------ |
-| `NODE_VERSION`          | `18`                                       |
-| `SIMPLE_MODE`           | `false` (optional)                         |
-| `VITE_BRAND_NAME`       | Custom brand name (optional)               |
-| `VITE_BRAND_LOGO`       | Logo path relative to `public/` (optional) |
-| `VITE_FOOTER_TEXT`      | Custom footer/copyright text (optional)    |
-| `VITE_DEFAULT_LANGUAGE` | Default UI language, e.g. `fr` (optional)  |
+## Option A — Git-connected Pages (recommended)
 
-## Configuration File
-
-Create `_headers` in your `public` folder:
-
-```
-# Required security headers for SharedArrayBuffer (used by LibreOffice WASM)
-/*
-  Cross-Origin-Embedder-Policy: require-corp
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Resource-Policy: cross-origin
-
-# Pre-compressed LibreOffice WASM binary
-/libreoffice-wasm/soffice.wasm.gz
-  Content-Type: application/wasm
-  Content-Encoding: gzip
-  Cache-Control: public, max-age=31536000, immutable
-
-# Pre-compressed LibreOffice WASM data
-/libreoffice-wasm/soffice.data.gz
-  Content-Type: application/octet-stream
-  Content-Encoding: gzip
-  Cache-Control: public, max-age=31536000, immutable
-
-# Cache WASM files aggressively
-/*.wasm
-  Cache-Control: public, max-age=31536000, immutable
-  Content-Type: application/wasm
-
-# Service worker
-/sw.js
-  Cache-Control: no-cache
-```
-
-::: warning Important
-The `Cross-Origin-Embedder-Policy` and `Cross-Origin-Opener-Policy` headers are required for Word/ODT/Excel/PowerPoint to PDF conversions. Without them, `SharedArrayBuffer` is unavailable and the LibreOffice WASM engine will fail to initialize.
-:::
-
-Create `_redirects` for SPA routing:
-
-```
-/*    /index.html   200
-```
-
-## Custom Domain
-
-1. Go to your Pages project
-2. Click "Custom domains"
-3. Add your domain
-4. Cloudflare will auto-configure DNS if the domain is on Cloudflare
-
-## Advantages
-
-- **Free unlimited bandwidth**
-- **Global CDN** with 300+ edge locations
-- **Automatic HTTPS**
-- **Preview deployments** for pull requests
-- **Fast builds**
-
-## Troubleshooting
-
-### Large File Uploads
-
-Cloudflare Pages supports files up to 25 MB. WASM modules should be fine, but if you hit limits, consider:
+### 1. Push the branch
 
 ```bash
-# Split large files during build
-npm run build
+git push -u origin feat/sumi-pdf-1.0
 ```
 
-### Worker Size Limits
+Or merge to `main` if that is your production branch.
 
-If using Cloudflare Workers for advanced routing, note the 1 MB limit for free plans.
+### 2. Create the Pages project
 
-## CORS Proxy Worker (For Digital Signatures)
+1. Open [Cloudflare Dashboard → Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages)
+2. **Create** → **Pages** → **Connect to Git**
+3. Select the `sumipdf` repository
+4. Configure:
 
-The Digital Signature tool requires a CORS proxy to fetch certificate chains. Deploy the included worker:
+| Setting                | Value                         |
+| ---------------------- | ----------------------------- |
+| Framework preset       | **None** (or Vite)            |
+| Build command          | `npm run build`               |
+| Build output directory | `dist`                        |
+| Root directory         | `/`                           |
+| Production branch      | `main` or `feat/sumi-pdf-1.0` |
+
+### 3. Environment variables (Pages → Settings → Environment variables)
+
+Set for **Production** (and Preview if you want correct preview canonicals):
+
+| Variable                 | Required    | Example / notes                                                 |
+| ------------------------ | ----------- | --------------------------------------------------------------- |
+| `NODE_VERSION`           | Yes         | `20.19.0`                                                       |
+| `SITE_URL`               | Yes for SEO | `https://sumi.yourdomain.com`                                   |
+| `VITE_SITE_URL`          | Yes for SEO | Same as `SITE_URL`                                              |
+| `VITE_REPO_URL`          | Optional    | `https://github.com/ajdohaxhia/sumipdf`                         |
+| `VITE_BRAND_NAME`        | Optional    | `Sumi PDF`                                                      |
+| `VITE_USE_CDN`           | Recommended | `true` — loads large WASM from CDN; avoids Pages file-size pain |
+| `ENABLE_GITHUB_STARS`    | Optional    | leave empty / unset (privacy default)                           |
+| `VITE_CORS_PROXY_URL`    | Optional    | Worker URL after you deploy the CORS proxy                      |
+| `VITE_CORS_PROXY_SECRET` | Optional    | Only if you enable HMAC on the worker                           |
+
+`CF_PAGES`, `CF_PAGES_URL`, and `CF_PAGES_COMMIT_SHA` are injected automatically by Pages.
+
+### 4. Deploy
+
+Save → Cloudflare builds and publishes to `https://<project>.pages.dev`.
+
+### 5. Custom domain
+
+Pages project → **Custom domains** → add your domain. If the DNS zone is on Cloudflare, records are configured for you.
+
+---
+
+## Option B — Direct upload with Wrangler (CLI)
+
+Useful for one-off deploys from your machine without Git integration.
+
+```bash
+# 1. Install deps
+npm ci
+
+# 2. Build with your public URL
+export SITE_URL="https://sumi.yourdomain.com"
+export VITE_SITE_URL="$SITE_URL"
+export VITE_USE_CDN=true
+npm run build
+
+# 3. Log in (opens browser)
+npx wrangler login
+
+# 4. Deploy the dist folder
+npx wrangler pages deploy dist --project-name=sumi-pdf
+```
+
+Or use the npm script:
+
+```bash
+SITE_URL=https://sumi.yourdomain.com VITE_SITE_URL=https://sumi.yourdomain.com VITE_USE_CDN=true npm run deploy:pages
+```
+
+Root `wrangler.toml` sets `pages_build_output_dir = "dist"` and project name `sumi-pdf`.
+
+---
+
+## Required headers (already in the repo)
+
+`public/_headers` ships with:
+
+- `Cross-Origin-Opener-Policy: same-origin`
+- `Cross-Origin-Embedder-Policy: require-corp` (needed for `SharedArrayBuffer` / LibreOffice WASM)
+- WASM MIME + long cache for `/assets` and `*.wasm`
+- `Permissions-Policy: camera=(self)` so **Capture** can request the camera after a user gesture
+
+There is **no** `public/_redirects` SPA rule on purpose.
+
+---
+
+## Optional — Certificate CORS Worker
+
+Digital signature certificate fetching may need a tiny proxy. Documents never go through it.
 
 ```bash
 cd cloudflare
 npx wrangler login
-npx wrangler deploy
-```
 
-### Security Features
+# Prefer your own KV namespace (do not reuse another project's ID):
+# npx wrangler kv namespace create "RATE_LIMIT_KV"
+# then put the id into cloudflare/wrangler.toml
 
-| Feature                 | Description                    |
-| ----------------------- | ------------------------------ |
-| **URL Restrictions**    | Only certificate URLs allowed  |
-| **File Size Limit**     | Max 10MB per request           |
-| **Rate Limiting**       | 60 req/IP/min (requires KV)    |
-| **Private IP Blocking** | Blocks localhost, internal IPs |
-
-### Enable Rate Limiting
-
-```bash
-# Create KV namespace
-npx wrangler kv namespace create "RATE_LIMIT_KV"
-
-# Add to wrangler.toml with returned ID:
-# [[kv_namespaces]]
-# binding = "RATE_LIMIT_KV"
-# id = "YOUR_ID"
+# Set allowed browser origins (comma-separated), e.g.:
+# npx wrangler secret put ALLOWED_ORIGINS
+# value: https://sumi.yourdomain.com,https://sumi-pdf.pages.dev
 
 npx wrangler deploy
 ```
 
-### Build with Proxy URL
+Then rebuild Pages with:
 
 ```bash
-VITE_CORS_PROXY_URL=https://your-worker.workers.dev npm run build
+VITE_CORS_PROXY_URL=https://sumi-pdf-cors-proxy.<account>.workers.dev npm run build
 ```
 
-Or with Docker:
+HMAC (`PROXY_SECRET`) is optional and limited because any secret embedded in frontend JS is visible.
 
-```bash
-export VITE_CORS_PROXY_URL="https://your-worker.workers.dev"
-DOCKER_BUILDKIT=1 docker build \
-  --secret id=VITE_CORS_PROXY_URL,env=VITE_CORS_PROXY_URL \
-  -t your-bentopdf .
-```
+---
 
-> **Note:** See [README](https://github.com/alam00000/bentopdf#digital-signature-cors-proxy-required) for HMAC signature setup.
+## What not to do
+
+- Do **not** deploy the Vite app as a generic Workers “hello world” script — use **Pages** for `dist/`.
+- Do **not** add `/* /index.html 200` redirects — tool URLs like `/sentinel.html` must resolve to real files.
+- Do **not** set `SITE_URL` to empty in production if you care about sitemap/canonicals.
+- Do **not** enable analytics SDKs; Sumi stays local-first.
+
+## Verify after deploy
+
+1. Open `https://<project>.pages.dev/` — homepage loads without downloading PyMuPDF/OCR/qpdf.
+2. Open `/sentinel.html` — drop zone mounts.
+3. DevTools → Network: PDF bytes stay in the browser (no upload of document bodies).
+4. DevTools → Application → check COOP/COEP on document response headers.
+5. Capture: camera prompt only after an explicit click (and only if the browser supports it).
+
+## Troubleshooting
+
+| Symptom                               | Likely cause                                                                                                    |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Build OOM                             | Pages build memory; keep `NODE_OPTIONS` in `npm run build`, or use Wrangler direct upload from a larger machine |
+| LibreOffice / SharedArrayBuffer fails | Missing COOP/COEP (`public/_headers` not published)                                                             |
+| Broken tool links                     | Accidental SPA `_redirects`                                                                                     |
+| Huge upload / file limit              | Set `VITE_USE_CDN=true` so WASM is not all bundled into Pages                                                   |
+| Camera blocked                        | Old `Permissions-Policy: camera=()` — fixed to `camera=(self)` in `_headers`                                    |
+| Wrong canonical URLs                  | Set both `SITE_URL` and `VITE_SITE_URL`                                                                         |

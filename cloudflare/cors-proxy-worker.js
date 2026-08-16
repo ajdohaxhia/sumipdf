@@ -1,15 +1,14 @@
 /**
- * BentoPDF CORS Proxy Worker
+ * Sumi PDF CORS Proxy Worker
  *
- * This Cloudflare Worker proxies certificate requests for the digital signing tool.
- * It fetches certificates from external CAs that don't have CORS headers enabled
- * and returns them with proper CORS headers.
+ * Proxies certificate / TSA requests for the digital signing tool only.
+ * Document PDFs never pass through this worker.
  *
+ * Deploy: npx wrangler deploy -c cloudflare/wrangler.toml
  *
- * Deploy: npx wrangler deploy
- *
- * Required Environment Variables (set in wrangler.toml or Cloudflare dashboard):
- * - PROXY_SECRET: Shared secret for HMAC signature verification
+ * Secrets / vars:
+ * - ALLOWED_ORIGINS: comma-separated https origins (required)
+ * - PROXY_SECRET: optional HMAC shared secret
  */
 
 const ALLOWED_PATH_PATTERNS = [
@@ -28,7 +27,13 @@ const ALLOWED_TSA_HOSTS = new Set([
   'tsa.mesign.com',
 ]);
 
-const ALLOWED_ORIGINS = ['https://www.bentopdf.com', 'https://bentopdf.com'];
+function allowedOrigins(env) {
+  const raw = (env && env.ALLOWED_ORIGINS) || '';
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => /^https:\/\//i.test(s));
+}
 
 const SAFE_CONTENT_TYPES = [
   'application/x-x509-ca-cert',
@@ -76,9 +81,16 @@ async function verifySignature(message, signature, secret) {
   }
 }
 
-function isAllowedOrigin(origin) {
+function isAllowedOrigin(origin, env) {
   if (!origin) return false;
-  return ALLOWED_ORIGINS.includes(origin);
+  const allowed = allowedOrigins(env);
+  if (allowed.length === 0) {
+    console.error(
+      'ALLOWED_ORIGINS is empty. Set a Worker secret/var with comma-separated https origins.'
+    );
+    return false;
+  }
+  return allowed.includes(origin);
 }
 
 function isPrivateOrReservedHost(hostname) {
@@ -194,9 +206,9 @@ function corsHeaders(origin) {
   };
 }
 
-function handleOptions(request) {
+function handleOptions(request, env) {
   const origin = request.headers.get('Origin');
-  if (!isAllowedOrigin(origin)) {
+  if (!isAllowedOrigin(origin, env)) {
     return new Response(null, { status: 403 });
   }
   return new Response(null, {
@@ -211,7 +223,7 @@ export default {
     const origin = request.headers.get('Origin');
 
     if (request.method === 'OPTIONS') {
-      return handleOptions(request);
+      return handleOptions(request, env);
     }
 
     // NOTE: If you are selfhosting this proxy, you can remove this check, or can set it to only accept requests from your own domain
@@ -219,7 +231,7 @@ export default {
     // header is forgeable by non-browser clients and the HMAC secret ships in the public client bundle. The real SSRF defense is the
     // private/reserved-IP resolution check (hostnameResolvesToPrivate). Deployments running this off Cloudflare cannot fully close the
     // DNS-rebinding gap in code and MUST add network egress filtering (see docs/self-hosting/cors-proxy.md).
-    if (!isAllowedOrigin(origin)) {
+    if (!isAllowedOrigin(origin, env)) {
       return new Response(
         JSON.stringify({
           error: 'Forbidden',

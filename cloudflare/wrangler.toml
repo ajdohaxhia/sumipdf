@@ -1,45 +1,29 @@
-name = "bentopdf-cors-proxy"
+name = "sumi-pdf-cors-proxy"
 main = "cors-proxy-worker.js"
-compatibility_date = "2024-01-01"
+compatibility_date = "2026-03-01"
 
-# Deploy to Cloudflare's global network
-# If you are self hosting change the name to your worker name
-# Run: npx wrangler deploy
-
-# =============================================================================
-# SECURITY FEATURES
-# =============================================================================
+# Optional certificate CORS proxy for digital signatures.
+# Documents never pass through this worker.
 #
-# 1. SIGNATURE VERIFICATION (Optional - for anti-spoofing)
-#    - Generate secret: openssl rand -hex 32
-#    - Set secret: npx wrangler secret put PROXY_SECRET
-#    - Note: Secret is visible in frontend JS, so provides limited protection
+# Deploy from repo root:
+#   npm run deploy:cors-proxy
+# or:
+#   npx wrangler deploy -c cloudflare/wrangler.toml
 #
-# 2. RATE LIMITING (Recommended - requires KV)
-#    - Create KV namespace: npx wrangler kv namespace create "RATE_LIMIT_KV"
-#    - Uncomment the kv_namespaces section below with the returned ID
-#    - Limits: 60 requests per IP per minute
+# Configure allowed browser origins (comma-separated HTTPS origins):
+#   npx wrangler secret put ALLOWED_ORIGINS -c cloudflare/wrangler.toml
+# Example value:
+#   https://sumi.yourdomain.com,https://sumi-pdf.pages.dev
 #
-# 3. FILE SIZE LIMIT
-#    - Automatic: Rejects files larger than 1MB
-#    - Certificates are typically <10KB, so this prevents abuse
+# Optional HMAC:
+#   openssl rand -hex 32 | npx wrangler secret put PROXY_SECRET -c cloudflare/wrangler.toml
 #
-# 4. URL RESTRICTIONS
-#    - Only certificate URLs allowed (*.crt, *.cer, *.pem, /certs/, etc.)
-#    - Blocks private IPs (localhost, 10.x, 192.168.x, 172.16-31.x)
+# Rate limiting (recommended): create your own KV namespace, then set the id below.
+#   npx wrangler kv namespace create "RATE_LIMIT_KV" -c cloudflare/wrangler.toml
 
-# =============================================================================
-# KV NAMESPACE FOR RATE LIMITING
-# =============================================================================
-[[kv_namespaces]]
-binding = "RATE_LIMIT_KV"
-id = "b88e030b308941118cd484e3fcb3ae49"
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
 
-# Optional: Custom domain routing
-# routes = [
-#   { pattern = "cors-proxy.bentopdf.com/*", zone_name = "bentopdf.com" }
-# ]
-
-# Optional: Environment variables (for non-secret config)
 # [vars]
-# ALLOWED_ORIGINS = "https://www.bentopdf.com,https://bentopdf.com"
+# ALLOWED_ORIGINS = "https://sumi-pdf.pages.dev"

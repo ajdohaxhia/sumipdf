@@ -1,0 +1,17 @@
+# Sumi PDF — Cloudflare Pages (static MPA)
+#
+# Prefer Pages for the app. Workers are only needed for the optional
+# certificate CORS proxy under cloudflare/wrangler.toml.
+#
+# Deploy:
+#   npm run build
+#   npx wrangler pages deploy dist --project-name=sumi-pdf
+#
+# Or connect the Git repo in the Cloudflare dashboard (see docs/self-hosting/cloudflare.md).
+
+name = "sumi-pdf"
+compatibility_date = "2026-03-01"
+pages_build_output_dir = "dist"
+
+# Do not add an SPA /* → /index.html rewrite. Sumi is a multi-page app;
+# every tool is a real HTML file under dist/.

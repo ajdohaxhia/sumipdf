@@ -56,8 +56,7 @@ const connectOrigins = uniq([
 ]);
 const fontOrigins = uniq([ocrFontOrigin].filter(Boolean));
 
-const githubStarsDisabled =
-  process.env.ENABLE_GITHUB_STARS !== 'true';
+const githubStarsDisabled = process.env.ENABLE_GITHUB_STARS !== 'true';
 const githubApiSource = githubStarsDisabled ? '' : ' https://api.github.com';
 
 const directives = [
@@ -95,7 +94,7 @@ const commonHeaders = `add_header X-Frame-Options "SAMEORIGIN" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header X-XSS-Protection "1; mode=block" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-add_header Permissions-Policy "geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()" always;
+add_header Permissions-Policy "geolocation=(), camera=(self), microphone=(), payment=(), usb=(), interest-cohort=()" always;
 add_header Cross-Origin-Opener-Policy "same-origin" always;
 add_header Cross-Origin-Embedder-Policy "credentialless" always;
 add_header Cross-Origin-Resource-Policy "cross-origin" always;
