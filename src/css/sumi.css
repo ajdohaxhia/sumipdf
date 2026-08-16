@@ -374,7 +374,7 @@ html[data-theme='dark'] .bg-indigo-700 {
 
 .sumi-drop {
   margin: 2rem 0 1.5rem;
-  border: 1px dashed var(--sumi-rule);
+  border: 1.5px dashed var(--sumi-rule);
   background: var(--sumi-surface);
   min-height: 12rem;
   display: flex;
@@ -385,11 +385,20 @@ html[data-theme='dark'] .bg-indigo-700 {
   padding: 2rem 1rem;
   position: relative;
   border-radius: var(--sumi-radius);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sumi-drop:hover {
+  border-color: var(--sumi-signal);
+  background: color-mix(in srgb, var(--sumi-surface) 96%, var(--sumi-signal));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
 .sumi-drop.is-dragover {
   border-color: var(--sumi-signal);
   background: var(--sumi-signal-soft);
+  transform: scale(1.008);
+  box-shadow: 0 8px 24px rgba(197, 61, 40, 0.12);
 }
 
 .sumi-drop input {
@@ -401,6 +410,7 @@ html[data-theme='dark'] .bg-indigo-700 {
 
 .sumi-drop strong {
   font-size: 1.05rem;
+  letter-spacing: -0.01em;
 }
 
 .sumi-drop p {
@@ -428,15 +438,19 @@ html[data-theme='dark'] .bg-indigo-700 {
 .sumi-quick a {
   display: block;
   border: 1px solid var(--sumi-rule);
-  padding: 1rem;
+  padding: 1rem 1.15rem;
   text-decoration: none;
   color: inherit;
   background: var(--sumi-surface);
   border-radius: var(--sumi-radius);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
 .sumi-quick a:hover {
-  border-color: var(--sumi-ink);
+  border-color: var(--sumi-signal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .sumi-quick span {
@@ -444,6 +458,7 @@ html[data-theme='dark'] .bg-indigo-700 {
   color: var(--sumi-ash);
   font-size: 0.8rem;
   margin-top: 0.25rem;
+  line-height: 1.35;
 }
 
 .sumi-suggest {
@@ -541,7 +556,7 @@ html[data-theme='dark'] .bg-indigo-700 {
 }
 
 .tool-card {
-  transition: border-color var(--sumi-ease);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid var(--sumi-rule);
   background: var(--sumi-surface);
   padding: 1.25rem;
@@ -554,9 +569,9 @@ html[data-theme='dark'] .bg-indigo-700 {
 }
 
 .tool-card:hover {
-  border-color: var(--sumi-ink);
-  transform: none;
-  box-shadow: none;
+  border-color: var(--sumi-signal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .tool-card i.ph,

@@ -582,7 +582,7 @@ export default defineConfig(() => {
           siteUrl: (
             process.env.VITE_SITE_URL ||
             process.env.SITE_URL ||
-            ''
+            'https://www.bentopdf.com'
           ).replace(/\/+$/, ''),
           repoUrl:
             process.env.VITE_REPO_URL ||

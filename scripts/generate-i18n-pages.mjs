@@ -11,7 +11,7 @@ const LOCALES_DIR = path.resolve(__dirname, '../public/locales');
 const SITE_URL = (
   process.env.SITE_URL ||
   process.env.VITE_SITE_URL ||
-  ''
+  'https://www.bentopdf.com'
 ).replace(/\/+$/, '');
 const BASE_PATH = (process.env.BASE_URL || '/').replace(/\/$/, '');
 
@@ -307,9 +307,9 @@ function processFileForLanguage(
 
   const result = dom.serialize();
 
-  dom.window.close();
-
-  fs.writeFileSync(path.join(langDir, file), result);
+  const targetPath = path.join(langDir, file);
+  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+  fs.writeFileSync(targetPath, result);
 }
 
 function updateEnglishFile(filePath, originalContent) {
@@ -400,6 +400,8 @@ async function generateI18nPages() {
 
   for (const file of htmlFiles) {
     const filePath = path.join(DIST_DIR, file);
+    if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory())
+      continue;
     const originalContent = fs.readFileSync(filePath, 'utf-8');
 
     for (const lang of languages) {

@@ -10,11 +10,8 @@ const LOCALES_DIR = path.resolve(__dirname, '../public/locales');
 const SITE_URL = (
   process.env.SITE_URL ||
   process.env.VITE_SITE_URL ||
-  ''
-).replace(
-  /\/+$/,
-  ''
-);
+  'https://www.bentopdf.com'
+).replace(/\/+$/, '');
 if (!SITE_URL) {
   console.warn(
     '[sitemap] SITE_URL / VITE_SITE_URL is empty. Canonical URLs will be omitted until a public origin is configured.'
