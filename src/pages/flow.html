@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flow — Sumi PDF</title>
+    <meta
+      name="description"
+      content="Build a vertical, non-destructive PDF flow. Preview projected output before export. Original stays in the workspace."
+    />
+    <link rel="canonical" href="{{siteUrl}}/flow" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link href="/src/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="antialiased" data-sumi-pane="flow">
+    {{> navbar }}
+    <main class="sumi-ws-page">
+      <div id="home-drop-zone" class="sumi-drop" role="button" tabindex="0">
+        <strong>Choose a PDF</strong>
+        <p>Then add operations. Nothing runs until you execute.</p>
+        <input
+          id="home-file-input"
+          type="file"
+          multiple
+          accept="application/pdf"
+        />
+      </div>
+      <div id="sumi-workspace-root"></div>
+    </main>
+    {{> footer }}
+    <script type="module" src="/src/js/logic/workspace-page.ts"></script>
+    <script type="module" src="/src/js/mobileMenu.ts"></script>
+  </body>
+</html>

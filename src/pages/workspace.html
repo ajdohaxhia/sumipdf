@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workspace — Sumi PDF</title>
+    <meta
+      name="description"
+      content="Open a local PDF workspace. Inspect the document, build a flow, preview, export, and prove what changed. Nothing is uploaded."
+    />
+    <link rel="canonical" href="{{siteUrl}}/workspace" />
+    <meta property="og:title" content="Workspace — Sumi PDF" />
+    <meta property="og:image" content="{{siteUrl}}/images/og-default.png" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link href="/src/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="antialiased" data-sumi-pane="inspect">
+    {{> navbar }}
+    <main class="sumi-ws-page">
+      <div
+        id="home-drop-zone"
+        class="sumi-drop"
+        role="button"
+        tabindex="0"
+        data-testid="home-drop-zone"
+      >
+        <strong>Choose a PDF</strong>
+        <p>
+          Drop a document to inspect it. Engines load after you choose a file.
+        </p>
+        <input
+          id="home-file-input"
+          type="file"
+          multiple
+          accept="application/pdf"
+          data-testid="home-file-input"
+        />
+      </div>
+      <div id="sumi-workspace-root" data-testid="workspace-root"></div>
+    </main>
+    {{> footer }}
+    <script type="module" src="/src/js/logic/workspace-page.ts"></script>
+    <script type="module" src="/src/js/mobileMenu.ts"></script>
+  </body>
+</html>

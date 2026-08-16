@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipes — Sumi PDF</title>
+    <meta
+      name="description"
+      content="Editable Sumi Flows. Steps are visible before they run. Recipes never include files, passwords, or redaction text."
+    />
+    <link rel="canonical" href="{{siteUrl}}/recipes" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link href="/src/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="antialiased" data-sumi-pane="flow">
+    {{> navbar }}
+    <main class="sumi-ws-page">
+      <header class="sumi-hero">
+        <p class="text-sm tracking-wide uppercase text-[color:var(--sumi-ash)]">
+          Editable flows
+        </p>
+        <h1>Recipes</h1>
+        <p class="sumi-hero__support">
+          Each recipe lists its steps. Nothing runs until you load it into Flow
+          and execute. JSON never contains your documents.
+        </p>
+      </header>
+      <div id="home-drop-zone" class="sumi-drop" role="button" tabindex="0">
+        <strong>Optional: choose a PDF first</strong>
+        <p>Then load a recipe into Flow.</p>
+        <input
+          id="home-file-input"
+          type="file"
+          multiple
+          accept="application/pdf"
+        />
+      </div>
+      <div id="sumi-workspace-root"></div>
+    </main>
+    {{> footer }}
+    <script type="module" src="/src/js/logic/workspace-page.ts"></script>
+    <script type="module" src="/src/js/mobileMenu.ts"></script>
+  </body>
+</html>

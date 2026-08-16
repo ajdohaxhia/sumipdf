@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inspect — Sumi PDF</title>
+    <meta
+      name="description"
+      content="Local document map: pages, metadata, privacy findings, and hedged recommendations. Nothing is modified until you execute a flow."
+    />
+    <link rel="canonical" href="{{siteUrl}}/inspect" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link href="/src/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="antialiased" data-sumi-pane="inspect">
+    {{> navbar }}
+    <main class="sumi-ws-page">
+      <div id="home-drop-zone" class="sumi-drop" role="button" tabindex="0">
+        <strong>Choose a PDF to inspect</strong>
+        <p>Findings are hedged. Inspect never edits the file.</p>
+        <input id="home-file-input" type="file" accept="application/pdf" />
+      </div>
+      <div id="sumi-workspace-root"></div>
+    </main>
+    {{> footer }}
+    <script type="module" src="/src/js/logic/workspace-page.ts"></script>
+    <script type="module" src="/src/js/mobileMenu.ts"></script>
+  </body>
+</html>

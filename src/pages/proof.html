@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proof — Sumi PDF</title>
+    <meta
+      name="description"
+      content="Before and after metrics, SHA-256, and a downloadable Sumi Proof Receipt. Not a legal or cryptographic certificate."
+    />
+    <link rel="canonical" href="{{siteUrl}}/proof" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link href="/src/css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="antialiased" data-sumi-pane="proof">
+    {{> navbar }}
+    <main class="sumi-ws-page">
+      <div id="home-drop-zone" class="sumi-drop" role="button" tabindex="0">
+        <strong>Choose a PDF</strong>
+        <p>Execute a flow first. Proof records what changed in this tab.</p>
+        <input id="home-file-input" type="file" accept="application/pdf" />
+      </div>
+      <div id="sumi-workspace-root"></div>
+    </main>
+    {{> footer }}
+    <script type="module" src="/src/js/logic/workspace-page.ts"></script>
+    <script type="module" src="/src/js/mobileMenu.ts"></script>
+  </body>
+</html>
