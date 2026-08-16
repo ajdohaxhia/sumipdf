@@ -419,6 +419,10 @@ html[data-theme='dark'] .bg-indigo-700 {
   .sumi-quick {
     grid-template-columns: repeat(4, 1fr);
   }
+
+  .sumi-quick--originals {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .sumi-quick a {
