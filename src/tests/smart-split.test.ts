@@ -6,8 +6,8 @@ import {
   collectPageSignals,
   planSplit,
   executeSplitPlan,
-  decodePngBarcodes,
 } from '@/js/sumi/smart-split';
+import { decodePngBarcodes } from '@/js/sumi/smart-split/barcode-png';
 import {
   applyNameTemplate,
   sanitizeFilename,
