@@ -81,6 +81,12 @@ function expectedCanonicalForFile(rel) {
 
 function auditHtml(file) {
   const html = fs.readFileSync(file.full, 'utf-8');
+  if (html.includes('sumi.invalid')) {
+    fail(
+      'placeholder-origin',
+      `${file.rel}: temporary build origin was not removed`
+    );
+  }
   const titles = findAll(html, /<title[^>]*>[\s\S]*?<\/title>/g);
   if (titles.length === 0) {
     fail('title', `${file.rel}: no <title>`);
@@ -97,6 +103,19 @@ function auditHtml(file) {
       'canonical',
       `${file.rel}: canonical still points to upstream BentoPDF`
     );
+  }
+
+  const socialMetadata =
+    html.match(
+      /<meta\b[^>]+(?:property|name)=["'](?:og:(?:url|image)|twitter:(?:url|image))["'][^>]*>/gi
+    ) || [];
+  for (const tag of socialMetadata) {
+    if (/(?:www\.)?bentopdf\.com/i.test(tag)) {
+      fail(
+        'upstream-social',
+        `${file.rel}: social metadata still points to upstream BentoPDF`
+      );
+    }
   }
   if (!SITE_URL) {
     // Local and CI builds intentionally omit absolute canonical validation.

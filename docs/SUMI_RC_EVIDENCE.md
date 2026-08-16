@@ -6,7 +6,7 @@ as complete.
 
 The fork is synchronized with BentoPDF through upstream commit
 `053f22a87b8b7671fc0b6eddd6eaba612558d6da`. The final ancestry check was
-`0 behind / 23 ahead` against `upstream/main`. The original comparison baseline
+`0 behind / 25 ahead` against `upstream/main`. The original comparison baseline
 for the Sumi Originals audit remains
 `5bf54f1dad75bdf3139e6314671f730f4c4a28de`.
 
@@ -34,12 +34,12 @@ Update this section only from fresh command output on the release candidate.
 | ---------------------------------------- | ----------------------------------------------------------------------------- |
 | `npm run typecheck`                      | Passed                                                                        |
 | `npm run test:sumi`                      | 16 files / 49 tests passed                                                    |
-| Full `npm run test:run`                  | 66 files / 945 tests passed                                                   |
+| Full `npm run test:run`                  | 66 files / 946 tests passed                                                   |
 | `npm run lint`                           | Passed with 0 errors / 483 inherited warnings                                 |
 | `npm run security:patterns`              | Passed; 2 existing sanitize-then-mutate warnings remain for review            |
 | `npm run docs:build`                     | Passed; VitePress reports a large-chunk warning                               |
 | Empty-origin production build            | Passed; 148 source HTML files produced 3,108 audited HTML files               |
-| SEO audit                                | Passed; sitemap intentionally empty until a public origin is configured       |
+| SEO audit                                | Passed; 3,108 pages contain no upstream/placeholder origin; sitemap is empty  |
 | Chromium Playwright                      | 18 / 18 journeys passed against the production build                          |
 | Desktop/mobile visual comparison         | Passed locally at 1,487 × 1,058 and 390 × 844                                 |
 | Real-origin build / edge-header check    | Pending                                                                       |

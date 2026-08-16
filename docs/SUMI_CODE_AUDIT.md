@@ -26,8 +26,9 @@ is not yet qualified as 1.0.0.
 | High     | Batch, Packet, Proof, and Capture shared a generic single-PDF input contract                        | Each studio now has an explicit file policy, queue, validation, and run action                                                                  |
 | High     | Folder Import implied a watcher that the browser implementation did not provide                     | Renamed behavior to honest manual refresh; experimental status retained                                                                         |
 | High     | Canonical generation could silently fall back to the upstream BentoPDF domain                       | Empty origin now omits absolute canonical/sitemap output and fails no ownership claim                                                           |
+| High     | Empty-origin builds still leaked BentoPDF through Open Graph and Twitter image metadata             | Social/canonical metadata and JSON-LD are stripped without a real origin; the SEO audit rejects upstream and placeholder origins                |
 | High     | Release workflows could publish BentoPDF-branded images or unrelated commercial workflow            | Publishing is restricted to the Sumi repository/GHCR; upstream CLA automation was removed                                                       |
-| High     | Three copied upstream patches did not repair Git ancestry, so GitHub still reported the fork behind | Checkout was unshallowed and `upstream/main` was merged; final relation is 0 behind / 23 ahead                                                  |
+| High     | Three copied upstream patches did not repair Git ancestry, so GitHub still reported the fork behind | Checkout was unshallowed and `upstream/main` was merged; final relation is 0 behind / 25 ahead                                                  |
 | Medium   | Homepage was a dense utility grid with a new skin                                                   | Home is now the Document Atelier: document entrance, Inspect → Transform → Prove narrative, Originals, flows, and a collapsed inherited archive |
 | Medium   | Command palette used fragile rendering and incomplete keyboard behavior                             | DOM construction, combobox/listbox semantics, arrow/Enter/Escape handling, stale-render cancellation, and focus return added                    |
 | Medium   | Capture's advertised image path did not match the PDF builder                                       | JPEG and PNG inputs are accepted and exercised through a real PDF download journey                                                              |
@@ -40,7 +41,7 @@ is not yet qualified as 1.0.0.
 | ----------------------------------------- | ------------------------------------------------------------- |
 | TypeScript                                | Pass                                                          |
 | Sumi suite                                | 16 files / 49 tests passed                                    |
-| Full unit suite                           | 66 files / 945 tests passed                                   |
+| Full unit suite                           | 66 files / 946 tests passed                                   |
 | ESLint                                    | Pass; 0 errors / 483 inherited warnings                       |
 | Security patterns                         | Pass; 2 sanitize-then-mutate review warnings                  |
 | VitePress                                 | Pass; large-chunk warning                                     |

@@ -63,6 +63,17 @@ function buildUrl(langPrefix, pagePath) {
   return parts.filter(Boolean).join('/').replace(/\/+$/, '') || SITE_URL;
 }
 
+function stripAbsoluteSeoWithoutOrigin(document) {
+  document.querySelector('link[rel="canonical"]')?.remove();
+  document.querySelector('meta[property="og:url"]')?.remove();
+  document.querySelector('meta[property="og:image"]')?.remove();
+  document.querySelector('meta[name="twitter:url"]')?.remove();
+  document.querySelector('meta[name="twitter:image"]')?.remove();
+  document
+    .querySelectorAll('script[type="application/ld+json"]')
+    .forEach((element) => element.remove());
+}
+
 const ORGANIZATION_LD_MARKER = 'data-sumi-organization';
 
 function injectOrganizationLd(document) {
@@ -267,9 +278,7 @@ function processFileForLanguage(
       injectToolBreadcrumb(document, lang, localizedToolName, localizedUrl);
     }
   } else {
-    document.querySelector('link[rel="canonical"]')?.remove();
-    document.querySelector('meta[property="og:url"]')?.remove();
-    document.querySelector('meta[name="twitter:url"]')?.remove();
+    stripAbsoluteSeoWithoutOrigin(document);
   }
 
   const links = document.querySelectorAll('a[href]');
@@ -366,9 +375,7 @@ function updateEnglishFile(filePath, originalContent) {
       injectToolBreadcrumb(document, 'en', enToolName, canonicalUrl);
     }
   } else {
-    document.querySelector('link[rel="canonical"]')?.remove();
-    document.querySelector('meta[property="og:url"]')?.remove();
-    document.querySelector('meta[name="twitter:url"]')?.remove();
+    stripAbsoluteSeoWithoutOrigin(document);
   }
 
   const result = dom.serialize();

@@ -524,14 +524,26 @@ function sumiBrandHtmlPlugin(): Plugin {
     ''
   ).replace(/\/+$/, '');
   const brandName = process.env.VITE_BRAND_NAME || 'Sumi PDF';
+  const rewriteMetadataOrigin = (value: string): string => {
+    if (!siteUrl) return value;
+    return value
+      .replaceAll('https://www.bentopdf.com', siteUrl)
+      .replaceAll('https://bentopdf.com', siteUrl);
+  };
   return {
     name: 'sumi-brand-html',
     transformIndexHtml(html) {
       let next = html;
-      if (siteUrl) {
-        next = next.replaceAll('https://www.bentopdf.com', siteUrl);
-        next = next.replaceAll('https://bentopdf.com', siteUrl);
+      const headEnd = next.indexOf('</head>');
+      if (headEnd >= 0) {
+        const end = headEnd + '</head>'.length;
+        next = `${rewriteMetadataOrigin(next.slice(0, end))}${next.slice(end)}`;
       }
+      next = next.replace(
+        /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi,
+        (block) =>
+          rewriteMetadataOrigin(block).replaceAll('BentoPDF', brandName)
+      );
       next = next.replaceAll('| BentoPDF', `| ${brandName}`);
       next = next.replaceAll('- BentoPDF', `- ${brandName}`);
       next = next.replaceAll('content="BentoPDF"', `content="${brandName}"`);
@@ -582,7 +594,7 @@ export default defineConfig(() => {
           siteUrl: (
             process.env.VITE_SITE_URL ||
             process.env.SITE_URL ||
-            'https://www.bentopdf.com'
+            'https://sumi.invalid'
           ).replace(/\/+$/, ''),
           repoUrl:
             process.env.VITE_REPO_URL ||

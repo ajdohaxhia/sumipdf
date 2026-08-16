@@ -45,3 +45,17 @@ describe('sitemap origin policy', () => {
     expect(script).not.toContain('github.com/ajdohaxhia/sumipdf');
   });
 });
+
+describe('metadata origin policy', () => {
+  it('never uses BentoPDF as the implicit social or structured-data origin', () => {
+    const vite = read('vite.config.ts');
+    const i18n = read('scripts/generate-i18n-pages.mjs');
+    const audit = read('scripts/seo-audit.mjs');
+
+    expect(vite).toContain('rewriteMetadataOrigin');
+    expect(vite).toContain("'https://sumi.invalid'");
+    expect(i18n).toContain('stripAbsoluteSeoWithoutOrigin');
+    expect(audit).toContain('upstream-social');
+    expect(audit).toContain('placeholder-origin');
+  });
+});

@@ -29,7 +29,7 @@ Sumi PDF is currently a release candidate, not a verified 1.0.0 release.
 - [x] `npm run typecheck`
 - [x] `npm run test:sumi` (16 files / 49 tests in the redesign pass)
 - [x] `npm run lint` (0 errors / 483 inherited warnings)
-- [x] `npm run test:run` (66 files / 945 tests)
+- [x] `npm run test:run` (66 files / 946 tests)
 - [x] `npm run security:patterns` (pass; 2 review warnings remain)
 - [x] Empty-origin build and SEO audit (3,108 HTML files)
 - [x] Chromium Playwright journeys (18 / 18)
@@ -44,6 +44,7 @@ Sumi PDF is currently a release candidate, not a verified 1.0.0 release.
 - [x] Cloudflare Pages output remains `dist`
 - [x] Direct `.html` tool routes remain static; no catch-all SPA rewrite
 - [x] Empty canonical origin no longer falls back to `bentopdf.com`
+- [x] Empty-origin social metadata and JSON-LD contain no upstream or placeholder origin
 - [x] GitHub Pages deployment is manual rather than an automatic production path
 - [ ] Configure the real public origin in repository/deployment variables
 - [ ] Verify COOP/COEP, WASM MIME types, CSP, and cache headers at the edge

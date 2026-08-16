@@ -20,7 +20,7 @@ export const brand = {
   logoMark: env('VITE_BRAND_LOGO', 'images/logo-mark.svg'),
   logoHorizontal: 'images/logo-horizontal.svg',
   logoMono: 'images/logo-mono.svg',
-  socialImage: 'images/og-default.png',
+  socialImage: 'images/og-sumi-atelier.png',
   siteUrl: trimSlash(env('VITE_SITE_URL', env('SITE_URL', ''))),
   repoUrl: trimSlash(
     env('VITE_REPO_URL', 'https://github.com/ajdohaxhia/sumipdf')

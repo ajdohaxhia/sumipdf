@@ -11,6 +11,9 @@ Visual direction: Document Atelier
   `/workspace/scratch/1a1afc4a8c42/generated_images/exec-ee6b7282-2ea2-4e89-9fa3-6b6dac51cbbe.png`
 - Implemented surface: `index.html` + `src/css/sumi-atelier.css`
 - Production artwork: `public/images/sumi-document-atelier-report-v2.png`
+- Social preview: `public/images/og-sumi-atelier.png` (1,200 × 630), cropped
+  from the verified production homepage rather than generated as a separate
+  visual claim.
 - Image generation mode: precise object edit with the built-in image generator
 - Asset prompt: replace the checkerboard background with a uniform warm ivory
   `#F5F1E8`, preserving the complete paper stack, mountain photograph,
