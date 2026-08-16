@@ -1,28 +1,43 @@
-# Sumi PDF 1.0.0-RC.1 Qualification Evidence Matrix
+# Sumi PDF release-candidate evidence
 
-## Reality Audit & Feature Matrix
+Sumi PDF is **not qualified as 1.0.0**. This file records what has actually
+been exercised and keeps experimental or partial modules from being presented
+as complete.
 
-This document provides verified functional evidence for all eleven Sumi PDF Original modules in `feat/sumi-pdf-1.0` against upstream BentoPDF (`5bf54f1dad75bdf3139e6314671f730f4c4a28de`).
+The fork is synchronized with BentoPDF through upstream commit
+`053f22a87b8b7671fc0b6eddd6eaba612558d6da`. The original comparison baseline
+for the Sumi Originals audit remains
+`5bf54f1dad75bdf3139e6314671f730f4c4a28de`.
 
-| Module                   | Input fixture                                           | Real operation exercised                                                                | Output inspected                                                              | Negative test                                                     | Browser test                        | Status    |
-| ------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------- | --------- |
-| **Smart Split & Rename** | `qr.pdf`, `code128.pdf`, `ean13.pdf`, `multi-codes.pdf` | Canvas pixel rendering & ZXing/native `BarcodeDetector` scanning                        | Splitting into separate named PDF files based on detected values              | `no-code.pdf` produces zero splits; `QR:` text markers ignored    | Verified in Chromium via Playwright | Qualified |
-| **Packet Builder**       | `bookmarked.pdf`, `id.pdf`, `cv.pdf`                    | Multipage PDF assembly, TOC generation, outline bookmark construction, GoTo annotations | Reopened PDF contains visible TOC pages, valid page numbers, and outline tree | Missing required slots generate explicit warnings                 | Verified in Chromium via Playwright | Qualified |
-| **Sentinel**             | `risk.pdf` (with JS, OpenAction, Launch, URI)           | Structural AST risk scanning & Safe Copy sanitization                                   | Safe copy PDF with active structures removed; findings report with evidence   | Clean PDF returns zero risk findings; never claims "malware-free" | Verified in Chromium via Playwright | Qualified |
-| **Privacy Finder**       | Real PDF streams with IBAN, Card, CF, VAT, Email, Phone | Local pattern regex scan, Luhn/IBAN/CF checksums, vector path redaction                 | Reopened output confirmed marker string is non-extractable                    | Visual cover mode leaves underlying text extractable with warning | Verified in Chromium via Playwright | Qualified |
-| **Duplicate Finder**     | `shared-resources.pdf`, rotated & byte-identical PDFs   | Per-page visual canvas hashing & byte stream comparison                                 | Grouped duplicate pages with explicit selection for retention                 | Distinct pages return non-duplicate status; no auto-deletion      | Verified in Chromium via Playwright | Qualified |
-| **Batch Forms Studio**   | AcroForm template + CSV/XLSX/JSON datasets              | Multi-row AcroForm field population & flattening                                        | Flattened ZIP package of populated PDF documents                              | Missing values & invalid choices flagged before export            | Verified in Chromium via Playwright | Qualified |
-| **Proof Verifier**       | Execution receipts & SHA-256 PDF byte streams           | Deterministic schema validation & cryptographic hash verification                       | Verified execution chain matching exact before/after hashes                   | Tampered PDF bytes or altered receipt return explicit failure     | Verified in Chromium via Playwright | Qualified |
-| **Capture**              | WebCam stream & imported image files                    | Perspective transform, edge detection, and multipage PDF compilation                    | Clean multipage PDF with normalized dimensions                                | Missing camera permission degrades cleanly to image import        | Verified in Chromium via Playwright | Qualified |
-| **Print Preflight**      | PDF with un-embedded fonts & improper boxes             | Property extraction for MediaBox/CropBox, font embedding, DPI                           | Detailed print risk breakdown with actionable warnings                        | Non-inspectable properties labeled "not verified"                 | Verified in Chromium via Playwright | Qualified |
-| **Accessibility Audit**  | Tagged & untagged PDF documents                         | PDF structure tree evaluation, title, lang, and alt-text checks                         | Accessibility compliance audit report                                         | Does not falsely claim WCAG / PDF-UA certification                | Verified in Chromium via Playwright | Qualified |
-| **Watch Folder**         | FileSystem Access API directory handles                 | Local folder monitoring and automated workflow execution                                | Processed PDF outputs written to designated local folder                      | Unsupported browsers show explicit experimental degradation       | Verified in Chromium via Playwright | Qualified |
+## Originals status
 
-## Qualification Gates Summary
+| Module                | Evidence currently available                                                                   | Honest status                                                       |
+| --------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Sentinel              | Structural scanning and Safe Copy unit tests; active content is not executed                   | Candidate; never a malware verdict                                  |
+| Privacy Finder        | Pattern/checksum tests; cover-vs-redaction extraction test; post-redaction marker verification | Candidate; text layer only, OCR not wired                           |
+| Smart Split & Rename  | Grouping, naming, collision, rendered-page BarcodeDetector/ZXing code, and barcode fixtures    | Candidate; browser decoding journey still required                  |
+| Duplicate Page Finder | Exact/text/visual grouping unit tests and explicit keep strategies                             | Candidate; no automatic deletion                                    |
+| Batch Form Studio     | Parser/generator tests plus UI input-policy integration test                                   | Candidate; browser journey still required                           |
+| Packet Builder        | Measured section assembly, inserted TOC pages/links/outlines, and explicit slot/options UI     | Candidate; browser output journey still required                    |
+| Proof Verifier        | SHA-256 receipt and tamper-rejection tests; three-input UI policy test                         | Candidate; not a digital signature or timestamp                     |
+| Capture               | Pixel helpers, ordered image import, JPEG/PNG PDF path, and camera fallback code               | Experimental; camera path still needs browser qualification         |
+| Print Preflight       | Mixed-size and not-verifiable unit tests                                                       | Candidate; not ISO/GWG certification                                |
+| Accessibility Audit   | Indicator and safe metadata-fix tests                                                          | Candidate; not PDF/UA or WCAG certification                         |
+| Folder Import         | Manual directory read/diff tests and UI integration test                                       | Experimental; no background watcher or automatic workflow execution |
 
-- **Upstream Baseline SHA**: `5bf54f1dad75bdf3139e6314671f730f4c4a28de`
-- **Sumi Unit Suite (`npm run test:sumi`)**: 15 files, 45 tests PASSED (100%)
-- **Full Unit Suite (`npm run test:run`)**: 64 files, 924 tests PASSED (100%)
-- **Typecheck (`npm run typecheck`)**: 0 errors
-- **Security Check (`npm run security:patterns`)**: 0 violations
-- **Production Build (`npm run build`)**: 3,108 multilingual pages built & audited successfully
+## Current checks
+
+Update this section only from fresh command output on the release candidate.
+
+| Check                                    | Current result                                  |
+| ---------------------------------------- | ----------------------------------------------- |
+| `npm run typecheck`                      | Passed in the redesign pass                     |
+| `npm run test:sumi`                      | 16 files / 49 tests passed in the redesign pass |
+| Targeted registry/privacy/original tests | Passed in the redesign pass                     |
+| Full `npm run test:run`                  | Pending after the redesign                      |
+| `npm run lint`                           | Pending after the redesign                      |
+| `npm run build`                          | Pending after the redesign                      |
+| Playwright journeys                      | Pending after the redesign                      |
+| Lighthouse / Web Vitals                  | Pending                                         |
+
+No tag or release should be created while any required row remains pending.

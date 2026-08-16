@@ -1,54 +1,46 @@
-# Sumi PDF 1.0 Release Checklist (1.0.0-RC.1 Qualified)
+# Sumi PDF 1.0 release checklist
 
-## Legal
+Sumi PDF is currently a release candidate, not a verified 1.0.0 release.
 
-- [x] AGPL-3.0 LICENSE intact
-- [x] NOTICE/CREDITS names BentoPDF upstream (`5bf54f1dad75bdf3139e6314671f730f4c4a28de`) and this fork
-- [x] Git history preserved (no reset, rebase, or squash)
-- [x] No Polar.sh / BentoPDF commercial license resale
-- [x] Source link in footer
-- [x] Fonts, icons, WASM licenses compatible
-- [x] Name collision notes recorded; no trademark-clearance claim
+## Legal and provenance
+
+- [x] AGPL-3.0 license and upstream attribution retained
+- [x] Sumi source and BentoPDF upstream are linked separately
+- [x] Upstream commercial/Polar storefront is not resold by this fork
+- [x] Upstream dual-licensing CLA automation removed from this fork
+- [ ] Review every locale for stale commercial or upstream-only copy
+- [ ] Obtain independent trademark clearance if the project needs it
 
 ## Product
 
-- [x] Visible Sumi PDF identity (logo, titles, manifest)
-- [x] Home drop zone + search usable above the fold
-- [x] Home does not load PDF/WASM engines on first paint
-- [x] Categories/search from canonical registry
-- [x] Existing BentoPDF tools still routed cleanly
-- [x] Session workspace handoff without uploads
-- [x] Workflow Builder improved (list + recipes), not duplicated
-- [x] Real redaction ≠ black box; extraction verification test passed
-- [x] Privacy Clean verification report
-- [x] No ads, accounts, paywall, watermark, fake testimonials
+- [x] Sumi Originals are first-class home/workspace entries
+- [x] Full inherited utility directory is secondary on the homepage
+- [x] Home does not statically import the PDF engines
+- [x] Multi-file Originals use explicit queues and run buttons
+- [x] Privacy Finder distinguishes cover from verified redaction
+- [x] Folder Import makes manual refresh and experimental status explicit
+- [ ] Complete browser journeys for each release-critical Original
+- [ ] Qualify Packet TOC pages, links, and outlines in a browser journey
+- [ ] Qualify camera Capture across supported browsers
 
-## Privacy / security
+## Quality gates
 
-- [x] Privacy network interception test on a synthetic PDF passed
-- [x] Headers: COOP, COEP, CSP, Referrer-Policy, Permissions-Policy, X-Content-Type-Options
-- [x] Proxy disabled by default
-- [x] `security:patterns` pass (0 code injection findings)
-- [x] `npm audit --omit=dev`: 0 vulnerabilities
-- [x] No secrets committed
-
-## Quality
-
-- [x] `npm ci`
-- [x] `npm run typecheck` (0 errors)
-- [x] `npm run lint` (0 errors)
-- [x] `npm run test:sumi` (15 files, 45 tests PASSED)
-- [x] `npm run test:run` (64 files, 924 tests PASSED)
-- [x] `npm run test:e2e:chromium` (18 Playwright journeys PASSED)
-- [x] `npm run build` (3,255 HTML files generated)
-- [x] SEO audit (0 failures across 3,255 pages)
-- [x] EN + IT complete for new surfaces
-- [x] Keyboard smoke: home, search, Merge, Organize, Compress, Sign, Privacy Clean, Workflow
-- [x] Light and dark contrast verified
+- [x] `npm run typecheck`
+- [x] `npm run test:sumi` (16 files / 49 tests in the redesign pass)
+- [ ] `npm run lint`
+- [ ] `npm run test:run`
+- [ ] `npm run security:patterns`
+- [ ] `npm run build` with the real `SITE_URL` / `VITE_SITE_URL`
+- [ ] Playwright desktop and mobile journeys
+- [ ] Keyboard and screen-reader smoke tests
+- [ ] Lighthouse and production bundle measurement
 
 ## Deploy
 
-- [x] Cloudflare `_headers` in `public/` and `security-headers.conf`
-- [x] Direct tool URLs work (no SPA catch-all that eats HTML; flattened Cloudflare pages)
-- [x] WASM MIME types configured
-- [x] `VITE_SITE_URL` / `VITE_NOINDEX` fallback handling verified
+- [x] Cloudflare Pages output remains `dist`
+- [x] Direct `.html` tool routes remain static; no catch-all SPA rewrite
+- [x] Empty canonical origin no longer falls back to `bentopdf.com`
+- [x] GitHub Pages deployment is manual rather than an automatic production path
+- [ ] Configure the real public origin in repository/deployment variables
+- [ ] Verify COOP/COEP, WASM MIME types, CSP, and cache headers at the edge
+- [ ] Push and tag only after every required quality gate passes

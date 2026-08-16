@@ -10,7 +10,7 @@ const LOCALES_DIR = path.resolve(__dirname, '../public/locales');
 const SITE_URL = (
   process.env.SITE_URL ||
   process.env.VITE_SITE_URL ||
-  'https://www.bentopdf.com'
+  ''
 ).replace(/\/+$/, '');
 const BASE_PATH = (process.env.BASE_URL || '/').replace(/\/$/, '');
 const HOST = SITE_URL ? new URL(SITE_URL).hostname : '';
@@ -92,7 +92,15 @@ function auditHtml(file) {
     html,
     /<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/g
   );
-  if (canonicals.length === 0) {
+  if (canonicals.some((url) => /(?:www\.)?bentopdf\.com/i.test(url))) {
+    fail(
+      'canonical',
+      `${file.rel}: canonical still points to upstream BentoPDF`
+    );
+  }
+  if (!SITE_URL) {
+    // Local and CI builds intentionally omit absolute canonical validation.
+  } else if (canonicals.length === 0) {
     fail('canonical', `${file.rel}: missing <link rel="canonical">`);
   } else if (canonicals.length > 1) {
     fail(
@@ -161,11 +169,13 @@ function auditHtml(file) {
     fail('aggregateRating', `${file.rel}: contains aggregateRating JSON-LD`);
   }
 
-  const hreflangTags = [
-    ...html.matchAll(
-      /<link[^>]+rel=["']alternate["'][^>]*hreflang=["'][^"']+["'][^>]*>/g
-    ),
-  ].map((m) => m[0]);
+  const hreflangTags = SITE_URL
+    ? [
+        ...html.matchAll(
+          /<link[^>]+rel=["']alternate["'][^>]*hreflang=["'][^"']+["'][^>]*>/g
+        ),
+      ].map((m) => m[0])
+    : [];
   for (const tag of hreflangTags) {
     const m = tag.match(/href=["']([^"']+)["']/);
     if (!m) continue;
@@ -192,7 +202,9 @@ function auditSitemap() {
   const xml = fs.readFileSync(sitemapPath, 'utf-8');
   const locs = findAll(xml, /<loc>([^<]+)<\/loc>/g);
 
-  if (locs.length === 0) fail('sitemap', 'sitemap has no <loc> entries');
+  if (SITE_URL && locs.length === 0) {
+    fail('sitemap', 'sitemap has no <loc> entries');
+  }
   if (locs.length > SITEMAP_MAX_URLS) {
     fail(
       'sitemap',
@@ -226,14 +238,16 @@ function auditSitemap() {
     }
   }
 
-  const expectedLocales = fs
-    .readdirSync(LOCALES_DIR)
-    .filter((d) => fs.statSync(path.join(LOCALES_DIR, d)).isDirectory());
-  for (const lang of expectedLocales) {
-    if (lang === 'en') continue;
-    const hreflangPattern = new RegExp(`hreflang="${lang}"`);
-    if (!hreflangPattern.test(xml)) {
-      warn('sitemap', `sitemap has no hreflang entry for locale "${lang}"`);
+  if (SITE_URL) {
+    const expectedLocales = fs
+      .readdirSync(LOCALES_DIR)
+      .filter((d) => fs.statSync(path.join(LOCALES_DIR, d)).isDirectory());
+    for (const lang of expectedLocales) {
+      if (lang === 'en') continue;
+      const hreflangPattern = new RegExp(`hreflang="${lang}"`);
+      if (!hreflangPattern.test(xml)) {
+        warn('sitemap', `sitemap has no hreflang entry for locale "${lang}"`);
+      }
     }
   }
 }

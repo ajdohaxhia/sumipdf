@@ -64,7 +64,7 @@ Primary nav (visible, not icon-only):
 
 Homepage (`index.html`) is the workspace entrance: drop or choose files first. Merge / Compress / Organize / Sign are **preconfigured Flows**, not four unrelated destinations.
 
-`tools.html` and `src/pages/*.html` remain for compatibility and deep links. Shared chrome is `{{> navbar }}` on tool pages. Exception: `pdf-multi-tool.html` uses a compact full-viewport editor bar instead of the standard navbar.
+`tools.html` and `src/pages/*.html` remain for compatibility and deep links. Shared chrome uses the &#123;&#123;&gt; navbar &#125;&#125; partial on tool pages. Exception: `pdf-multi-tool.html` uses a compact full-viewport editor bar instead of the standard navbar.
 
 ## Inspect / Flow / Proof architecture
 

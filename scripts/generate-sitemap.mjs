@@ -10,7 +10,7 @@ const LOCALES_DIR = path.resolve(__dirname, '../public/locales');
 const SITE_URL = (
   process.env.SITE_URL ||
   process.env.VITE_SITE_URL ||
-  'https://www.bentopdf.com'
+  ''
 ).replace(/\/+$/, '');
 if (!SITE_URL) {
   console.warn(
