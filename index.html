@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sumi PDF — private PDF tools in your browser</title>
+    <title>Sumi PDF — inspect, flow, and prove PDFs on this device</title>
     <meta
       name="description"
-      content="Powerful PDF tools. Your files stay on your device. Merge, compress, organize, sign, and sanitize PDFs with no account and no uploads."
+      content="A private, local-first PDF workspace. Drop a document, inspect it, build a non-destructive flow, and prove what changed before export. No account. No uploads."
     />
     <meta name="author" content="Adelajdo Haxhiaj" />
     <meta
@@ -67,17 +67,23 @@
           Client-side PDF workspace
         </p>
         <h1 data-i18n="hero.headline">
-          Powerful PDF tools. Your files stay on your device.
+          Understand a document. Build a flow. Prove what changed.
         </h1>
         <p class="sumi-hero__support" data-i18n="hero.support">
-          No account. No artificial limits. No document uploads.
+          Drop a PDF first. Inspect stays local. Nothing is uploaded.
         </p>
       </section>
 
-      <div id="home-drop-zone" class="sumi-drop" role="button" tabindex="0">
+      <div
+        id="home-drop-zone"
+        class="sumi-drop"
+        role="button"
+        tabindex="0"
+        data-testid="home-drop-zone"
+      >
         <strong data-i18n="upload.chooseFiles">Choose files</strong>
         <p data-i18n="upload.orDragAndDrop">
-          or drag and drop PDFs and images here
+          or drag and drop PDFs here to open a workspace
         </p>
         <p data-i18n="upload.filesNeverLeave">
           Processed on this device. Nothing is uploaded to an application
@@ -88,47 +94,49 @@
           type="file"
           multiple
           accept="application/pdf,image/*"
+          data-testid="home-file-input"
         />
       </div>
 
-      <div class="sumi-quick" aria-label="Frequent tools">
-        <a href="merge-pdf.html">
-          <strong data-i18n="tools:mergePdf.name">Merge</strong>
-          <span data-i18n="quick.merge"
-            >Combine PDFs, keep bookmarks when possible.</span
-          >
+      <div class="sumi-quick" aria-label="Preconfigured flows">
+        <a href="workspace.html?recipe=merge-flow" data-sumi-flow="merge-flow">
+          <strong>Merge</strong>
+          <span>A Sumi Flow that combines open PDFs.</span>
         </a>
-        <a href="compress-pdf.html">
-          <strong data-i18n="tools:compressPdf.name">Compress</strong>
-          <span data-i18n="quick.compress"
-            >Honest size reduction. Not every file shrinks.</span
-          >
+        <a
+          href="workspace.html?recipe=compress-flow"
+          data-sumi-flow="compress-flow"
+        >
+          <strong>Compress</strong>
+          <span>Attempt size reduction. Keep the original.</span>
         </a>
-        <a href="organize-pdf.html">
-          <strong data-i18n="tools:duplicateOrganize.name">Organize</strong>
-          <span data-i18n="quick.organize"
-            >Reorder, rotate, and delete pages.</span
-          >
+        <a
+          href="workspace.html?recipe=organize-flow"
+          data-sumi-flow="organize-flow"
+        >
+          <strong>Organize</strong>
+          <span>Blank pages, rotation, and order — after Inspect.</span>
         </a>
-        <a href="sign-pdf.html">
-          <strong data-i18n="tools:signPdf.name">Sign</strong>
-          <span data-i18n="quick.sign"
-            >Visual signature — not a digital certificate.</span
-          >
+        <a href="workspace.html?recipe=sign-flow" data-sumi-flow="sign-flow">
+          <strong>Sign</strong>
+          <span>Prepare a visual mark. Not a digital certificate.</span>
         </a>
       </div>
+
+      <div id="sumi-workspace-root" data-testid="workspace-root"></div>
 
       <div id="home-suggestions" class="sumi-suggest" hidden></div>
 
       <section id="features-section" class="sumi-section" hidden></section>
 
       <div id="tools-header" class="sumi-section">
-        <h2 data-i18n="tools.catalogTitle">All tools</h2>
+        <h2 data-i18n="tools.catalogTitle">Tools directory</h2>
         <p
           class="text-[color:var(--sumi-ash)]"
           data-i18n="tools.catalogSubtitle"
         >
-          Search or browse. Engines load only when you open a tool.
+          Secondary. Engines load only when you open a tool. Prefer Inspect and
+          Flow for new work.
         </p>
       </div>
 
@@ -191,10 +199,13 @@
       </div>
 
       <section class="sumi-section" id="workflow-recipes">
-        <h2 data-i18n="recipes.title">Workflow recipes</h2>
+        <h2 data-i18n="recipes.title">Recipes</h2>
         <p class="text-[color:var(--sumi-ash)] mb-4" data-i18n="recipes.lead">
-          Saved sequences you can inspect before they run. Recipes never include
-          your documents.
+          Editable flows. Steps are listed before they run. Recipes never
+          include your documents.
+        </p>
+        <p class="mb-4">
+          <a href="recipes.html">Open the recipe gallery</a>
         </p>
         <div id="recipe-grid" class="sumi-quick"></div>
       </section>

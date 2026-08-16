@@ -3,6 +3,7 @@ import { getToolById } from '../config/tool-registry';
 import { recordRecentTool } from '../workspace/session';
 import { t } from '../i18n/i18n';
 import { escapeHtml } from '../utils/format';
+import { hidePolarStorefront, mountLegacyAdapter } from '../workspace/adapters';
 
 export function currentToolIdFromPath(): string {
   const file = window.location.pathname.split('/').pop() || '';
@@ -26,7 +27,9 @@ function assignFilesToInput(input: HTMLInputElement, files: File[]): boolean {
 function applyHandoff(toolId: string, consume: boolean): boolean {
   const files = peekHandoff(toolId);
   if (files.length === 0) return false;
-  const input = document.getElementById('file-input') as HTMLInputElement | null;
+  const input = document.getElementById(
+    'file-input'
+  ) as HTMLInputElement | null;
   if (!input) return false;
   const ok = assignFilesToInput(input, files);
   if (ok && consume) consumeHandoff(toolId);
@@ -64,14 +67,19 @@ function mountContinueWith(toolId: string): void {
 }
 
 export function initToolShell(): void {
+  hidePolarStorefront();
   const toolId = currentToolIdFromPath();
   if (toolId !== 'home') {
     recordRecentTool(toolId);
     mountContinueWith(toolId);
+    mountLegacyAdapter();
     const first = applyHandoff(toolId, false);
-    window.setTimeout(() => {
-      applyHandoff(toolId, true);
-    }, first ? 250 : 400);
+    window.setTimeout(
+      () => {
+        applyHandoff(toolId, true);
+      },
+      first ? 250 : 400
+    );
   }
 
   const live = document.getElementById('sumi-live-status');

@@ -1,4 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist';
+import { initialThumbnailRenderCount } from './thumbnail-window.ts';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -257,7 +258,7 @@ function requestIdleCallbackPolyfill(callback: () => void): void {
 }
 
 /**
- * Main function to render pages progressively with optional lazy loading
+ * Page rendering task
  */
 export async function renderPagesProgressively(
   pdfjsDoc: pdfjsLib.PDFDocumentProxy,
@@ -279,9 +280,10 @@ export async function renderPagesProgressively(
 
   const totalPages = pdfjsDoc.numPages;
 
-  const initialRenderCount = useLazyLoading
-    ? Math.min(20, totalPages)
-    : totalPages;
+  const initialRenderCount = initialThumbnailRenderCount(
+    totalPages,
+    useLazyLoading
+  );
 
   const placeholders: HTMLElement[] = [];
   for (let i = 1; i <= totalPages; i++) {

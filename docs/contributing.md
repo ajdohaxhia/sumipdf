@@ -128,9 +128,6 @@ Before your PR can be merged, you'll need to sign our CLA:
 
 ## License
 
-BentoPDF is dual-licensed:
+Sumi PDF is licensed under **AGPL-3.0-only**. By contributing, you agree that your contributions are licensed under AGPL-3.0-only.
 
-- **AGPL-3.0** for open-source projects where you share your full source code publicly
-- **Commercial License** for proprietary/closed-source applications - [Get Lifetime License for $79](https://ko-fi.com/s/f32ca4cb75)
-
-By contributing, you agree that your contributions will be licensed under these terms.
+The original BentoPDF project may offer a separate commercial license for _their_ software. Sumi does not sell that license.

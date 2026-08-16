@@ -29,7 +29,7 @@ import { initCommandPalette } from './ui/command-palette.js';
 import { initHomeDrop } from './ui/home-command.js';
 import { initWorkspaceTray } from './ui/workspace-tray.js';
 import { initToolShell } from './ui/tool-shell.js';
-import { WORKFLOW_RECIPES } from './workflow/recipes.js';
+import { SUMI_RECIPES } from './flow/recipes.js';
 import { getRecentToolIds, recordRecentTool } from './workspace/session.js';
 declare const __BRAND_NAME__: string;
 
@@ -560,13 +560,13 @@ const init = async () => {
   const recipeGrid = document.getElementById('recipe-grid');
   if (recipeGrid) {
     recipeGrid.textContent = '';
-    for (const recipe of WORKFLOW_RECIPES) {
+    for (const recipe of SUMI_RECIPES) {
       const link = document.createElement('a');
-      link.href = `pdf-workflow.html?recipe=${encodeURIComponent(recipe.id)}`;
+      link.href = `workspace.html?recipe=${encodeURIComponent(recipe.id)}`;
       const title = document.createElement('strong');
       title.textContent = recipe.name;
       const summary = document.createElement('span');
-      summary.textContent = recipe.summary;
+      summary.textContent = `${recipe.steps.map((s) => s.op).join(' → ')}. ${recipe.summary}`;
       link.append(title, summary);
       recipeGrid.appendChild(link);
     }

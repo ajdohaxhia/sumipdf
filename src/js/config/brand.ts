@@ -13,16 +13,18 @@ const trimSlash = (url: string): string => url.replace(/\/+$/, '');
 export const brand = {
   name: env('VITE_BRAND_NAME', 'Sumi PDF'),
   shortName: 'Sumi',
-  tagline: 'Powerful PDF tools. Your files stay on your device.',
-  supportLine: 'No account. No artificial limits. No document uploads.',
+  tagline: 'Understand a document. Build a flow. Prove what changed.',
+  supportLine: 'Drop a PDF first. Inspect stays local. Nothing is uploaded.',
   description:
-    'Open-source, privacy-first PDF workspace. Merge, compress, organize, sign, and sanitize documents entirely in your browser.',
+    'Private, local-first PDF workspace. Inspect a document, build a non-destructive flow, and prove what changed before export.',
   logoMark: env('VITE_BRAND_LOGO', 'images/logo-mark.svg'),
   logoHorizontal: 'images/logo-horizontal.svg',
   logoMono: 'images/logo-mono.svg',
   socialImage: 'images/og-default.png',
   siteUrl: trimSlash(env('VITE_SITE_URL', env('SITE_URL', ''))),
-  repoUrl: trimSlash(env('VITE_REPO_URL', 'https://github.com/ajdohaxhia/sumipdf')),
+  repoUrl: trimSlash(
+    env('VITE_REPO_URL', 'https://github.com/ajdohaxhia/sumipdf')
+  ),
   upstreamUrl: trimSlash(
     env('VITE_UPSTREAM_URL', 'https://github.com/alam00000/bentopdf')
   ),

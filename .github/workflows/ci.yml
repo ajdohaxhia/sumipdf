@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feat/sumi-pdf-1.0]
+  pull_request:
+
+env:
+  HUSKY: 0
+  CI: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm run test:run
+      - name: Security patterns
+        run: npm run security:patterns
+      - name: Production build
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          VITE_SITE_URL: ${{ vars.SITE_URL }}
+        run: npm run build

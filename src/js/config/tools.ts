@@ -146,6 +146,13 @@ const baseCategories = [
         subtitle: 'Make your PDF look like a scanned document.',
       },
       {
+        href: import.meta.env.BASE_URL + 'capture.html',
+        name: 'Capture',
+        icon: 'ph-camera',
+        subtitle:
+          'Photograph or import pages, straighten corners, and build a PDF here. Camera starts only after you click.',
+      },
+      {
         href: import.meta.env.BASE_URL + 'adjust-colors.html',
         name: 'Adjust Colors',
         icon: 'ph-sliders-horizontal',
@@ -199,6 +206,13 @@ const baseCategories = [
         name: 'Create PDF Form',
         icon: 'ph-file-plus',
         subtitle: 'Create fillable PDF forms with drag-and-drop text fields.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'batch-forms.html',
+        name: 'Batch Form Studio',
+        icon: 'ph-table',
+        subtitle:
+          'Fill a PDF template from CSV, XLSX, or JSON. No spreadsheet formulas as JavaScript.',
       },
       {
         href: import.meta.env.BASE_URL + 'remove-blank-pages.html',
@@ -594,6 +608,34 @@ const baseCategories = [
         subtitle: 'Extract a range of pages into a new PDF.',
       },
       {
+        href: import.meta.env.BASE_URL + 'smart-split.html',
+        name: 'Smart Split & Rename',
+        icon: 'ph-scissors',
+        subtitle:
+          'Split by bookmarks, headings, blanks, size, barcodes, or captured values, then name the ZIP locally.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'duplicate-finder.html',
+        name: 'Duplicate Page Finder',
+        icon: 'ph-copy',
+        subtitle:
+          'Group exact, text-equivalent, and probable visual duplicate pages. Never deletes automatically.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'packet-builder.html',
+        name: 'Packet Builder',
+        icon: 'ph-tray',
+        subtitle:
+          'Assemble labeled slots into one packet with missing/duplicate warnings. Templates are not legal forms.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'watch-folder.html',
+        name: 'Watch Folder',
+        icon: 'ph-folder-open',
+        subtitle:
+          'Experimental. Opt-in local folder watch using the File System Access API. Off by default.',
+      },
+      {
         href: import.meta.env.BASE_URL + 'divide-pages.html',
         name: 'Divide Pages',
         icon: 'ph-columns',
@@ -719,6 +761,20 @@ const baseCategories = [
         subtitle: 'Analyze page size, orientation, and units.',
       },
       {
+        href: import.meta.env.BASE_URL + 'print-preflight.html',
+        name: 'Print Preflight',
+        icon: 'ph-printer',
+        subtitle:
+          'Check boxes, mixed sizes, fonts, and likely print issues. Not an ISO preflight certificate.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'accessibility-audit.html',
+        name: 'Accessibility Audit',
+        icon: 'ph-person-simple',
+        subtitle:
+          'Local PDF accessibility indicators and safe title/language fixes. Not PDF/UA or WCAG certification.',
+      },
+      {
         href: import.meta.env.BASE_URL + 'remove-restrictions.html',
         name: 'Remove Restrictions',
         icon: 'ph-link-break',
@@ -761,6 +817,20 @@ const baseCategories = [
         name: 'Encrypt PDF',
         icon: 'ph-lock',
         subtitle: 'Lock your PDF by adding a password.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'sentinel.html',
+        name: 'Sentinel',
+        icon: 'ph-shield-warning',
+        subtitle:
+          'Review active content, scripts, and hidden data without executing PDF JavaScript. Never claims malware-free.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'privacy-finder.html',
+        name: 'Privacy Finder',
+        icon: 'ph-detective',
+        subtitle:
+          'Find emails, IBANs, cards, and similar patterns. True redaction is opt-in; covering text is not redaction.',
       },
       {
         href: import.meta.env.BASE_URL + 'sanitize-pdf.html',
@@ -811,6 +881,13 @@ const baseCategories = [
         name: 'Validate Signature',
         icon: 'ph-seal-check',
         subtitle: 'Verify digital signatures and view certificate details.',
+      },
+      {
+        href: import.meta.env.BASE_URL + 'proof-verifier.html',
+        name: 'Proof Verifier',
+        icon: 'ph-check-square',
+        subtitle:
+          'Check a Sumi receipt against original and output hashes. Not a signature or legal certificate.',
       },
       {
         href: import.meta.env.BASE_URL + 'timestamp-pdf.html',

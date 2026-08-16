@@ -23,7 +23,13 @@ describe('cover-vs-redaction', () => {
     const doc = await PDFDocument.create();
     const page = doc.addPage([200, 200]);
     const font = await doc.embedFont(StandardFonts.Helvetica);
-    page.drawText(marker, { x: 20, y: 100, size: 12, font, color: rgb(0, 0, 0) });
+    page.drawText(marker, {
+      x: 20,
+      y: 100,
+      size: 12,
+      font,
+      color: rgb(0, 0, 0),
+    });
     page.drawRectangle({
       x: 15,
       y: 90,
@@ -32,7 +38,7 @@ describe('cover-vs-redaction', () => {
       color: rgb(0, 0, 0),
     });
     const bytes = await doc.save();
-    const text = new TextDecoder('latin1').decode(bytes);
-    expect(text).toContain(marker);
+    const { markerExtractable } = await import('@/js/proof/metrics');
+    expect(await markerExtractable(bytes, marker)).toBe(true);
   });
 });

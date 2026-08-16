@@ -4,7 +4,7 @@ import { brand, absoluteUrl } from '@/js/config/brand';
 describe('brand configuration', () => {
   it('names the product Sumi PDF by default', () => {
     expect(brand.name).toBe('Sumi PDF');
-    expect(brand.tagline).toContain('Your files stay on your device');
+    expect(brand.tagline).toContain('Prove what changed');
     expect(brand.repoUrl).toContain('github.com');
     expect(brand.upstreamUrl).toContain('alam00000/bentopdf');
   });

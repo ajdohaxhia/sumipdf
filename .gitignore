@@ -29,6 +29,7 @@ dist-ssr
 # Coverage reports
 coverage/
 *.lcov
+.eslintcache
 
 # Generated sitemap
 public/sitemap.xml
@@ -51,3 +52,7 @@ bentopdf-*.tgz
 # test 
 dist-test
 test
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

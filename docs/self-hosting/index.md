@@ -143,12 +143,11 @@ docker run -p 3000:8080 acmepdf
 Every other build-time option (`BASE_URL`, `VITE_DEFAULT_LANGUAGE`, `DISABLE_TOOLS`, WASM URL overrides, etc.) works the same way it does on the Self-Hosted build.
 
 ::: warning Licensing
-Running the Commercial build is allowed under either of BentoPDF's two license options:
+Sumi PDF is AGPL-3.0-only. Self-hosting a modified copy that users can reach over a network requires AGPL compliance, including source for your modifications.
 
-- **AGPL-3.0** (free) — allowed if your deployment publishes its full source code under AGPL, including any branding modifications and surrounding business logic.
-- **Commercial license** ($79 lifetime) — required for closed-source / proprietary deployments where you don't open-source your branding fork or business code.
+The original BentoPDF project may offer a separate proprietary license for _their_ software. Sumi PDF does not sell that license.
 
-See the [Licensing page](https://bentopdf.com/licensing.html) for the full comparison. AGPL-licensed WASM modules (PyMuPDF, Ghostscript, CoherentPDF) load from a CDN at runtime, so they don't enter your image and don't change your licensing posture.
+AGPL-licensed WASM modules (PyMuPDF, Ghostscript, CoherentPDF) may load from a CDN at runtime. That does not remove AGPL obligations for Sumi itself.
 :::
 
 ### Base URL

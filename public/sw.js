@@ -80,6 +80,10 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  if (url.protocol === 'blob:' || url.protocol === 'data:') {
+    return;
+  }
+
   const isCDN = trustedCdnOrigins.has(url.origin);
   const isLocal = url.origin === location.origin;
 
@@ -297,6 +301,9 @@ const CACHEABLE_EXTENSIONS =
   /\.(js|mjs|css|wasm|whl|zip|json|png|jpg|jpeg|gif|svg|woff|woff2|ttf|gz|br)$/;
 
 function shouldCache(pathname, isCDN = false) {
+  if (pathname.startsWith('blob:') || pathname.startsWith('data:')) {
+    return false;
+  }
   if (isCDN) {
     return (
       pathname.includes('/@bentopdf/pymupdf-wasm') ||
@@ -366,16 +373,18 @@ self.addEventListener('message', (event) => {
 
   if (event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
-      caches.keys().then((names) =>
-        Promise.all(
-          names
-            .filter(
-              (name) =>
-                name.startsWith('bentopdf-') || name.startsWith('sumi-pdf-')
-            )
-            .map((name) => caches.delete(name))
+      caches
+        .keys()
+        .then((names) =>
+          Promise.all(
+            names
+              .filter(
+                (name) =>
+                  name.startsWith('bentopdf-') || name.startsWith('sumi-pdf-')
+              )
+              .map((name) => caches.delete(name))
+          )
         )
-      )
     );
     return;
   }

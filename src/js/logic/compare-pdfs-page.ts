@@ -17,6 +17,11 @@ import type {
   CompareRenderContext,
 } from '../compare/types.ts';
 import { exportComparePdf } from '../compare/reporting/export-compare-pdf.ts';
+import {
+  formatCompareSummary,
+  summarizeComparePairs,
+} from '../compare/reporting/compare-summary.ts';
+import { downloadFile } from '../utils/helpers.ts';
 import { LRUCache } from '../compare/lru-cache.ts';
 import { COMPARE_CACHE_MAX_SIZE } from '../compare/config.ts';
 import {
@@ -71,6 +76,17 @@ let renderGeneration = 0;
 
 function getActivePair() {
   return pageState.pagePairs[pageState.currentPage - 1] || null;
+}
+
+function changedPairIndexesFromCache(): number[] {
+  const indexes: number[] = [];
+  for (const pair of pageState.pagePairs) {
+    const cached =
+      caches.comparisonResultsCache.get(pair.pairIndex) ||
+      caches.comparisonCache.get(getComparisonCacheKey(pair, pageState.useOcr));
+    if (cached?.status === 'changed') indexes.push(pair.pairIndex);
+  }
+  return indexes;
 }
 
 function getRenderContext(): CompareRenderContext {
@@ -1154,6 +1170,31 @@ document.addEventListener('DOMContentLoaded', function () {
     exportDropdownMenu.addEventListener('click', function (e) {
       e.stopPropagation();
     });
+
+    document
+      .getElementById('export-summary-txt')
+      ?.addEventListener('click', function () {
+        exportDropdownMenu.classList.add('hidden');
+        if (pageState.pagePairs.length === 0) {
+          showAlert(
+            'Nothing to export',
+            'Choose two PDFs and wait for pairing to finish.'
+          );
+          return;
+        }
+        const summary = summarizeComparePairs(
+          pageState.pagePairs,
+          documentNames.left,
+          documentNames.right,
+          changedPairIndexesFromCache()
+        );
+        downloadFile(
+          new Blob([formatCompareSummary(summary)], {
+            type: 'text/plain;charset=utf-8',
+          }),
+          'sumi-compare-report.txt'
+        );
+      });
 
     document.querySelectorAll('.export-menu-item').forEach(function (btn) {
       btn.addEventListener('click', async function () {

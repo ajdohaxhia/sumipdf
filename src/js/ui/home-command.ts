@@ -33,13 +33,17 @@ export function suggestToolsForFiles(files: File[]): FileSuggestion[] {
         id: 'merge-pdf',
         href: 'merge-pdf.html',
         label: t('tools:mergePdf.name') || 'Merge PDF',
-        reason: t('suggest.multiplePdfs') || 'Several PDFs — merge them or run a workflow.',
+        reason:
+          t('suggest.multiplePdfs') ||
+          'Several PDFs — merge them or run a workflow.',
       },
       {
         id: 'pdf-workflow',
         href: 'pdf-workflow.html',
         label: t('tools:pdfWorkflow.name') || 'Workflow Builder',
-        reason: t('suggest.workflow') || 'Chain several steps without re-selecting files.',
+        reason:
+          t('suggest.workflow') ||
+          'Chain several steps without re-selecting files.',
       },
     ];
   }
@@ -50,7 +54,8 @@ export function suggestToolsForFiles(files: File[]): FileSuggestion[] {
         id: 'organize-pdf',
         href: 'organize-pdf.html',
         label: t('tools:duplicateOrganize.name') || 'Organize',
-        reason: t('suggest.onePdfOrganize') || 'Reorder, rotate, or remove pages.',
+        reason:
+          t('suggest.onePdfOrganize') || 'Reorder, rotate, or remove pages.',
       },
       {
         id: 'compress-pdf',
@@ -68,7 +73,8 @@ export function suggestToolsForFiles(files: File[]): FileSuggestion[] {
         id: 'sanitize-pdf',
         href: 'sanitize-pdf.html',
         label: t('tools:sanitizePdf.name') || 'Privacy Clean',
-        reason: t('suggest.onePdfSanitize') || 'Inspect and remove hidden data.',
+        reason:
+          t('suggest.onePdfSanitize') || 'Inspect and remove hidden data.',
       },
     ];
   }
@@ -128,54 +134,26 @@ export function consumeHandoff(toolId: string): File[] {
 }
 
 export function initHomeDrop(): void {
-  const zone = document.getElementById('home-drop-zone');
-  const input = document.getElementById('home-file-input') as HTMLInputElement | null;
-  const suggestions = document.getElementById('home-suggestions');
-  if (!zone || !input || !suggestions) return;
-
-  const handleFiles = (fileList: FileList | File[]) => {
-    const files = [...fileList];
-    if (files.length === 0) return;
-    const items = suggestToolsForFiles(files);
-    suggestions.hidden = items.length === 0;
-    suggestions.innerHTML = '';
-    const heading = document.createElement('h2');
-    heading.className = 'sumi-suggest__title';
-    heading.textContent = t('suggest.title') || 'Suggested next steps';
-    suggestions.appendChild(heading);
-    const note = document.createElement('p');
-    note.className = 'sumi-suggest__note';
-    note.textContent =
-      t('suggest.note') ||
-      'Suggestions never run automatically. Choose a tool to continue.';
-    suggestions.appendChild(note);
-    const list = document.createElement('div');
-    list.className = 'sumi-suggest__list';
-    for (const item of items) {
-      const button = document.createElement('a');
-      button.className = 'sumi-suggest__card';
-      button.href = item.href;
-      button.innerHTML = `<strong>${item.label}</strong><span>${item.reason}</span>`;
-      button.addEventListener('click', () => {
-        stashFilesForTool(files, item.id);
-      });
-      list.appendChild(button);
-    }
-    suggestions.appendChild(list);
-    suggestions.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  };
-
-  zone.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    zone.classList.add('is-dragover');
+  void import('./workspace-app.js').then((mod) => {
+    mod.initWorkspaceEntrance();
   });
-  zone.addEventListener('dragleave', () => zone.classList.remove('is-dragover'));
-  zone.addEventListener('drop', (event) => {
-    event.preventDefault();
-    zone.classList.remove('is-dragover');
-    if (event.dataTransfer?.files) handleFiles(event.dataTransfer.files);
-  });
-  input.addEventListener('change', () => {
-    if (input.files) handleFiles(input.files);
+
+  document.querySelectorAll('a[href*="workspace.html"]').forEach((anchor) => {
+    anchor.addEventListener('click', (event) => {
+      if (listWorkspaceItems().length === 0) return;
+      event.preventDefault();
+      const url = new URL(
+        (anchor as HTMLAnchorElement).href,
+        window.location.href
+      );
+      const pane = (url.hash.replace('#', '') || 'inspect') as
+        | 'inspect'
+        | 'flow'
+        | 'preview'
+        | 'proof';
+      void import('./workspace-app.js').then((mod) =>
+        mod.mountWorkspaceApp({ pane })
+      );
+    });
   });
 }

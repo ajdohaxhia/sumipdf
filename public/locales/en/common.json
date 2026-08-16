@@ -7,7 +7,12 @@
     "allTools": "All Tools",
     "docs": "Docs",
     "tools": "Tools",
-    "workflows": "Workflows",
+    "workspace": "Workspace",
+    "inspect": "Inspect",
+    "flow": "Flow",
+    "proof": "Proof",
+    "recipes": "Recipes",
+    "workflows": "Workflow Builder",
     "privacy": "Privacy",
     "source": "Open source",
     "localBadge": "Processed on this device",
@@ -17,7 +22,7 @@
     "noLanguagesFound": "No languages found"
   },
   "donation": {
-    "message": "Love BentoPDF? Help us keep it free and open source!",
+    "message": "Sumi PDF is free and open source. Sponsorship is optional.",
     "button": "Donate"
   },
   "hero": {
@@ -29,8 +34,8 @@
     "worksOffline": "Works offline after engines are cached",
     "startUsing": "Choose files",
     "kicker": "Client-side PDF workspace",
-    "headline": "Powerful PDF tools. Your files stay on your device.",
-    "support": "No account. No artificial limits. No document uploads."
+    "headline": "Understand a document. Build a flow. Prove what changed.",
+    "support": "Drop a PDF first. Inspect stays local. Nothing is uploaded."
   },
   "usedBy": {
     "title": "Used by companies and people working at"
@@ -70,8 +75,8 @@
     "searchPlaceholder": "Search for a tool (e.g., 'split', 'organize'...)",
     "backToTools": "Back to Tools",
     "firstLoadNotice": "First load takes a moment as we download our conversion engine. After that, all loads will be instant.",
-    "catalogTitle": "All tools",
-    "catalogSubtitle": "Search or browse. Engines load only when you open a tool.",
+    "catalogTitle": "Tools directory",
+    "catalogSubtitle": "Secondary. Engines load only when you open a tool. Prefer Inspect and Flow for new work.",
     "recent": "Recent tools"
   },
   "upload": {

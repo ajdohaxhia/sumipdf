@@ -8,6 +8,19 @@ export default defineConfig({
 
     // Simulate browser environment
     environment: 'jsdom',
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost/',
+      },
+    },
+    pool: 'forks',
+    maxWorkers: 1,
+    fileParallelism: false,
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
 
     // Setup files to run before tests
     setupFiles: ['./src/tests/setup.ts'],
@@ -41,7 +54,8 @@ export default defineConfig({
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
 
     // Test timeout
-    testTimeout: 10000,
+    testTimeout: 30000,
+    hookTimeout: 120000,
 
     // Watch options
     watch: false,

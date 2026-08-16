@@ -23,6 +23,8 @@ export default [
       'public/coherentpdf.browser.min.js',
       'public/libreoffice-wasm/**',
       'public/workers/**',
+      'e2e/**',
+      'playwright.config.ts',
     ],
   },
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },

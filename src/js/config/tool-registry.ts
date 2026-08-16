@@ -26,6 +26,9 @@ export type EngineId =
 
 export type Intensity = 'low' | 'medium' | 'high';
 
+/** Internal attribution. Do not render as a UI badge. */
+export type ToolOrigin = 'upstream' | 'sumi' | 'hybrid';
+
 export interface ToolDefinition {
   id: string;
   href: string;
@@ -44,6 +47,7 @@ export interface ToolDefinition {
   engine: EngineId;
   intensity: Intensity;
   related: string[];
+  origin: ToolOrigin;
   experimental?: boolean;
   featured?: boolean;
 }
@@ -55,7 +59,11 @@ export const CATEGORY_META: {
 }[] = [
   { id: 'organize', name: 'Organize', i18nKey: 'tools:categories.organize' },
   { id: 'edit', name: 'Edit', i18nKey: 'tools:categories.edit' },
-  { id: 'convert-to', name: 'Convert to PDF', i18nKey: 'tools:categories.convertToPdf' },
+  {
+    id: 'convert-to',
+    name: 'Convert to PDF',
+    i18nKey: 'tools:categories.convertToPdf',
+  },
   {
     id: 'convert-from',
     name: 'Convert from PDF',
@@ -133,6 +141,17 @@ const CATEGORY_OVERRIDE: Record<string, ToolCategoryId> = {
   'font-to-outline': 'compress',
   'rasterize-pdf': 'compress',
   'compare-pdfs': 'edit',
+  sentinel: 'protect',
+  'privacy-finder': 'protect',
+  'smart-split': 'organize',
+  'duplicate-finder': 'organize',
+  'batch-forms': 'edit',
+  'packet-builder': 'organize',
+  'proof-verifier': 'sign-validate',
+  capture: 'scan-ocr',
+  'print-preflight': 'print',
+  'accessibility-audit': 'print',
+  'watch-folder': 'automate',
 };
 
 const ENGINE_OVERRIDE: Record<string, EngineId> = {
@@ -150,7 +169,40 @@ const ENGINE_OVERRIDE: Record<string, EngineId> = {
   'split-pdf': 'qpdf',
   'digital-sign-pdf': 'pdf-lib',
   'redact-pdf': 'pymupdf',
+  sentinel: 'pdf-lib',
+  'privacy-finder': 'pdf-lib',
+  'smart-split': 'pdf-lib',
+  'duplicate-finder': 'pdf-lib',
+  'batch-forms': 'pdf-lib',
+  'packet-builder': 'pdf-lib',
+  'proof-verifier': 'none',
+  capture: 'pdf-lib',
+  'print-preflight': 'pdf-lib',
+  'accessibility-audit': 'pdf-lib',
+  'watch-folder': 'none',
 };
+
+const ORIGIN_OVERRIDE: Record<string, ToolOrigin> = {
+  sentinel: 'sumi',
+  'privacy-finder': 'sumi',
+  'smart-split': 'hybrid',
+  'duplicate-finder': 'sumi',
+  'batch-forms': 'sumi',
+  'packet-builder': 'sumi',
+  'proof-verifier': 'sumi',
+  capture: 'hybrid',
+  'print-preflight': 'sumi',
+  'accessibility-audit': 'sumi',
+  'watch-folder': 'sumi',
+  'compare-pdfs': 'hybrid',
+  workspace: 'sumi',
+  inspect: 'sumi',
+  flow: 'sumi',
+  proof: 'sumi',
+  recipes: 'sumi',
+};
+
+const EXPERIMENTAL_IDS = new Set(['watch-folder']);
 
 const RELATED: Record<string, string[]> = {
   'merge-pdf': ['split-pdf', 'organize-pdf', 'pdf-workflow'],
@@ -203,13 +255,17 @@ export function getAllTools(): ToolDefinition[] {
         offlineAfterCache: engine !== 'libreoffice' && engine !== 'tesseract',
         engine,
         intensity:
-          engine === 'libreoffice' || engine === 'pymupdf' || engine === 'tesseract'
+          engine === 'libreoffice' ||
+          engine === 'pymupdf' ||
+          engine === 'tesseract'
             ? 'high'
             : engine === 'none'
               ? 'low'
               : 'medium',
         related: RELATED[tool.id] ?? [],
+        origin: ORIGIN_OVERRIDE[tool.id] ?? 'upstream',
         featured: FEATURED_IDS.has(tool.id),
+        experimental: EXPERIMENTAL_IDS.has(tool.id) || undefined,
       });
     }
   }
@@ -243,7 +299,8 @@ export function searchTools(query: string): ToolDefinition[] {
   const term = query.trim().toLowerCase();
   if (!term) return [];
   return getAllTools().filter((tool) => {
-    const hay = `${tool.name} ${tool.subtitle} ${tool.id} ${tool.tags.join(' ')}`.toLowerCase();
+    const hay =
+      `${tool.name} ${tool.subtitle} ${tool.id} ${tool.tags.join(' ')}`.toLowerCase();
     return hay.includes(term);
   });
 }
@@ -251,4 +308,8 @@ export function searchTools(query: string): ToolDefinition[] {
 export function getToolIdFromHref(href: string): string {
   const match = href.match(/\/([^/]+)\.html$/);
   return match?.[1] ?? href;
+}
+
+export function getToolOrigin(id: string): ToolOrigin {
+  return getToolById(id)?.origin ?? ORIGIN_OVERRIDE[id] ?? 'upstream';
 }

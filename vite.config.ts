@@ -67,6 +67,22 @@ function loadPages(): Set<string> {
     'pdf-editor',
     'pdf-security',
     'pdf-merge-split',
+    'workspace',
+    'inspect',
+    'flow',
+    'proof',
+    'recipes',
+    'sentinel',
+    'privacy-finder',
+    'smart-split',
+    'duplicate-finder',
+    'batch-forms',
+    'packet-builder',
+    'proof-verifier',
+    'capture',
+    'print-preflight',
+    'accessibility-audit',
+    'watch-folder',
   ];
   rootPages.forEach((p) => pages.add(p));
 
@@ -563,9 +579,17 @@ export default defineConfig(() => {
           brandLogo: process.env.VITE_BRAND_LOGO || 'images/logo-mark.svg',
           footerText: process.env.VITE_FOOTER_TEXT || '',
           appVersion: process.env.npm_package_version || 'Unknown',
-          siteUrl: (process.env.VITE_SITE_URL || process.env.SITE_URL || '').replace(/\/+$/, ''),
-          repoUrl: process.env.VITE_REPO_URL || 'https://github.com/ajdohaxhia/sumipdf',
-          upstreamUrl: process.env.VITE_UPSTREAM_URL || 'https://github.com/alam00000/bentopdf',
+          siteUrl: (
+            process.env.VITE_SITE_URL ||
+            process.env.SITE_URL ||
+            ''
+          ).replace(/\/+$/, ''),
+          repoUrl:
+            process.env.VITE_REPO_URL ||
+            'https://github.com/ajdohaxhia/sumipdf',
+          upstreamUrl:
+            process.env.VITE_UPSTREAM_URL ||
+            'https://github.com/alam00000/bentopdf',
           authorUrl: process.env.VITE_AUTHOR_URL || 'https://adelajdo.com',
           noindex: process.env.VITE_NOINDEX === 'true',
         },
@@ -662,6 +686,11 @@ export default defineConfig(() => {
           licensing: resolve(__dirname, 'licensing.html'),
           accessibility: resolve(__dirname, 'accessibility.html'),
           tools: resolve(__dirname, 'tools.html'),
+          workspace: resolve(__dirname, 'src/pages/workspace.html'),
+          inspect: resolve(__dirname, 'src/pages/inspect.html'),
+          flow: resolve(__dirname, 'src/pages/flow.html'),
+          proof: resolve(__dirname, 'src/pages/proof.html'),
+          recipes: resolve(__dirname, 'src/pages/recipes.html'),
           '404': resolve(__dirname, '404.html'),
           // Category Hub Pages
           'pdf-converter': resolve(__dirname, 'pdf-converter.html'),
@@ -856,6 +885,26 @@ export default defineConfig(() => {
             __dirname,
             'src/pages/bates-numbering.html'
           ),
+          sentinel: resolve(__dirname, 'src/pages/sentinel.html'),
+          'privacy-finder': resolve(__dirname, 'src/pages/privacy-finder.html'),
+          'smart-split': resolve(__dirname, 'src/pages/smart-split.html'),
+          'duplicate-finder': resolve(
+            __dirname,
+            'src/pages/duplicate-finder.html'
+          ),
+          'batch-forms': resolve(__dirname, 'src/pages/batch-forms.html'),
+          'packet-builder': resolve(__dirname, 'src/pages/packet-builder.html'),
+          'proof-verifier': resolve(__dirname, 'src/pages/proof-verifier.html'),
+          capture: resolve(__dirname, 'src/pages/capture.html'),
+          'print-preflight': resolve(
+            __dirname,
+            'src/pages/print-preflight.html'
+          ),
+          'accessibility-audit': resolve(
+            __dirname,
+            'src/pages/accessibility-audit.html'
+          ),
+          'watch-folder': resolve(__dirname, 'src/pages/watch-folder.html'),
         },
         output: {
           assetFileNames: (assetInfo) => {
@@ -872,6 +921,7 @@ export default defineConfig(() => {
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/tests/setup.ts',
+      exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
       coverage: {
         provider: 'v8' as const,
         reporter: ['text', 'json', 'html'],
