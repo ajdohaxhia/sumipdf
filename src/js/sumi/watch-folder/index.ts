@@ -6,6 +6,30 @@ export interface WatchedFile {
   size: number;
 }
 
+export interface WatchDirectoryHandle {
+  values(): AsyncIterableIterator<{
+    kind: 'file' | 'directory';
+    name: string;
+    getFile?: () => Promise<File>;
+  }>;
+}
+
+export async function readWatchedFiles(
+  handle: WatchDirectoryHandle
+): Promise<WatchedFile[]> {
+  const files: WatchedFile[] = [];
+  for await (const entry of handle.values()) {
+    if (entry.kind !== 'file' || !entry.getFile) continue;
+    const file = await entry.getFile();
+    files.push({
+      name: file.name,
+      size: file.size,
+      lastModified: file.lastModified,
+    });
+  }
+  return files.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export function diffWatched(
   previous: WatchedFile[],
   current: WatchedFile[]
@@ -30,5 +54,5 @@ export function isWatchFolderAvailable(): boolean {
 }
 
 export function watchFolderDisclaimer(): string {
-  return 'Watch Folder is experimental and opt-in. It uses the File System Access API in this browser only. Files stay on the device. It is off until you choose a folder.';
+  return 'Folder Import is experimental and opt-in. It reads the directory only when you choose or refresh it. This build does not run a background watcher or automated workflow.';
 }

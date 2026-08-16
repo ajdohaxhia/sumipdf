@@ -13,6 +13,7 @@
 @import 'cropperjs/dist/cropper.css';
 @import 'tailwindcss';
 @import './sumi.css';
+@import './sumi-atelier.css';
 
 @theme {
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;

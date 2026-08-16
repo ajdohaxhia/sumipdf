@@ -55,237 +55,279 @@
     />
     <link href="src/css/styles.css" rel="stylesheet" />
   </head>
-  <body class="antialiased">
+  <body class="sumi-home-page antialiased">
     {{> navbar }}
 
-    <main id="app" class="min-h-screen max-w-6xl mx-auto px-4 md:px-8">
-      <section id="hero-section" class="sumi-hero">
-        <p
-          class="text-sm tracking-wide uppercase text-[color:var(--sumi-ash)]"
-          data-i18n="hero.kicker"
-        >
-          Client-side PDF workspace
-        </p>
-        <h1 data-i18n="hero.headline">
-          Understand a document. Build a flow. Prove what changed.
-        </h1>
-        <p class="sumi-hero__support" data-i18n="hero.support">
-          Drop a PDF first. Inspect stays local. Nothing is uploaded.
-        </p>
+    <main id="app" class="sumi-home">
+      <section
+        id="hero-section"
+        class="sumi-atelier"
+        aria-labelledby="atelier-title"
+      >
+        <div class="sumi-atelier__intro">
+          <p class="sumi-eyebrow">Document atelier</p>
+          <h1 id="atelier-title">
+            Understand a document.<br />Build a flow.<br />Prove what changed.
+          </h1>
+          <div class="sumi-atelier__rule" aria-hidden="true"></div>
+          <p class="sumi-atelier__promise">
+            <strong>Private by construction</strong>
+          </p>
+          <p class="sumi-atelier__support">
+            Drop a PDF first. Inspect stays local.<br />Nothing is uploaded.
+          </p>
+        </div>
+
+        <div class="sumi-atelier__document">
+          <img
+            src="/images/sumi-document-atelier-report-v2.png"
+            alt="Stack of editorial research pages with a monochrome mountain photograph"
+            width="1135"
+            height="1386"
+          />
+          <div
+            id="home-drop-zone"
+            class="sumi-atelier-drop"
+            data-testid="home-drop-zone"
+          >
+            <i class="ph ph-file-pdf" aria-hidden="true"></i>
+            <strong>Open a document</strong>
+            <p>Drop PDFs here or choose files</p>
+            <input
+              id="home-file-input"
+              type="file"
+              multiple
+              accept="application/pdf,.pdf"
+              aria-label="Choose PDF files to inspect locally"
+              data-testid="home-file-input"
+            />
+          </div>
+        </div>
+
+        <nav class="sumi-atelier__phases" aria-label="Workspace phases">
+          <a href="workspace.html#inspect" aria-current="step">
+            <span>01</span>
+            <strong>Inspect</strong>
+            <small>Know your document.</small>
+          </a>
+          <a href="workspace.html#flow">
+            <span>02</span>
+            <strong>Transform</strong>
+            <small>Change it intentionally.</small>
+          </a>
+          <a href="workspace.html#proof">
+            <span>03</span>
+            <strong>Prove</strong>
+            <small>Verify and document the result.</small>
+          </a>
+        </nav>
       </section>
 
-      <div
-        id="home-drop-zone"
-        class="sumi-drop"
-        role="button"
-        tabindex="0"
-        data-testid="home-drop-zone"
-      >
-        <strong data-i18n="upload.chooseFiles">Choose files</strong>
-        <p data-i18n="upload.orDragAndDrop">
-          or drag and drop PDFs here to open a workspace
-        </p>
-        <p data-i18n="upload.filesNeverLeave">
-          Processed on this device. Nothing is uploaded to an application
-          server.
-        </p>
-        <input
-          id="home-file-input"
-          type="file"
-          multiple
-          accept="application/pdf,image/*"
-          data-testid="home-file-input"
-        />
-      </div>
-
-      <div class="sumi-quick" aria-label="Preconfigured flows">
-        <a href="workspace.html?recipe=merge-flow" data-sumi-flow="merge-flow">
-          <strong>Merge</strong>
-          <span>A Sumi Flow that combines open PDFs.</span>
-        </a>
-        <a
-          href="workspace.html?recipe=compress-flow"
-          data-sumi-flow="compress-flow"
-        >
-          <strong>Compress</strong>
-          <span>Attempt size reduction. Keep the original.</span>
-        </a>
-        <a
-          href="workspace.html?recipe=organize-flow"
-          data-sumi-flow="organize-flow"
-        >
-          <strong>Organize</strong>
-          <span>Blank pages, rotation, and order — after Inspect.</span>
-        </a>
-        <a href="workspace.html?recipe=sign-flow" data-sumi-flow="sign-flow">
-          <strong>Sign</strong>
-          <span>Prepare a visual mark. Not a digital certificate.</span>
-        </a>
-      </div>
-
-      <div class="sumi-quick sumi-quick--originals" aria-label="Sumi originals">
-        <a href="sentinel.html"
-          ><strong>Inspect security</strong
-          ><span>Sentinel reviews active content. Never malware-free.</span></a
-        >
-        <a href="privacy-finder.html"
-          ><strong>Find private data</strong
-          ><span>Local pattern scan. Confirm before redaction.</span></a
-        >
-        <a href="smart-split.html"
-          ><strong>Split intelligently</strong
-          ><span>Preview groups and collision-safe names.</span></a
-        >
-        <a href="duplicate-finder.html"
-          ><strong>Find duplicates</strong
-          ><span>Exact and near matches. Never auto-delete.</span></a
-        >
-        <a href="packet-builder.html"
-          ><strong>Build a packet</strong
-          ><span>Checklist slots with Proof. Not a legal form.</span></a
-        >
-        <a href="batch-forms.html"
-          ><strong>Fill forms in batch</strong
-          ><span>One template, many local PDFs.</span></a
-        >
-        <a href="capture.html"
-          ><strong>Capture pages</strong
-          ><span>Camera after a click, or image import.</span></a
-        >
-        <a href="print-preflight.html"
-          ><strong>Run preflight</strong
-          ><span>Print risk list. Not an ISO certificate.</span></a
-        >
-        <a href="proof-verifier.html"
-          ><strong>Verify receipt</strong
-          ><span>SHA-256 check. Not a signature.</span></a
-        >
+      <div class="sumi-atelier__meta" aria-label="Product commitments">
+        <span>Local-first</span><span>Open source</span><span>Free</span>
+        <a href="privacy.html">How local processing works</a>
       </div>
 
       <div id="sumi-workspace-root" data-testid="workspace-root"></div>
-
       <div id="home-suggestions" class="sumi-suggest" hidden></div>
+      <section id="features-section" hidden></section>
 
-      <section id="features-section" class="sumi-section" hidden></section>
+      <section class="sumi-originals" aria-labelledby="originals-title">
+        <header class="sumi-editorial-head">
+          <div>
+            <p class="sumi-eyebrow">Sumi originals · 01—09</p>
+            <h2 id="originals-title">The tools BentoPDF doesn’t have.</h2>
+          </div>
+          <p>
+            Purpose-built local workflows for inspection, privacy, evidence,
+            packets, and repeatable document work.
+          </p>
+        </header>
 
-      <div id="tools-header" class="sumi-section">
-        <h2 data-i18n="tools.catalogTitle">Tools directory</h2>
-        <p
-          class="text-[color:var(--sumi-ash)]"
-          data-i18n="tools.catalogSubtitle"
-        >
-          Secondary. Engines load only when you open a tool. Prefer Inspect and
-          Flow for new work.
-        </p>
-      </div>
+        <div class="sumi-original-index">
+          <a href="sentinel.html">
+            <span>01</span><strong>Sentinel</strong>
+            <small>Review risky structures before editing.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="privacy-finder.html">
+            <span>02</span><strong>Privacy Finder</strong>
+            <small>Find sensitive patterns, redact, then verify.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="smart-split.html">
+            <span>03</span><strong>Smart Split &amp; Rename</strong>
+            <small>Preview groups and collision-safe filenames.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="duplicate-finder.html">
+            <span>04</span><strong>Duplicate Finder</strong>
+            <small>Compare exact and near-matching pages.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="packet-builder.html">
+            <span>05</span><strong>Packet Builder</strong>
+            <small>Map files to slots and export proof separately.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="batch-forms.html">
+            <span>06</span><strong>Batch Form Studio</strong>
+            <small>Map tabular data before generating local PDFs.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="print-preflight.html">
+            <span>07</span><strong>Print Preflight</strong>
+            <small>Surface print risks without claiming certification.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="proof-verifier.html">
+            <span>08</span><strong>Proof Verifier</strong>
+            <small>Reject mismatched SHA-256 transformation receipts.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+          <a href="capture.html">
+            <span>09</span><strong>Capture</strong>
+            <small>Import or photograph pages, then arrange explicitly.</small>
+            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      </section>
 
-      <div id="grid-view">
-        <div class="mb-8 max-w-xl">
-          <label
-            class="sr-only"
-            for="search-bar"
-            data-i18n="tools.searchPlaceholder"
-            >Search tools</label
+      <section class="sumi-flows" aria-labelledby="flows-title">
+        <header class="sumi-editorial-head">
+          <div>
+            <p class="sumi-eyebrow">Repeatable work</p>
+            <h2 id="flows-title">Start with intent, not a tool list.</h2>
+          </div>
+          <a class="sumi-text-link" href="recipes.html"
+            >All recipes <span aria-hidden="true">→</span></a
           >
-          <div class="relative">
+        </header>
+        <div class="sumi-flow-strip" aria-label="Preconfigured flows">
+          <a
+            href="workspace.html?recipe=merge-flow"
+            data-sumi-flow="merge-flow"
+          >
+            <span>01</span><strong>Merge</strong
+            ><small>Combine open PDFs.</small>
+          </a>
+          <a
+            href="workspace.html?recipe=compress-flow"
+            data-sumi-flow="compress-flow"
+          >
+            <span>02</span><strong>Compress</strong
+            ><small>Attempt reduction; preserve the original.</small>
+          </a>
+          <a
+            href="workspace.html?recipe=organize-flow"
+            data-sumi-flow="organize-flow"
+          >
+            <span>03</span><strong>Organize</strong
+            ><small>Inspect, reorder, rotate.</small>
+          </a>
+          <a href="workspace.html?recipe=sign-flow" data-sumi-flow="sign-flow">
+            <span>04</span><strong>Sign</strong
+            ><small>Add a visual mark, not a certificate.</small>
+          </a>
+        </div>
+      </section>
+
+      <section
+        class="sumi-recipes"
+        id="workflow-recipes"
+        aria-labelledby="recipes-title"
+      >
+        <div>
+          <p class="sumi-eyebrow">Editable recipes</p>
+          <h2 id="recipes-title">See every step before it runs.</h2>
+          <p>
+            Recipes contain operations, never your documents. Rearrange them,
+            preflight them, and keep the original in your session workspace.
+          </p>
+        </div>
+        <div id="recipe-grid" class="sumi-recipe-list"></div>
+      </section>
+
+      <details class="sumi-directory">
+        <summary>
+          <span
+            ><span class="sumi-eyebrow">Utility archive</span
+            ><strong>Browse every PDF tool</strong></span
+          >
+          <span aria-hidden="true">Open directory +</span>
+        </summary>
+        <div id="tools-header" class="sumi-directory__head">
+          <h2 data-i18n="tools.catalogTitle">Tools directory</h2>
+          <p>Heavy engines load only after you open a tool.</p>
+        </div>
+        <div id="grid-view">
+          <div class="sumi-directory__search">
+            <label class="sr-only" for="search-bar">Search tools</label>
             <input
               type="search"
               id="search-bar"
-              class="w-full pl-4 pr-24 py-3 bg-surface text-ink border border-rule rounded-[4px]"
-              placeholder="Search for a tool"
+              placeholder="Search the full utility archive"
               data-i18n-placeholder="tools.searchPlaceholder"
             />
-            <span
-              class="absolute inset-y-0 right-0 flex items-center pr-2 gap-2"
-            >
-              <kbd id="shortcut" class="text-xs border border-rule px-2 py-1"
-                >⌘K</kbd
-              >
+            <span>
+              <kbd id="shortcut">/</kbd>
               <button
                 id="open-shortcuts-btn"
                 class="sumi-icon-btn"
                 type="button"
-                data-i18n-title="settings.shortcuts"
               >
-                <span class="sr-only" data-i18n="settings.shortcuts"
-                  >Settings</span
-                >
+                <span class="sr-only">Shortcut settings</span>
                 <i data-lucide="settings" class="w-4 h-4"></i>
               </button>
             </span>
           </div>
+          <div id="recent-tools" hidden></div>
+          <div id="tool-grid"></div>
         </div>
-        <div id="recent-tools" class="mb-8" hidden></div>
-        <div
-          id="tool-grid"
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-        ></div>
-      </div>
+      </details>
 
-      <div
-        id="tool-interface"
-        class="hidden w-full max-w-4xl mx-auto border border-rule p-6"
-      >
-        <button
-          id="back-to-grid"
-          class="flex items-center gap-2 mb-6 font-semibold"
-          type="button"
-        >
+      <div id="tool-interface" class="hidden">
+        <button id="back-to-grid" class="sumi-btn" type="button">
           <i data-lucide="arrow-left"></i>
           <span data-i18n="tools.backToTools">Back to tools</span>
         </button>
         <div id="tool-content"></div>
       </div>
 
-      <section class="sumi-section" id="workflow-recipes">
-        <h2 data-i18n="recipes.title">Recipes</h2>
-        <p class="text-[color:var(--sumi-ash)] mb-4" data-i18n="recipes.lead">
-          Editable flows. Steps are listed before they run. Recipes never
-          include your documents.
-        </p>
-        <p class="mb-4">
-          <a href="recipes.html">Open the recipe gallery</a>
-        </p>
-        <div id="recipe-grid" class="sumi-quick"></div>
+      <section class="sumi-principles" aria-label="Privacy and source">
+        <article id="privacy-explainer">
+          <p class="sumi-eyebrow">Local by default</p>
+          <h2>Privacy, stated precisely.</h2>
+          <p>
+            Documents are processed in this browser tab. Some tools may fetch
+            versioned engine code; they do not send your PDF to an application
+            server.
+          </p>
+          <a href="privacy.html"
+            >Read the privacy model <span aria-hidden="true">→</span></a
+          >
+        </article>
+        <article id="opensource-explainer">
+          <p class="sumi-eyebrow">AGPL-3.0</p>
+          <h2>Forked openly. Changed visibly.</h2>
+          <p>
+            Sumi PDF is derived from BentoPDF. The modified source and upstream
+            attribution stay explicit.
+          </p>
+          <p class="sumi-principles__links">
+            <a href="{{repoUrl}}" rel="noopener noreferrer">Sumi source</a>
+            <a href="{{upstreamUrl}}" rel="noopener noreferrer"
+              >BentoPDF upstream</a
+            >
+          </p>
+        </article>
       </section>
 
-      <section class="sumi-section" id="privacy-explainer">
-        <h2 data-i18n="privacy.homeTitle">Privacy, stated precisely</h2>
-        <p data-i18n="privacy.homeBody">
-          Merge, compress, organize, and most edits happen in this browser tab.
-          Some tools fetch versioned engine files (WASM) from a CDN unless you
-          self-host them. Those requests are application code, not your PDFs.
-          There is no account and no analytics SDK.
-        </p>
-        <p class="mt-3">
-          <a href="privacy.html" data-i18n="privacy.readMore"
-            >Read the privacy page</a
-          >
-        </p>
-      </section>
-
-      <section class="sumi-section" id="opensource-explainer">
-        <h2 data-i18n="opensource.homeTitle">Open source</h2>
-        <p data-i18n="opensource.homeBody">
-          Sumi PDF is AGPL-3.0 software derived from BentoPDF. The modified
-          source is public. BentoPDF remains the work of its authors and
-          contributors.
-        </p>
-        <p class="mt-3 flex gap-4">
-          <a
-            href="{{repoUrl}}"
-            rel="noopener noreferrer"
-            data-i18n="footer.sourceCode"
-            >Source code</a
-          >
-          <a
-            href="{{upstreamUrl}}"
-            rel="noopener noreferrer"
-            data-i18n="footer.upstream"
-            >BentoPDF upstream</a
-          >
-        </p>
-      </section>
+      <div class="sumi-home-folio" aria-label="Sumi PDF edition information">
+        <span>Local-first · Open source · Free</span>
+        <span>1.0 release candidate</span>
+        <span aria-hidden="true">01</span>
+      </div>
 
       <div
         id="loader-modal"

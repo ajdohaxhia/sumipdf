@@ -5,6 +5,7 @@ import {
   getToolsByCategory,
   searchTools,
   getToolById,
+  getToolIdFromHref,
 } from '@/js/config/tool-registry';
 
 describe('canonical tool registry', () => {
@@ -38,5 +39,36 @@ describe('canonical tool registry', () => {
       const ids = category.tools.map((tool) => tool.id);
       expect(new Set(ids).size).toBe(ids.length);
     }
+  });
+
+  it('parses absolute and relative html routes consistently', () => {
+    expect(getToolIdFromHref('merge-pdf.html')).toBe('merge-pdf');
+    expect(getToolIdFromHref('/tools/merge-pdf.html?from=home')).toBe(
+      'merge-pdf'
+    );
+  });
+
+  it('does not advertise universal batch and workflow support', () => {
+    expect(getToolById('view-metadata')?.batch).toBe(false);
+    expect(getToolById('view-metadata')?.workflowEligible).toBe(false);
+    expect(getToolById('merge-pdf')).toMatchObject({
+      minFiles: 2,
+      maxFiles: null,
+      batch: true,
+      workflowEligible: true,
+    });
+  });
+
+  it('describes Sumi multi-file tools truthfully', () => {
+    expect(getToolById('batch-forms')).toMatchObject({
+      minFiles: 2,
+      maxFiles: 2,
+      outputType: 'application/zip',
+    });
+    expect(getToolById('proof-verifier')).toMatchObject({
+      minFiles: 3,
+      maxFiles: 3,
+    });
+    expect(getToolById('capture')?.accept).toContain('image/jpeg');
   });
 });

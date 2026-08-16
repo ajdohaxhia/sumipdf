@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const playwrightPort = process.env.PLAYWRIGHT_PORT || '4173';
+const localBaseUrl = `http://127.0.0.1:${playwrightPort}`;
+
 /**
  * Sumi PDF E2E — MPA against Vite preview. No SPA catch-all rewrite.
  */
@@ -13,7 +16,7 @@ export default defineConfig({
   workers: 1,
   reporter: process.env.CI ? [['list'], ['github']] : 'list',
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:4173',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || localBaseUrl,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'off',
@@ -21,9 +24,10 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command:
-          'npm run build && npm run preview -- --host 127.0.0.1 --port 4173',
-        url: 'http://127.0.0.1:4173',
+        command: process.env.PLAYWRIGHT_USE_DIST
+          ? `npm run preview -- --host 127.0.0.1 --port ${playwrightPort}`
+          : `npm run build && npm run preview -- --host 127.0.0.1 --port ${playwrightPort}`,
+        url: localBaseUrl,
         reuseExistingServer: !process.env.CI,
         timeout: 600_000,
       },

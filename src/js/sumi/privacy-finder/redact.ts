@@ -134,11 +134,11 @@ export async function applyPrivacyRedaction(
     stillExtractable: still,
     notes: still.length
       ? [
-          'True redaction was requested, but at least one marker is still extractable.',
+          'Redaction was requested, but verification failed because at least one marker is still extractable.',
           'Images of the same words can survive. PyMuPDF is used when the engine loads.',
         ]
       : [
-          'Requested markers were not found in the output bytes.',
+          'The requested markers were not extractable in the verification pass.',
           'Images of the same words, attachments, and other encodings can still remain.',
         ],
   };

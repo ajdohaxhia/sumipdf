@@ -32,12 +32,16 @@ async function bytesOf(file: Blob): Promise<Uint8Array> {
 function mountDrop(
   zone: HTMLElement,
   accept: string,
+  multiple: boolean,
   onFiles: (files: File[]) => void
 ): void {
   const input = zone.querySelector(
     'input[type="file"]'
   ) as HTMLInputElement | null;
-  if (input) input.accept = accept;
+  if (input) {
+    input.accept = accept;
+    input.multiple = multiple;
+  }
   zone.addEventListener('dragover', (event) => {
     event.preventDefault();
     zone.classList.add('is-dragover');
@@ -96,8 +100,9 @@ const COPY: Record<string, { title: string; lead: string; hedge: string }> = {
   },
   capture: {
     title: 'Capture',
-    lead: 'Photograph or import pages, straighten, and build a PDF here.',
-    hedge: 'The camera starts only after you click. Nothing is uploaded.',
+    lead: 'Import image pages, reorder them, and build a PDF locally.',
+    hedge:
+      'Camera capture is experimental. Import is the reliable path in this build.',
   },
   'print-preflight': {
     title: 'Print Preflight',
@@ -111,11 +116,75 @@ const COPY: Record<string, { title: string; lead: string; hedge: string }> = {
     hedge: 'Not PDF/UA. Not WCAG. Sumi does not auto-tag.',
   },
   'watch-folder': {
-    title: 'Watch Folder',
-    lead: 'Experimental opt-in folder watch using the File System Access API.',
-    hedge: 'Off until you choose a folder. Files stay on this device.',
+    title: 'Folder Import',
+    lead: 'Review a local folder and detect changes you explicitly refresh.',
+    hedge:
+      'Experimental Chromium feature. This build does not run background automation.',
   },
 };
+
+interface ToolInputPolicy {
+  accept: string;
+  multiple: boolean;
+  minFiles: number;
+  maxFiles: number;
+  prompt: string;
+  helper: string;
+  action: string;
+}
+
+const DEFAULT_INPUT_POLICY: ToolInputPolicy = {
+  accept: 'application/pdf',
+  multiple: false,
+  minFiles: 1,
+  maxFiles: 1,
+  prompt: 'Choose a PDF',
+  helper: 'or drag it here',
+  action: 'Run locally',
+};
+
+const INPUT_POLICIES: Partial<Record<string, ToolInputPolicy>> = {
+  'batch-forms': {
+    accept: 'application/pdf,.csv,.xlsx,.xls,.json',
+    multiple: true,
+    minFiles: 2,
+    maxFiles: 2,
+    prompt: 'Choose a PDF template and data file',
+    helper: 'CSV, XLSX, or JSON · both files can be selected together',
+    action: 'Map fields',
+  },
+  'packet-builder': {
+    accept: 'application/pdf',
+    multiple: true,
+    minFiles: 1,
+    maxFiles: 12,
+    prompt: 'Choose packet documents',
+    helper: 'select or drop multiple PDFs',
+    action: 'Configure packet',
+  },
+  'proof-verifier': {
+    accept: 'application/pdf,application/json,.json',
+    multiple: true,
+    minFiles: 3,
+    maxFiles: 3,
+    prompt: 'Choose original, output, and receipt',
+    helper: 'two PDFs and one Proof JSON',
+    action: 'Verify receipt',
+  },
+  capture: {
+    accept: 'image/png,image/jpeg,image/webp',
+    multiple: true,
+    minFiles: 1,
+    maxFiles: 50,
+    prompt: 'Choose image pages',
+    helper: 'PNG, JPEG, or WebP · select multiple pages',
+    action: 'Open capture studio',
+  },
+};
+
+function fileKey(file: File): string {
+  return `${file.name}:${file.size}:${file.lastModified}`;
+}
 
 export async function mountOriginalTool(
   root: HTMLElement,
@@ -135,34 +204,89 @@ export async function mountOriginalTool(
     el('p', undefined, copy.lead),
     el('p', 'sumi-ws__hedge', copy.hedge)
   );
+  const policy = INPUT_POLICIES[toolId] || DEFAULT_INPUT_POLICY;
   const drop = el('div', 'sumi-drop');
-  drop.setAttribute('role', 'button');
-  drop.tabIndex = 0;
   drop.append(
-    el('strong', undefined, 'Choose a file'),
-    el('p', undefined, 'Stays in this tab. Engines load after you pick a file.')
+    el('strong', undefined, policy.prompt),
+    el('p', undefined, policy.helper),
+    el(
+      'p',
+      undefined,
+      'Stays in this tab. Engines load only after you continue.'
+    )
   );
   const input = el('input') as HTMLInputElement;
   input.type = 'file';
   input.id = 'original-file';
+  input.setAttribute('aria-label', policy.prompt);
   drop.append(input);
+  const selection = el('div', 'sumi-file-queue');
+  selection.setAttribute('aria-live', 'polite');
   const status = el('p', 'sumi-ws__status', '');
   status.dataset.testid = 'original-status';
   const body = el('div', 'sumi-original__body');
   body.dataset.testid = 'original-body';
-  shell.append(head, drop, status, body);
+  const run = el('button', 'sumi-btn sumi-btn--signal', policy.action);
+  run.type = 'button';
+  run.disabled = true;
+  const controls = el('div', 'sumi-original__controls');
+  controls.append(run);
+  shell.append(head, drop, selection, controls, status, body);
   root.append(shell);
 
-  const accept =
-    toolId === 'batch-forms'
-      ? 'application/pdf,.csv,.xlsx,.xls,.json'
-      : toolId === 'capture'
-        ? 'image/*,application/pdf'
-        : toolId === 'proof-verifier'
-          ? 'application/pdf,application/json'
-          : 'application/pdf';
-  mountDrop(drop, accept, (files) => {
-    void runTool(toolId, files, body, status);
+  let selectedFiles: File[] = [];
+  const renderSelection = (): void => {
+    selection.textContent = '';
+    if (!selectedFiles.length) {
+      selection.append(el('p', 'sumi-ws__hedge', 'No files selected.'));
+    } else {
+      const list = el('ol', 'sumi-file-queue__list');
+      selectedFiles.forEach((file, index) => {
+        const item = el('li', 'sumi-file-queue__item');
+        const description = el('span');
+        description.append(
+          el('strong', undefined, file.name),
+          el(
+            'small',
+            undefined,
+            `${file.type || 'unknown type'} · ${(file.size / 1024).toFixed(1)} KB`
+          )
+        );
+        const remove = el('button', 'sumi-btn sumi-btn--small', 'Remove');
+        remove.type = 'button';
+        remove.setAttribute('aria-label', `Remove ${file.name}`);
+        remove.addEventListener('click', () => {
+          selectedFiles = selectedFiles.filter((_, i) => i !== index);
+          renderSelection();
+        });
+        item.append(description, remove);
+        list.append(item);
+      });
+      selection.append(list);
+    }
+    const validCount =
+      selectedFiles.length >= policy.minFiles &&
+      selectedFiles.length <= policy.maxFiles;
+    run.disabled = !validCount;
+    status.textContent = validCount
+      ? `${selectedFiles.length} file(s) ready. Nothing has run yet.`
+      : `Select ${policy.minFiles === policy.maxFiles ? policy.minFiles : `${policy.minFiles}–${policy.maxFiles}`} file(s).`;
+  };
+
+  mountDrop(drop, policy.accept, policy.multiple, (incoming) => {
+    if (policy.multiple) {
+      const next = new Map(selectedFiles.map((file) => [fileKey(file), file]));
+      incoming.forEach((file) => next.set(fileKey(file), file));
+      selectedFiles = [...next.values()].slice(0, policy.maxFiles);
+    } else {
+      selectedFiles = incoming.slice(0, 1);
+    }
+    input.value = '';
+    renderSelection();
+  });
+
+  run.addEventListener('click', () => {
+    void runTool(toolId, selectedFiles.slice(), body, status);
   });
 
   const existing = listWorkspaceItems()[0];
@@ -175,7 +299,15 @@ export async function mountOriginalTool(
     const file = new File([existing.blob], existing.name, {
       type: existing.mimeType,
     });
-    void runTool(toolId, [file], body, status);
+    selectedFiles = [file];
+  }
+  renderSelection();
+
+  if (toolId === 'watch-folder') {
+    drop.hidden = true;
+    selection.hidden = true;
+    controls.hidden = true;
+    void runTool(toolId, [], body, status);
   }
 }
 
@@ -188,6 +320,9 @@ async function runTool(
   body.textContent = '';
   status.textContent = 'Working on this device…';
   try {
+    if (!files.length && toolId !== 'watch-folder') {
+      throw new Error('Choose the required file(s) before running this tool.');
+    }
     switch (toolId) {
       case 'sentinel':
         await runSentinel(files[0], body, status);
@@ -363,32 +498,47 @@ async function runPrivacy(
       if (exclude.value.trim()) excluded = [...excluded, exclude.value.trim()];
       void render();
     });
-    const cover = el('button', 'sumi-btn', 'Visual cover selected');
+    const cover = el(
+      'button',
+      'sumi-btn',
+      'Visual cover unavailable without coordinates'
+    );
     cover.type = 'button';
+    cover.disabled = true;
+    cover.title =
+      'Privacy Finder does not yet have verified bounding boxes for these text hits.';
     const redact = el(
       'button',
       'sumi-btn sumi-btn--signal',
-      'True-redact selected'
+      'Redact selected and verify'
     );
     redact.type = 'button';
     const apply = async (mode: 'true' | 'cover') => {
       const hits = hitsForSelection(result.hits, [...selected], excluded);
       const out = await applyPrivacyRedaction(bytes, { hits, mode });
+      const verified = mode === 'true' && out.stillExtractable.length === 0;
+      const suffix =
+        mode === 'cover'
+          ? 'visual-cover'
+          : verified
+            ? 'redacted'
+            : 'redaction-unverified';
       addWorkspaceFile(
         new Blob([new Uint8Array(out.bytes)], { type: 'application/pdf' }),
         {
-          name: file.name.replace(/\.pdf$/i, `-${mode}.pdf`),
+          name: file.name.replace(/\.pdf$/i, `-${suffix}.pdf`),
           sourceToolId: 'privacy-finder',
         }
       );
       download(
         out.bytes,
-        file.name.replace(/\.pdf$/i, `-${mode}.pdf`),
+        file.name.replace(/\.pdf$/i, `-${suffix}.pdf`),
         'application/pdf'
       );
-      status.textContent = out.notes.join(' ');
+      status.textContent = verified
+        ? out.notes.join(' ')
+        : `Verification failed: ${out.stillExtractable.length} selected marker(s) remain extractable. ${out.notes.join(' ')}`;
     };
-    cover.addEventListener('click', () => void apply('cover'));
     redact.addEventListener('click', () => void apply('true'));
     body.append(
       term,
@@ -595,31 +745,196 @@ async function runBatch(
     return;
   }
   const rows = await parseSpreadsheet(await bytesOf(table), table.name);
-  const mapping = fields
-    .filter((f) => f.type !== 'signature')
-    .map((f) => ({
-      field: f.name,
-      column:
-        Object.keys(rows[0] || {}).find(
-          (k) => k.toLowerCase() === f.name.toLowerCase()
-        ) || f.name,
-      transform: 'trim' as const,
-    }));
-  const result = await fillBatch(templateBytes, rows, {
-    mapping,
-    flatten: true,
-    skipInvalid: true,
-    filenameTemplate: '{original}-{counter}.pdf',
-  });
-  status.textContent = `${result.files.length} PDF(s), ${result.skipped.length} skipped.`;
-  body.append(el('p', 'sumi-ws__hedge', result.notes.join(' ')));
-  const zip = await zipBatch(result);
-  const btn = el('button', 'sumi-btn sumi-btn--signal', 'Download ZIP');
-  btn.type = 'button';
-  btn.addEventListener('click', () =>
-    download(zip, 'batch-forms.zip', 'application/zip')
+  const columns = Object.keys(rows[0] || {});
+  if (!fields.length) {
+    status.textContent = 'This PDF has no fillable AcroForm fields.';
+    return;
+  }
+  if (!rows.length || !columns.length) {
+    status.textContent = 'The data file contains no usable rows.';
+    return;
+  }
+
+  status.textContent = `${fields.length} field(s) · ${rows.length} data row(s). Review the mapping before generation.`;
+  const studio = el('section', 'sumi-studio');
+  const intro = el('div', 'sumi-studio__intro');
+  intro.append(
+    el('h2', undefined, 'Map template fields'),
+    el(
+      'p',
+      'sumi-ws__hedge',
+      'Nothing is generated until you confirm this mapping.'
+    )
   );
-  body.append(btn);
+  studio.append(intro);
+
+  const mappingEditors: Array<{
+    field: string;
+    column: HTMLSelectElement;
+    transform: HTMLSelectElement;
+  }> = [];
+  const mappingList = el('div', 'sumi-mapping');
+  for (const field of fields.filter((item) => item.type !== 'signature')) {
+    const row = el('div', 'sumi-mapping__row');
+    const fieldName = el('strong', undefined, field.name);
+    const fieldMeta = el(
+      'small',
+      undefined,
+      `${field.type}${field.options?.length ? ` · ${field.options.length} choices` : ''}`
+    );
+    const label = el('label');
+    label.append(document.createTextNode('Data column'));
+    const select = el('select') as HTMLSelectElement;
+    select.append(new Option('Do not fill', ''));
+    columns.forEach((column) => select.append(new Option(column, column)));
+    const exact = columns.find(
+      (column) => column.toLowerCase() === field.name.toLowerCase()
+    );
+    select.value = exact || '';
+    label.append(select);
+
+    const transformLabel = el('label');
+    transformLabel.append(document.createTextNode('Transform'));
+    const transform = el('select') as HTMLSelectElement;
+    for (const value of [
+      'none',
+      'trim',
+      'upper',
+      'lower',
+      'title',
+      'date-iso',
+      'date-it',
+      'date-us',
+    ]) {
+      transform.append(new Option(value, value));
+    }
+    transform.value = 'trim';
+    transformLabel.append(transform);
+    const fieldCell = el('div');
+    fieldCell.append(fieldName, fieldMeta);
+    row.append(fieldCell, label, transformLabel);
+    mappingList.append(row);
+    mappingEditors.push({ field: field.name, column: select, transform });
+  }
+  studio.append(mappingList);
+
+  const preview = el('div', 'sumi-data-preview');
+  preview.append(el('h2', undefined, 'Data preview'));
+  const tablePreview = el('table');
+  const thead = el('thead');
+  const headerRow = el('tr');
+  columns
+    .slice(0, 6)
+    .forEach((column) => headerRow.append(el('th', undefined, column)));
+  thead.append(headerRow);
+  const tbody = el('tbody');
+  rows.slice(0, 3).forEach((dataRow) => {
+    const tr = el('tr');
+    columns
+      .slice(0, 6)
+      .forEach((column) =>
+        tr.append(el('td', undefined, dataRow[column] || '—'))
+      );
+    tbody.append(tr);
+  });
+  tablePreview.append(thead, tbody);
+  preview.append(tablePreview);
+  studio.append(preview);
+
+  const options = el('fieldset', 'sumi-studio__options');
+  options.append(el('legend', undefined, 'Output'));
+  const flattenLabel = el('label');
+  const flatten = el('input') as HTMLInputElement;
+  flatten.type = 'checkbox';
+  flatten.checked = true;
+  flattenLabel.append(flatten, document.createTextNode(' Flatten form fields'));
+  const skipLabel = el('label');
+  const skipInvalid = el('input') as HTMLInputElement;
+  skipInvalid.type = 'checkbox';
+  skipInvalid.checked = true;
+  skipLabel.append(
+    skipInvalid,
+    document.createTextNode(' Skip rows with mapping errors')
+  );
+  const namingLabel = el('label');
+  namingLabel.append(document.createTextNode('Filename template'));
+  const naming = el('input') as HTMLInputElement;
+  naming.type = 'text';
+  naming.value = '{original}-{counter}.pdf';
+  namingLabel.append(naming);
+  options.append(flattenLabel, skipLabel, namingLabel);
+  studio.append(options);
+
+  const output = el('div', 'sumi-studio__result');
+  const generate = el(
+    'button',
+    'sumi-btn sumi-btn--signal',
+    'Generate local batch'
+  );
+  generate.type = 'button';
+  generate.addEventListener('click', async () => {
+    generate.disabled = true;
+    output.textContent = '';
+    status.textContent = `Generating ${rows.length} row(s) on this device…`;
+    try {
+      const mapping = mappingEditors
+        .filter((editor) => editor.column.value)
+        .map((editor) => ({
+          field: editor.field,
+          column: editor.column.value,
+          transform: editor.transform.value as
+            | 'none'
+            | 'trim'
+            | 'upper'
+            | 'lower'
+            | 'title'
+            | 'date-iso'
+            | 'date-it'
+            | 'date-us',
+        }));
+      if (!mapping.length) {
+        throw new Error('Map at least one template field.');
+      }
+      const result = await fillBatch(templateBytes, rows, {
+        mapping,
+        flatten: flatten.checked,
+        skipInvalid: skipInvalid.checked,
+        filenameTemplate: naming.value.trim() || '{original}-{counter}.pdf',
+      });
+      status.textContent = `${result.files.length} PDF(s) ready · ${result.skipped.length} skipped.`;
+      if (result.issues.length) {
+        listFindings(
+          output,
+          result.issues.slice(0, 50).map((issue) => ({
+            title: `Row ${issue.row} · ${issue.field}`,
+            body: issue.message,
+            meta: issue.repair ? `Source value: ${issue.repair}` : undefined,
+          }))
+        );
+      }
+      output.append(el('p', 'sumi-ws__hedge', result.notes.join(' ')));
+      if (result.files.length) {
+        const zip = await zipBatch(result);
+        const downloadButton = el(
+          'button',
+          'sumi-btn sumi-btn--signal',
+          'Download ZIP'
+        );
+        downloadButton.type = 'button';
+        downloadButton.addEventListener('click', () =>
+          download(zip, 'batch-forms.zip', 'application/zip')
+        );
+        output.append(downloadButton);
+      }
+    } catch (error) {
+      status.textContent =
+        error instanceof Error ? error.message : String(error);
+    } finally {
+      generate.disabled = false;
+    }
+  });
+  studio.append(generate, output);
+  body.append(studio);
 }
 
 async function runPacket(
@@ -629,56 +944,166 @@ async function runPacket(
 ): Promise<void> {
   const { PACKET_TEMPLATES, buildPacket } =
     await import('../packet-builder/index.js');
-  const tmpl = PACKET_TEMPLATES[0];
-  const slots = tmpl.slots.map((slot, i) => ({
-    ...slot,
-    fileName: files[i]?.name,
-    bytes: undefined as Uint8Array | undefined,
-  }));
-  for (let i = 0; i < Math.min(files.length, slots.length); i++) {
-    slots[i].bytes = await bytesOf(files[i]);
-    slots[i].fileName = files[i].name;
-  }
-  const built = await buildPacket(slots, {
-    normalize: true,
-    compress: false,
-    coverTitle: tmpl.name,
-    separators: true,
-    bookmarks: true,
-    toc: false,
-    pageNumbers: true,
-    cleanMetadata: true,
-  });
-  status.textContent = built.warnings.map((w) => w.message).join(' ');
-  addWorkspaceFile(
-    new Blob([new Uint8Array(built.bytes)], { type: 'application/pdf' }),
-    {
-      name: 'packet.pdf',
-      sourceToolId: 'packet-builder',
-    }
+  const fileBytes = await Promise.all(files.map((file) => bytesOf(file)));
+  const studio = el('section', 'sumi-studio');
+  const templateLabel = el('label');
+  templateLabel.append(document.createTextNode('Packet template'));
+  const templateSelect = el('select') as HTMLSelectElement;
+  PACKET_TEMPLATES.forEach((template) =>
+    templateSelect.append(new Option(template.name, template.id))
   );
-  const stack = new FlowStack();
-  stack.addStep('remove-metadata');
-  const execution = await executeFlow(stack.document, {
-    bytes: built.bytes,
-    fileName: 'packet.pdf',
-  });
-  const proof = await buildProofReport({ execution });
-  const dl = el(
+  templateLabel.append(templateSelect);
+
+  const summary = el('p', 'sumi-ws__hedge');
+  const slotsHost = el('div', 'sumi-packet-slots');
+  const options = el('fieldset', 'sumi-studio__options');
+  options.append(el('legend', undefined, 'Packet options'));
+  const option = (labelText: string, checked: boolean) => {
+    const label = el('label');
+    const input = el('input') as HTMLInputElement;
+    input.type = 'checkbox';
+    input.checked = checked;
+    label.append(input, document.createTextNode(` ${labelText}`));
+    options.append(label);
+    return input;
+  };
+  const cover = option('Cover page', true);
+  const separators = option('Section separators', true);
+  const toc = option('Table of contents and bookmarks', true);
+  const pageNumbers = option('Page numbers', true);
+  const normalize = option('Fit pages to A4', false);
+  const cleanMetadata = option('Remove document metadata', true);
+  const compress = option('Attempt object-stream compression', false);
+  const output = el('div', 'sumi-studio__result');
+  const build = el(
     'button',
     'sumi-btn sumi-btn--signal',
-    'Download packet + Proof JSON'
+    'Build packet locally'
   );
-  dl.type = 'button';
-  dl.addEventListener('click', () => {
-    download(built.bytes, 'packet.pdf', 'application/pdf');
-    download(
-      new TextEncoder().encode(proofReportToJson(proof)),
-      'packet-proof.json',
-      'application/json'
-    );
+  build.type = 'button';
+
+  let slotSelects: HTMLSelectElement[] = [];
+  const currentTemplate = () =>
+    PACKET_TEMPLATES.find((item) => item.id === templateSelect.value) ||
+    PACKET_TEMPLATES[0];
+
+  const renderSlots = (): void => {
+    const template = currentTemplate();
+    summary.textContent = template.summary;
+    slotsHost.textContent = '';
+    slotSelects = [];
+    template.slots.forEach((slot, index) => {
+      const row = el('label', 'sumi-packet-slot');
+      const label = el(
+        'span',
+        undefined,
+        `${slot.label}${slot.required ? ' · required' : ' · optional'}`
+      );
+      const select = el('select') as HTMLSelectElement;
+      select.append(new Option('Leave empty', ''));
+      files.forEach((file, fileIndex) =>
+        select.append(new Option(file.name, String(fileIndex)))
+      );
+      if (files[index]) select.value = String(index);
+      row.append(label, select);
+      slotsHost.append(row);
+      slotSelects.push(select);
+    });
+  };
+  templateSelect.addEventListener('change', renderSlots);
+  renderSlots();
+
+  build.addEventListener('click', async () => {
+    build.disabled = true;
+    output.textContent = '';
+    status.textContent = 'Building packet on this device…';
+    try {
+      const template = currentTemplate();
+      const slots = template.slots.map((slot, index) => {
+        const selected = slotSelects[index]?.value;
+        const fileIndex = selected === '' ? -1 : Number(selected);
+        return {
+          ...slot,
+          fileName: fileIndex >= 0 ? files[fileIndex]?.name : undefined,
+          bytes: fileIndex >= 0 ? fileBytes[fileIndex] : undefined,
+        };
+      });
+      const built = await buildPacket(slots, {
+        normalize: normalize.checked,
+        compress: compress.checked,
+        coverTitle: cover.checked ? template.name : undefined,
+        separators: separators.checked,
+        bookmarks: toc.checked,
+        toc: toc.checked,
+        pageNumbers: pageNumbers.checked,
+        cleanMetadata: cleanMetadata.checked,
+      });
+      const blocking = built.warnings.filter(
+        (warning) => warning.level === 'missing'
+      );
+      status.textContent = blocking.length
+        ? `${blocking.length} required slot(s) are missing. The preview was still built.`
+        : 'Packet ready. Review the notes, then export or add it to the workspace.';
+      listFindings(
+        output,
+        built.warnings.map((warning) => ({
+          title: warning.level,
+          body: warning.message,
+        }))
+      );
+      output.append(el('p', 'sumi-ws__hedge', built.notes.join(' ')));
+
+      const stack = new FlowStack();
+      stack.addStep('remove-metadata');
+      const execution = await executeFlow(stack.document, {
+        bytes: built.bytes,
+        fileName: 'packet.pdf',
+      });
+      const proof = await buildProofReport({ execution });
+      const actions = el('div', 'sumi-flow__run');
+      const downloadPacket = el(
+        'button',
+        'sumi-btn sumi-btn--signal',
+        'Download packet PDF'
+      );
+      downloadPacket.type = 'button';
+      downloadPacket.addEventListener('click', () =>
+        download(built.bytes, 'packet.pdf', 'application/pdf')
+      );
+      const downloadProof = el('button', 'sumi-btn', 'Download Proof JSON');
+      downloadProof.type = 'button';
+      downloadProof.addEventListener('click', () =>
+        download(
+          new TextEncoder().encode(proofReportToJson(proof)),
+          'packet-proof.json',
+          'application/json'
+        )
+      );
+      const add = el('button', 'sumi-btn', 'Add packet to workspace');
+      add.type = 'button';
+      add.addEventListener('click', () => {
+        addWorkspaceFile(
+          new Blob([new Uint8Array(built.bytes)], {
+            type: 'application/pdf',
+          }),
+          { name: 'packet.pdf', sourceToolId: 'packet-builder' }
+        );
+        add.disabled = true;
+        add.textContent = 'Added to workspace';
+      });
+      actions.append(downloadPacket, downloadProof, add);
+      output.append(actions);
+    } catch (error) {
+      status.textContent =
+        error instanceof Error ? error.message : String(error);
+    } finally {
+      build.disabled = false;
+    }
   });
-  body.append(el('p', 'sumi-ws__hedge', tmpl.summary), dl);
+
+  studio.append(templateLabel, summary, slotsHost, options, build, output);
+  body.append(studio);
+  status.textContent = `${files.length} document(s) ready for slot mapping.`;
 }
 
 async function runVerifier(
@@ -712,6 +1137,40 @@ async function runVerifier(
   );
 }
 
+async function captureFileToPdfImage(
+  file: File,
+  rotation: 0 | 90 | 180 | 270
+): Promise<{ bytes: Uint8Array; mimeType: string }> {
+  if (rotation === 0 && /image\/(png|jpe?g)/i.test(file.type)) {
+    return { bytes: await bytesOf(file), mimeType: file.type };
+  }
+  if (typeof createImageBitmap !== 'function') {
+    throw new Error('This browser cannot normalize this image format.');
+  }
+  const bitmap = await createImageBitmap(file);
+  const swap = rotation === 90 || rotation === 270;
+  const canvas = document.createElement('canvas');
+  canvas.width = swap ? bitmap.height : bitmap.width;
+  canvas.height = swap ? bitmap.width : bitmap.height;
+  const context = canvas.getContext('2d');
+  if (!context) {
+    bitmap.close();
+    throw new Error('Canvas processing is unavailable in this browser.');
+  }
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate((rotation * Math.PI) / 180);
+  context.drawImage(bitmap, -bitmap.width / 2, -bitmap.height / 2);
+  bitmap.close();
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (value) =>
+        value ? resolve(value) : reject(new Error('Image conversion failed.')),
+      'image/png'
+    );
+  });
+  return { bytes: await bytesOf(blob), mimeType: 'image/png' };
+}
+
 async function runCapture(
   files: File[],
   body: HTMLElement,
@@ -719,42 +1178,198 @@ async function runCapture(
 ): Promise<void> {
   const { imagesToPdf, cameraConstraints } =
     await import('../capture/index.js');
-  status.textContent =
-    'Import images or start the camera after you click. Nothing is uploaded.';
-  const start = el('button', 'sumi-btn', 'Start camera');
-  start.type = 'button';
+  type CaptureEntry = {
+    file: File;
+    rotation: 0 | 90 | 180 | 270;
+  };
+  let entries: CaptureEntry[] = files
+    .filter((file) => file.type.startsWith('image/'))
+    .map((file) => ({ file, rotation: 0 }));
+  let stream: MediaStream | null = null;
+  const studio = el('section', 'sumi-capture-studio');
+  const camera = el('div', 'sumi-camera');
+  const video = el('video') as HTMLVideoElement;
+  video.autoplay = true;
+  video.playsInline = true;
+  video.muted = true;
+  video.hidden = true;
+  const cameraActions = el('div', 'sumi-flow__run');
+  const start = el('button', 'sumi-btn', 'Use camera');
+  const take = el('button', 'sumi-btn sumi-btn--signal', 'Capture page');
+  const stop = el('button', 'sumi-btn', 'Stop camera');
+  start.type = take.type = stop.type = 'button';
+  take.disabled = true;
+  stop.disabled = true;
+  cameraActions.append(start, take, stop);
+  camera.append(video, cameraActions);
+
+  const pages = el('ol', 'sumi-capture-pages');
+  const output = el('div', 'sumi-studio__result');
+  const build = el(
+    'button',
+    'sumi-btn sumi-btn--signal',
+    'Build PDF from pages'
+  );
+  build.type = 'button';
+
+  const renderPages = (): void => {
+    pages.textContent = '';
+    entries.forEach((entry, index) => {
+      const item = el('li', 'sumi-capture-page');
+      const image = el('img') as HTMLImageElement;
+      const url = URL.createObjectURL(entry.file);
+      image.src = url;
+      image.alt = `Preview of ${entry.file.name}`;
+      image.style.transform = `rotate(${entry.rotation}deg)`;
+      image.addEventListener('load', () => URL.revokeObjectURL(url), {
+        once: true,
+      });
+      const meta = el('div');
+      meta.append(
+        el('strong', undefined, entry.file.name),
+        el('small', undefined, `Page ${index + 1} · ${entry.rotation}°`)
+      );
+      const actions = el('div', 'sumi-flow__run');
+      const up = el('button', 'sumi-btn sumi-btn--small', 'Up');
+      const down = el('button', 'sumi-btn sumi-btn--small', 'Down');
+      const rotate = el('button', 'sumi-btn sumi-btn--small', 'Rotate');
+      const remove = el('button', 'sumi-btn sumi-btn--small', 'Remove');
+      up.type = down.type = rotate.type = remove.type = 'button';
+      up.disabled = index === 0;
+      down.disabled = index === entries.length - 1;
+      up.addEventListener('click', () => {
+        [entries[index - 1], entries[index]] = [
+          entries[index],
+          entries[index - 1],
+        ];
+        renderPages();
+      });
+      down.addEventListener('click', () => {
+        [entries[index], entries[index + 1]] = [
+          entries[index + 1],
+          entries[index],
+        ];
+        renderPages();
+      });
+      rotate.addEventListener('click', () => {
+        entry.rotation = ((entry.rotation + 90) % 360) as 0 | 90 | 180 | 270;
+        renderPages();
+      });
+      remove.addEventListener('click', () => {
+        entries = entries.filter((_, itemIndex) => itemIndex !== index);
+        renderPages();
+      });
+      actions.append(up, down, rotate, remove);
+      item.append(image, meta, actions);
+      pages.append(item);
+    });
+    build.disabled = entries.length === 0;
+    status.textContent = entries.length
+      ? `${entries.length} page(s) ready. Reorder or rotate before export.`
+      : 'Add at least one image page.';
+  };
+
+  const stopCamera = (): void => {
+    stream?.getTracks().forEach((track) => track.stop());
+    stream = null;
+    video.srcObject = null;
+    video.hidden = true;
+    take.disabled = true;
+    stop.disabled = true;
+    start.disabled = false;
+  };
   start.addEventListener('click', async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      status.textContent = 'Camera API missing. Use image import.';
+      status.textContent = 'Camera API unavailable. Use image import instead.';
       return;
     }
-    const stream =
-      await navigator.mediaDevices.getUserMedia(cameraConstraints());
-    stream.getTracks().forEach((t) => t.stop());
-    status.textContent =
-      'Camera permission worked. Capture frames in a later pass; import is the reliable path.';
-  });
-  const images = files.filter((f) => f.type.startsWith('image/'));
-  if (images.length) {
-    const pngs: Uint8Array[] = [];
-    for (const image of images) pngs.push(await bytesOf(image));
     try {
-      const pdf = await imagesToPdf(pngs.map((png) => ({ png })));
-      download(pdf, 'capture.pdf', 'application/pdf');
-      addWorkspaceFile(
-        new Blob([new Uint8Array(pdf)], { type: 'application/pdf' }),
-        {
-          name: 'capture.pdf',
-          sourceToolId: 'capture',
-        }
-      );
-      status.textContent = 'Imported images into a local PDF.';
-    } catch {
+      stream = await navigator.mediaDevices.getUserMedia(cameraConstraints());
+      video.srcObject = stream;
+      video.hidden = false;
+      take.disabled = false;
+      stop.disabled = false;
+      start.disabled = true;
       status.textContent =
-        'Import needs PNG bytes in this build. Convert photos to PNG or use Images to PDF.';
+        'Camera active. Nothing is recorded until you capture.';
+    } catch (error) {
+      status.textContent =
+        error instanceof Error ? error.message : 'Camera permission failed.';
     }
-  }
-  body.append(start);
+  });
+  stop.addEventListener('click', stopCamera);
+  take.addEventListener('click', async () => {
+    if (!video.videoWidth || !video.videoHeight) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    context.drawImage(video, 0, 0);
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (value) =>
+          value ? resolve(value) : reject(new Error('Camera capture failed.')),
+        'image/png'
+      );
+    });
+    entries.push({
+      file: new File([blob], `camera-page-${entries.length + 1}.png`, {
+        type: 'image/png',
+        lastModified: Date.now(),
+      }),
+      rotation: 0,
+    });
+    renderPages();
+  });
+
+  build.addEventListener('click', async () => {
+    build.disabled = true;
+    output.textContent = '';
+    status.textContent = 'Normalizing image pages and building PDF locally…';
+    try {
+      const normalized = [];
+      for (const entry of entries) {
+        normalized.push(
+          await captureFileToPdfImage(entry.file, entry.rotation)
+        );
+      }
+      const pdf = await imagesToPdf(normalized);
+      status.textContent = `${entries.length} page PDF ready.`;
+      const actions = el('div', 'sumi-flow__run');
+      const downloadPdf = el(
+        'button',
+        'sumi-btn sumi-btn--signal',
+        'Download capture.pdf'
+      );
+      downloadPdf.type = 'button';
+      downloadPdf.addEventListener('click', () =>
+        download(pdf, 'capture.pdf', 'application/pdf')
+      );
+      const add = el('button', 'sumi-btn', 'Add to workspace');
+      add.type = 'button';
+      add.addEventListener('click', () => {
+        addWorkspaceFile(
+          new Blob([new Uint8Array(pdf)], { type: 'application/pdf' }),
+          { name: 'capture.pdf', sourceToolId: 'capture' }
+        );
+        add.disabled = true;
+        add.textContent = 'Added to workspace';
+      });
+      actions.append(downloadPdf, add);
+      output.append(actions);
+    } catch (error) {
+      status.textContent =
+        error instanceof Error ? error.message : String(error);
+    } finally {
+      build.disabled = entries.length === 0;
+    }
+  });
+
+  window.addEventListener('pagehide', stopCamera, { once: true });
+  studio.append(camera, pages, build, output);
+  body.append(studio);
+  renderPages();
 }
 
 async function runPreflightUi(
@@ -807,22 +1422,78 @@ async function runA11y(
 }
 
 async function runWatch(body: HTMLElement, status: HTMLElement): Promise<void> {
-  const { isWatchFolderAvailable, watchFolderDisclaimer } =
-    await import('../watch-folder/index.js');
+  const {
+    isWatchFolderAvailable,
+    watchFolderDisclaimer,
+    readWatchedFiles,
+    diffWatched,
+  } = await import('../watch-folder/index.js');
   status.textContent = watchFolderDisclaimer();
-  const btn = el('button', 'sumi-btn', 'Choose folder (opt-in)');
-  btn.type = 'button';
-  btn.disabled = !isWatchFolderAvailable();
-  btn.addEventListener('click', async () => {
+  body.append(el('p', 'sumi-ws__hedge', watchFolderDisclaimer()));
+  const actions = el('div', 'sumi-flow__run');
+  const choose = el('button', 'sumi-btn sumi-btn--signal', 'Choose folder');
+  const refresh = el('button', 'sumi-btn', 'Refresh folder');
+  choose.type = refresh.type = 'button';
+  choose.disabled = !isWatchFolderAvailable();
+  refresh.disabled = true;
+  const results = el('div', 'sumi-studio__result');
+  let handle: Parameters<typeof readWatchedFiles>[0] | null = null;
+  let snapshot: Awaited<ReturnType<typeof readWatchedFiles>> = [];
+
+  const showCurrent = (): void => {
+    results.textContent = '';
+    listFindings(
+      results,
+      snapshot.map((file) => ({
+        title: file.name,
+        body: `${(file.size / 1024).toFixed(1)} KB`,
+        meta: `Last modified ${new Date(file.lastModified).toLocaleString()}`,
+      }))
+    );
+  };
+
+  choose.addEventListener('click', async () => {
     const picker = (
       window as unknown as {
-        showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
+        showDirectoryPicker?: () => Promise<
+          Parameters<typeof readWatchedFiles>[0]
+        >;
       }
     ).showDirectoryPicker;
     if (!picker) return;
-    await picker();
-    status.textContent =
-      'Folder selected in this session. Polling stays experimental and local.';
+    try {
+      handle = await picker();
+      snapshot = await readWatchedFiles(handle);
+      refresh.disabled = false;
+      status.textContent = `${snapshot.length} file(s) indexed. Sumi will not refresh in the background.`;
+      showCurrent();
+    } catch (error) {
+      status.textContent =
+        error instanceof Error ? error.message : 'Folder selection cancelled.';
+    }
   });
-  body.append(btn);
+  refresh.addEventListener('click', async () => {
+    if (!handle) return;
+    const next = await readWatchedFiles(handle);
+    const diff = diffWatched(snapshot, next);
+    snapshot = next;
+    results.textContent = '';
+    status.textContent = `${diff.added.length} added · ${diff.removed.length} removed since the last refresh.`;
+    if (diff.added.length || diff.removed.length) {
+      listFindings(results, [
+        ...diff.added.map((file) => ({
+          title: `Added · ${file.name}`,
+          body: `${(file.size / 1024).toFixed(1)} KB`,
+        })),
+        ...diff.removed.map((file) => ({
+          title: `Removed · ${file.name}`,
+          body: 'No action was taken.',
+        })),
+      ]);
+    } else {
+      results.append(el('p', 'sumi-ws__hedge', 'No changes detected.'));
+    }
+  });
+  actions.append(choose, refresh);
+  body.append(actions, results);
 }

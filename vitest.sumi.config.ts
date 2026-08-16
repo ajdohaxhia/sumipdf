@@ -27,6 +27,7 @@ export default defineConfig({
       'src/tests/priority-one-originals.test.ts',
       'src/tests/priority-two-originals.test.ts',
       'src/tests/originals-privacy.test.ts',
+      'src/tests/original-page-ui.test.ts',
     ],
     testTimeout: 30000,
     hookTimeout: 30000,

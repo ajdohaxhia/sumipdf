@@ -53,15 +53,14 @@ export async function scanPrivacy(
     }
   }
 
-  const usedOcr = Boolean(options.includeOcr && emptyTextPages.length > 0);
   const limitations = [
-    'Text-layer scan first. OCR runs only when you ask and a page has little extractable text.',
+    'This build scans extractable PDF text. OCR is not wired into Privacy Finder yet.',
     'No name or address guessing. Custom terms are literal strings you typed.',
     'Checksummed IBAN, card, Codice Fiscale, and Italian VAT values still need a human review.',
   ];
-  if (usedOcr) {
+  if (options.includeOcr && emptyTextPages.length > 0) {
     limitations.push(
-      'OCR was requested for pages with little text. Quality depends on resolution.'
+      'OCR was requested, but no OCR pass ran. Image-only pages remain unscanned.'
     );
   }
 

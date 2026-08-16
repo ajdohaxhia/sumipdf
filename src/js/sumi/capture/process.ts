@@ -89,12 +89,22 @@ export function toMono(
 }
 
 export async function imagesToPdf(
-  pages: Array<{ png: Uint8Array; width?: number; height?: number }>
+  pages: Array<{
+    png?: Uint8Array;
+    bytes?: Uint8Array;
+    mimeType?: string;
+    width?: number;
+    height?: number;
+  }>
 ): Promise<Uint8Array> {
   const { PDFDocument } = await import('pdf-lib');
   const doc = await PDFDocument.create();
   for (const page of pages) {
-    const image = await doc.embedPng(page.png);
+    const bytes = page.bytes || page.png;
+    if (!bytes) throw new Error('Capture page has no image bytes.');
+    const image = /jpe?g/i.test(page.mimeType || '')
+      ? await doc.embedJpg(bytes)
+      : await doc.embedPng(bytes);
     const pdfPage = doc.addPage([image.width, image.height]);
     pdfPage.drawImage(image, {
       x: 0,

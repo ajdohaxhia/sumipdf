@@ -14,6 +14,7 @@ import {
 } from '@/js/sumi/accessibility';
 import {
   diffWatched,
+  readWatchedFiles,
   WATCH_FOLDER_EXPERIMENTAL,
   watchFolderDisclaimer,
 } from '@/js/sumi/watch-folder';
@@ -90,5 +91,41 @@ describe('Watch Folder', () => {
       ]
     );
     expect(diff.added.map((f) => f.name)).toEqual(['b.pdf']);
+  });
+
+  it('reads only files when the user explicitly refreshes a directory', async () => {
+    const entries = [
+      {
+        kind: 'directory' as const,
+        name: 'nested',
+      },
+      {
+        kind: 'file' as const,
+        name: 'b.pdf',
+        getFile: async () =>
+          new File(['bb'], 'b.pdf', {
+            type: 'application/pdf',
+            lastModified: 2,
+          }),
+      },
+      {
+        kind: 'file' as const,
+        name: 'a.pdf',
+        getFile: async () =>
+          new File(['a'], 'a.pdf', {
+            type: 'application/pdf',
+            lastModified: 1,
+          }),
+      },
+    ];
+    const files = await readWatchedFiles({
+      async *values() {
+        yield* entries;
+      },
+    });
+    expect(files).toEqual([
+      { name: 'a.pdf', size: 1, lastModified: 1 },
+      { name: 'b.pdf', size: 2, lastModified: 2 },
+    ]);
   });
 });

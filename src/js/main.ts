@@ -156,11 +156,7 @@ const init = async () => {
     if (shortcutSettingsBtn) shortcutSettingsBtn.style.display = 'none';
   } else {
     if (keyboardShortcutBtn) {
-      keyboardShortcutBtn.textContent = navigator.userAgent
-        .toUpperCase()
-        .includes('MAC')
-        ? '⌘ + K'
-        : 'Ctrl + K';
+      keyboardShortcutBtn.textContent = '/';
     }
   }
 
@@ -510,16 +506,17 @@ const init = async () => {
       createIcons({ icons });
     });
 
-    window.addEventListener('keydown', function (e) {
-      const key = e.key.toLowerCase();
-      const isMac = navigator.userAgent.toUpperCase().includes('MAC');
-      const isCtrlK = e.ctrlKey && key === 'k';
-      const isCmdK = isMac && e.metaKey && key === 'k';
-
-      if (isCtrlK || isCmdK) {
-        e.preventDefault();
-        searchBar.focus();
+    window.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement | null;
+      const isEditing =
+        target?.matches('input, textarea, select, [contenteditable="true"]') ||
+        false;
+      if (event.key !== '/' || isEditing || event.metaKey || event.ctrlKey) {
+        return;
       }
+      event.preventDefault();
+      searchBar.closest('details')?.setAttribute('open', '');
+      searchBar.focus();
     });
 
     dom.toolGrid.addEventListener('click', () => {

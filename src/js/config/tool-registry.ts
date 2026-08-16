@@ -213,6 +213,162 @@ const RELATED: Record<string, string[]> = {
   'redact-pdf': ['sanitize-pdf', 'remove-metadata', 'flatten-pdf'],
 };
 
+type ToolCapabilities = Pick<
+  ToolDefinition,
+  | 'accept'
+  | 'minFiles'
+  | 'maxFiles'
+  | 'outputType'
+  | 'batch'
+  | 'workflowEligible'
+>;
+
+const WORKFLOW_TOOL_IDS = new Set([
+  'merge-pdf',
+  'compress-pdf',
+  'rotate-pdf',
+  'delete-pages',
+  'extract-pages',
+  'reverse-pages',
+  'remove-blank-pages',
+  'sanitize-pdf',
+  'remove-metadata',
+  'flatten-pdf',
+  'remove-annotations',
+  'page-numbers',
+  'fix-page-size',
+  'encrypt-pdf',
+  'decrypt-pdf',
+  'ocr-pdf',
+  'deskew-pdf',
+  'pdf-to-pdfa',
+  'redact-pdf',
+  'sentinel',
+  'duplicate-finder',
+  'accessibility-audit',
+]);
+
+const CAPABILITY_OVERRIDE: Record<string, Partial<ToolCapabilities>> = {
+  'merge-pdf': { minFiles: 2, maxFiles: null, batch: true },
+  'alternate-merge': { minFiles: 2, maxFiles: null, batch: true },
+  'compare-pdfs': { minFiles: 2, maxFiles: 2 },
+  'images-to-pdf': {
+    accept: ['image/*'],
+    minFiles: 1,
+    maxFiles: null,
+    batch: true,
+  },
+  'pdf-to-zip': { outputType: 'application/zip' },
+  sentinel: { outputType: 'application/json' },
+  'privacy-finder': { outputType: 'application/pdf' },
+  'smart-split': { outputType: 'application/zip' },
+  'duplicate-finder': { outputType: 'application/json' },
+  'batch-forms': {
+    accept: [
+      'application/pdf',
+      'text/csv',
+      'application/json',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ],
+    minFiles: 2,
+    maxFiles: 2,
+    outputType: 'application/zip',
+    batch: true,
+  },
+  'packet-builder': {
+    minFiles: 1,
+    maxFiles: 12,
+    outputType: 'application/pdf',
+    batch: true,
+  },
+  'proof-verifier': {
+    accept: ['application/pdf', 'application/json'],
+    minFiles: 3,
+    maxFiles: 3,
+    outputType: 'application/json',
+  },
+  capture: {
+    accept: ['image/png', 'image/jpeg', 'image/webp'],
+    minFiles: 1,
+    maxFiles: 50,
+    outputType: 'application/pdf',
+    batch: true,
+  },
+  'print-preflight': { outputType: 'application/json' },
+  'accessibility-audit': { outputType: 'application/pdf' },
+  'watch-folder': {
+    accept: [],
+    minFiles: 0,
+    maxFiles: 0,
+    outputType: 'none',
+  },
+};
+
+const TO_PDF_INPUTS: Record<string, string[]> = {
+  jpg: ['image/jpeg'],
+  jpeg: ['image/jpeg'],
+  png: ['image/png'],
+  webp: ['image/webp'],
+  svg: ['image/svg+xml'],
+  bmp: ['image/bmp'],
+  heic: ['image/heic', 'image/heif'],
+  tiff: ['image/tiff'],
+  txt: ['text/plain'],
+  text: ['text/plain'],
+  json: ['application/json'],
+  csv: ['text/csv'],
+  markdown: ['text/markdown', 'text/plain'],
+  email: ['message/rfc822', '.eml', '.msg'],
+  word: [
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ],
+  excel: [
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ],
+  powerpoint: [
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ],
+};
+
+const FROM_PDF_OUTPUTS: Record<string, string> = {
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  bmp: 'image/bmp',
+  tiff: 'image/tiff',
+  svg: 'image/svg+xml',
+  csv: 'text/csv',
+  json: 'application/json',
+  text: 'text/plain',
+  markdown: 'text/markdown',
+  zip: 'application/zip',
+  excel: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+};
+
+function capabilitiesFor(id: string): ToolCapabilities {
+  const base: ToolCapabilities = {
+    accept: ['application/pdf'],
+    minFiles: 1,
+    maxFiles: 1,
+    outputType: 'application/pdf',
+    batch: false,
+    workflowEligible: WORKFLOW_TOOL_IDS.has(id),
+  };
+  const toPdf = id.match(/^([a-z0-9]+)-to-pdf$/);
+  if (toPdf && TO_PDF_INPUTS[toPdf[1]]) {
+    base.accept = TO_PDF_INPUTS[toPdf[1]];
+  }
+  const fromPdf = id.match(/^pdf-to-([a-z0-9]+)$/);
+  if (fromPdf && FROM_PDF_OUTPUTS[fromPdf[1]]) {
+    base.outputType = FROM_PDF_OUTPUTS[fromPdf[1]];
+  }
+  return { ...base, ...(CAPABILITY_OVERRIDE[id] || {}) };
+}
+
 function tagsFor(id: string, name: string, subtitle: string): string[] {
   const blob = `${id} ${name} ${subtitle}`.toLowerCase();
   const tags = new Set<string>(id.split('-'));
@@ -235,6 +391,7 @@ export function getAllTools(): ToolDefinition[] {
       if (seen.has(tool.id)) continue;
       seen.add(tool.id);
       const engine = ENGINE_OVERRIDE[tool.id] ?? 'pdf-lib';
+      const capabilities = capabilitiesFor(tool.id);
       tools.push({
         id: tool.id,
         href: tool.href,
@@ -246,12 +403,7 @@ export function getAllTools(): ToolDefinition[] {
           LEGACY_CATEGORY[category.name] ??
           'edit',
         tags: tagsFor(tool.id, tool.name, tool.subtitle),
-        accept: ['application/pdf'],
-        minFiles: 1,
-        maxFiles: null,
-        outputType: 'application/pdf',
-        batch: true,
-        workflowEligible: true,
+        ...capabilities,
         offlineAfterCache: engine !== 'libreoffice' && engine !== 'tesseract',
         engine,
         intensity:
@@ -306,8 +458,9 @@ export function searchTools(query: string): ToolDefinition[] {
 }
 
 export function getToolIdFromHref(href: string): string {
-  const match = href.match(/\/([^/]+)\.html$/);
-  return match?.[1] ?? href;
+  const clean = href.split(/[?#]/, 1)[0].replace(/\/$/, '');
+  const filename = clean.slice(clean.lastIndexOf('/') + 1);
+  return filename.replace(/\.html$/i, '') || href;
 }
 
 export function getToolOrigin(id: string): ToolOrigin {
