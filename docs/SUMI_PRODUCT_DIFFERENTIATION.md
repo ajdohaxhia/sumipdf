@@ -97,17 +97,17 @@ Rules:
 
 ## Acceptance criteria
 
-- [ ] Choosing a PDF on the homepage opens the workspace (preview + Inspect + Flow + export), not a legacy tool page.
+- [x] Choosing a PDF on the homepage opens the workspace (preview + Inspect + Flow + export), not a legacy tool page.
 - [ ] Inspect reports size, pages, dimensions, mixed size, orientation, rotation, blank, probable duplicates, text vs scan, image-heavy, metadata, dates, author/title, encryption, attachments, forms, annotations, JS/active content, signatures, a11y indicators, large resources, and privacy findings — with hedged copy.
-- [ ] Accepting a finding adds a Flow step with an explanation; the PDF is unchanged until Execute.
+- [x] Accepting a finding adds a Flow step with an explanation; the PDF is unchanged until Execute.
 - [ ] Flow supports reorder, duplicate, remove, enable/disable, param edit, undo/redo, incompatible-op warnings, cancel, fail-at-step with original preserved.
-- [ ] Recipes show steps before run and export JSON without files/passwords/redaction text/personal metadata.
-- [ ] After Execute, Proof shows before/after metrics, SHA-256, warnings, and a downloadable receipt that is explicitly not a certificate.
-- [ ] Covering text with a black rectangle is reported as extractable; PyMuPDF redaction is distinguished.
-- [ ] Batch: one file failing does not discard successful outputs.
-- [ ] Command palette finds tools, operations, recipes, findings, execute, and Proof; nav remains visible.
-- [ ] Unit tests cover inspect heuristics, flow validation/undo, recipe privacy, proof hashes, redaction vs cover, no network leak of document markers, no homepage engine import.
-- [ ] Playwright covers drop → inspect → accept recommendation → add step → preview → execute → proof → download output + receipt, using synthetic fixtures only.
+- [x] Recipes show steps before run and export JSON without files/passwords/redaction text/personal metadata.
+- [x] After Execute, Proof shows before/after metrics, SHA-256, warnings, and a downloadable receipt that is explicitly not a certificate.
+- [x] Covering text with a black rectangle is reported as extractable; PyMuPDF redaction is distinguished.
+- [x] Batch: one file failing does not discard successful outputs.
+- [x] Command palette finds tools, operations, recipes, findings, execute, and Proof; nav remains visible.
+- [x] Unit tests cover inspect heuristics, flow validation/undo, recipe privacy, proof hashes, redaction vs cover, no network leak of document markers, no homepage engine import.
+- [x] Playwright covers drop → inspect → accept recommendation → add step → preview → execute → proof → download output + receipt, using synthetic fixtures only.
 
 ## Non-goals
 

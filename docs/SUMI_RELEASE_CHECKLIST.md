@@ -19,6 +19,7 @@ Sumi PDF is currently a release candidate, not a verified 1.0.0 release.
 - [x] Multi-file Originals use explicit queues and run buttons
 - [x] Privacy Finder distinguishes cover from verified redaction
 - [x] Folder Import makes manual refresh and experimental status explicit
+- [x] Batch Form Studio, Packet Builder, and Capture complete Chromium export journeys
 - [ ] Complete browser journeys for each release-critical Original
 - [ ] Qualify Packet TOC pages, links, and outlines in a browser journey
 - [ ] Qualify camera Capture across supported browsers
@@ -27,12 +28,15 @@ Sumi PDF is currently a release candidate, not a verified 1.0.0 release.
 
 - [x] `npm run typecheck`
 - [x] `npm run test:sumi` (16 files / 49 tests in the redesign pass)
-- [ ] `npm run lint`
-- [ ] `npm run test:run`
-- [ ] `npm run security:patterns`
+- [x] `npm run lint` (0 errors / 483 inherited warnings)
+- [x] `npm run test:run` (66 files / 945 tests)
+- [x] `npm run security:patterns` (pass; 2 review warnings remain)
+- [x] Empty-origin build and SEO audit (3,108 HTML files)
+- [x] Chromium Playwright journeys (18 / 18)
+- [x] Desktop/mobile visual comparison at 1,487 × 1,058 and 390 × 844
 - [ ] `npm run build` with the real `SITE_URL` / `VITE_SITE_URL`
-- [ ] Playwright desktop and mobile journeys
-- [ ] Keyboard and screen-reader smoke tests
+- [ ] Firefox, WebKit, and mobile interaction journeys
+- [ ] Full keyboard and screen-reader smoke tests
 - [ ] Lighthouse and production bundle measurement
 
 ## Deploy
