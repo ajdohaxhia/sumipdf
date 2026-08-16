@@ -561,7 +561,7 @@ export default defineConfig(() => {
 
   const staticCopyTargets = [
     {
-      src: 'node_modules/embedpdf-snippet/dist/pdfium.wasm',
+      src: 'node_modules/bentopdf-viewer/dist/pdfium.wasm',
       dest: 'embedpdf',
     },
   ];

@@ -7,11 +7,11 @@ import { batchDecryptIfNeeded } from '../utils/password-prompt.js';
 import { getEditorDisabledCategories } from '../utils/disabled-tools.js';
 
 const embedPdfWasmUrl = new URL(
-  'embedpdf-snippet/dist/pdfium.wasm',
+  'bentopdf-viewer/dist/pdfium.wasm',
   import.meta.url
 ).href;
 
-import type { EmbedPdfContainer } from 'embedpdf-snippet';
+import type { EmbedPdfContainer } from 'bentopdf-viewer';
 import type { DocManagerPlugin } from '@/types';
 
 let viewerInstance: EmbedPdfContainer | null = null;
@@ -135,7 +135,7 @@ async function handleFiles(files: FileList) {
       pdfContainer.textContent = '';
       pdfWrapper.classList.remove('hidden');
 
-      const { default: EmbedPDF } = await import('embedpdf-snippet');
+      const { default: EmbedPDF } = await import('bentopdf-viewer');
       const disabledCategories = getEditorDisabledCategories();
       viewerInstance = EmbedPDF.init({
         disabledCategories,
