@@ -92,6 +92,10 @@ See `docs/SUMI_BASELINE.md`: 833 passed, 14 failed, lint 0 errors / 466 warnings
 - `SITE_URL` / `VITE_SITE_URL` required for production canonicals and sitemap. Empty is valid for local builds.
 - Playwright is not in this repository; E2E was not invented.
 
+## Product differentiation pass
+
+See `docs/SUMI_PRODUCT_DIFFERENTIATION.md`. Homepage is a workspace entrance. Inspect / Flow / Proof are original Sumi layers over inherited BentoPDF engines. Playwright covers the core loop with synthetic fixtures.
+
 ### Remaining (not claimed done)
 
 - 117 tool pages still use legacy gray/indigo markup (themed via CSS remap).
@@ -99,3 +103,29 @@ See `docs/SUMI_BASELINE.md`: 833 passed, 14 failed, lint 0 errors / 466 warnings
 - Other locales besides EN/IT are incomplete for new keys (fallback works).
 - Compare PDF downloadable report and merge virtualization are incomplete.
 - Missing upstream fixtures still fail two split-pdf tests if those files are absent.
+
+## Originals Expansion Pass
+
+Audited upstream SHA: `5bf54f1dad75bdf3139e6314671f730f4c4a28de` (see `docs/SUMI_ORIGINAL_FEATURES.md`).
+
+### Delivered under `src/js/sumi/`
+
+| Priority | Module                | Route                      | Status       |
+| -------- | --------------------- | -------------------------- | ------------ |
+| 0        | Sentinel              | `sentinel.html`            | done         |
+| 0        | Privacy Finder        | `privacy-finder.html`      | done         |
+| 0        | Smart Split & Rename  | `smart-split.html`         | done         |
+| 0        | Duplicate Page Finder | `duplicate-finder.html`    | done         |
+| 1        | Batch Form Studio     | `batch-forms.html`         | done         |
+| 1        | Packet Builder        | `packet-builder.html`      | done         |
+| 1        | Proof Verifier        | `proof-verifier.html`      | done         |
+| 2        | Capture               | `capture.html`             | done         |
+| 2        | Print Preflight       | `print-preflight.html`     | done         |
+| 2        | Accessibility Audit   | `accessibility-audit.html` | done         |
+| optional | Watch Folder          | `watch-folder.html`        | experimental |
+
+Internal `origin: upstream | sumi | hybrid` lives on the tool registry only. No origin badges in HTML.
+
+### Test gate (Sumi suite)
+
+`npm run test:sumi` — 15 files / 40 tests passing after stream-decode, Sentinel annotation walk, and Proof async extractability fixes. Do not declare Sumi PDF 1.0 complete in this pass.
