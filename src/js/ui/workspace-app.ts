@@ -807,6 +807,24 @@ export function getWorkspaceCommands(): Array<{
       group: 'Workspace',
       run: () => ctl.setPane('proof'),
     },
+    ...[
+      ['Inspect security', 'sentinel.html'],
+      ['Find private data', 'privacy-finder.html'],
+      ['Split intelligently', 'smart-split.html'],
+      ['Find duplicates', 'duplicate-finder.html'],
+      ['Build a packet', 'packet-builder.html'],
+      ['Fill forms in batch', 'batch-forms.html'],
+      ['Capture pages', 'capture.html'],
+      ['Run preflight', 'print-preflight.html'],
+      ['Verify receipt', 'proof-verifier.html'],
+    ].map(([label, href]) => ({
+      id: `original-${href}`,
+      label,
+      group: 'Originals',
+      run: () => {
+        location.href = href;
+      },
+    })),
     {
       id: 'execute',
       label: 'Execute flow',
