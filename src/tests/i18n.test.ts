@@ -55,47 +55,46 @@ describe('getLanguageFromUrl', () => {
     expect(getLanguageFromUrl()).toBe('fr');
   });
 
-  it('should return language from localStorage if URL has no language', () => {
+  it('should not use stored language on unprefixed English pages', () => {
     window.location.pathname = '/about';
     localStorage.setItem('i18nextLng', 'it');
-    expect(getLanguageFromUrl()).toBe('it');
+    expect(getLanguageFromUrl()).toBe('en');
   });
 
-  it('should return exact match from navigator.languages', () => {
+  it('should ignore navigator.languages on unprefixed pages', () => {
     window.location.pathname = '/';
     Object.defineProperty(window.navigator, 'languages', {
       value: ['zh-TW', 'en-US', 'en'],
       configurable: true,
     });
-    expect(getLanguageFromUrl()).toBe('zh-TW');
+    expect(getLanguageFromUrl()).toBe('en');
   });
 
-  it('should return primary language match from navigator.languages', () => {
+  it('should not infer language from navigator region tags', () => {
     window.location.pathname = '/';
-    // 'de-AT' is not in supportedLanguages, but we should match its primary 'de'
     Object.defineProperty(window.navigator, 'languages', {
       value: ['de-AT', 'en-US', 'en'],
       configurable: true,
     });
-    expect(getLanguageFromUrl()).toBe('de');
+    expect(getLanguageFromUrl()).toBe('en');
   });
 
-  it('should return first matched language from navigator.languages', () => {
+  it('should not pick the first navigator language', () => {
     window.location.pathname = '/';
     Object.defineProperty(window.navigator, 'languages', {
       value: ['fr-CA', 'de-DE', 'en'],
       configurable: true,
     });
-    expect(getLanguageFromUrl()).toBe('fr');
+    expect(getLanguageFromUrl()).toBe('en');
   });
 
-  it('should ignore unsupported languages in navigator.languages', () => {
+  it('should ignore unsupported navigator languages', () => {
     window.location.pathname = '/';
     Object.defineProperty(window.navigator, 'languages', {
       value: ['xx-XX', 'es-ES'],
       configurable: true,
     });
-    expect(getLanguageFromUrl()).toBe('es');
+    expect(getLanguageFromUrl()).toBe('en');
   });
 
   it('should fallback to env variable if no earlier match', () => {

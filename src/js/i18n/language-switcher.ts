@@ -14,14 +14,10 @@ export const createLanguageSwitcher = (): HTMLElement => {
   container.id = 'language-switcher';
 
   const button = document.createElement('button');
-  button.className = `
-    inline-flex items-center gap-1.5 text-sm font-medium
-    bg-gray-800 text-gray-200 border border-gray-600
-    px-3 py-1.5 rounded-full transition-colors duration-200
-    shadow-sm hover:shadow-md hover:bg-gray-700
-  `.trim();
+  button.className = 'sumi-lang-btn';
   button.setAttribute('aria-haspopup', 'true');
   button.setAttribute('aria-expanded', 'false');
+  button.setAttribute('aria-label', t('nav.language') || 'Language');
 
   const textSpan = document.createElement('span');
   textSpan.className = 'font-medium';
@@ -39,17 +35,11 @@ export const createLanguageSwitcher = (): HTMLElement => {
   button.appendChild(chevron);
 
   const dropdown = document.createElement('div');
-  dropdown.className = `
-    hidden absolute right-0 mt-2 z-50
-    w-64 max-w-[calc(100vw-2rem)]
-    rounded-lg bg-gray-800 border border-gray-700 shadow-xl
-    flex flex-col overflow-hidden
-  `.trim();
+  dropdown.className = 'sumi-lang-menu hidden';
   dropdown.setAttribute('role', 'menu');
 
   const searchWrapper = document.createElement('div');
-  searchWrapper.className =
-    'p-2 border-b border-gray-700 bg-gray-800 flex-shrink-0';
+  searchWrapper.className = 'sumi-lang-search';
 
   const searchPlaceholder =
     t('nav.searchLanguage') !== 'nav.searchLanguage'
@@ -59,13 +49,7 @@ export const createLanguageSwitcher = (): HTMLElement => {
   const searchInput = document.createElement('input');
   searchInput.type = 'search';
   searchInput.placeholder = searchPlaceholder;
-  searchInput.className = `
-    w-full px-3 py-1.5 text-sm
-    bg-gray-900 text-gray-200
-    border border-gray-700 rounded-md
-    focus:outline-none focus:border-indigo-500
-    placeholder-gray-500
-  `.trim();
+  searchInput.className = 'sumi-lang-search__input';
   searchInput.setAttribute('aria-label', searchPlaceholder);
   searchWrapper.appendChild(searchInput);
   dropdown.appendChild(searchWrapper);
@@ -86,11 +70,7 @@ export const createLanguageSwitcher = (): HTMLElement => {
   supportedLanguages.forEach((lang) => {
     const option = document.createElement('button');
     option.type = 'button';
-    option.className = `
-      w-full px-4 py-2 text-left text-sm text-gray-200
-      hover:bg-gray-700 flex items-center gap-2 transition-colors
-      ${lang === currentLang ? 'bg-gray-700' : ''}
-    `.trim();
+    option.className = `sumi-lang-option${lang === currentLang ? ' is-current' : ''}`;
     option.setAttribute('role', 'menuitem');
     option.dataset.lang = lang;
     option.dataset.searchKey = `${languageNames[lang]} ${lang}`.toLowerCase();
@@ -152,6 +132,14 @@ export const createLanguageSwitcher = (): HTMLElement => {
       filterOptions();
       list.scrollTop = 0;
       requestAnimationFrame(() => searchInput.focus());
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (button.getAttribute('aria-expanded') === 'true') {
+      button.setAttribute('aria-expanded', 'false');
+      dropdown.classList.add('hidden');
     }
   });
 

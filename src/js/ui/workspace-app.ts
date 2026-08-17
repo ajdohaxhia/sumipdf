@@ -599,7 +599,7 @@ function renderRecipes(host: HTMLElement): void {
       'Steps are visible before they run. Recipes never include your documents.'
     )
   );
-  const list = el('div', 'sumi-recipes');
+  const list = el('div', 'sumi-ws-recipes');
   for (const recipe of SUMI_RECIPES) {
     const card = el('article', 'sumi-recipe');
     card.append(el('strong', undefined, recipe.name));
@@ -677,11 +677,6 @@ function paint(root: HTMLElement): void {
 
   const files = el('div', 'sumi-ws__files');
   files.setAttribute('aria-label', 'Open documents');
-  if (items.length === 0) {
-    files.append(
-      el('p', 'sumi-ws__status', 'Drop a PDF above to inspect it here.')
-    );
-  }
   for (const item of items) {
     const btn = el(
       'button',

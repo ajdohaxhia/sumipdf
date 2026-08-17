@@ -238,7 +238,8 @@ export function openCommandPalette(): void {
 export function initCommandPalette(): void {
   document.addEventListener('keydown', (event) => {
     const combo =
-      (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k';
+      (event.metaKey || event.ctrlKey) &&
+      (event.key.toLowerCase() === 'k' || event.code === 'KeyK');
     if (!combo) return;
     event.preventDefault();
     openCommandPalette();

@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 import HttpBackend from 'i18next-http-backend';
-import { getStoredItem, setStoredItem } from '../utils/safe-storage.js';
+import { setStoredItem } from '../utils/safe-storage.js';
 import enCommon from '../../../public/locales/en/common.json';
 import enTools from '../../../public/locales/en/tools.json';
 
@@ -74,28 +74,6 @@ export const getLanguageFromUrl = (): SupportedLanguage => {
     supportedLanguages.includes(langMatch[1] as SupportedLanguage)
   ) {
     return langMatch[1] as SupportedLanguage;
-  }
-
-  const storedLang = getStoredItem('i18nextLng');
-  if (
-    storedLang &&
-    supportedLanguages.includes(storedLang as SupportedLanguage)
-  ) {
-    return storedLang as SupportedLanguage;
-  }
-
-  // Check browser language preferences
-  if (typeof navigator !== 'undefined' && navigator.languages) {
-    for (const lang of navigator.languages) {
-      if (supportedLanguages.includes(lang as SupportedLanguage)) {
-        return lang as SupportedLanguage;
-      }
-
-      const primaryLang = lang.split('-')[0];
-      if (supportedLanguages.includes(primaryLang as SupportedLanguage)) {
-        return primaryLang as SupportedLanguage;
-      }
-    }
   }
 
   const envLang = import.meta.env?.VITE_DEFAULT_LANGUAGE;

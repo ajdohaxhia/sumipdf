@@ -14,9 +14,10 @@
 .sumi-home-page .sumi-header__inner {
   width: min(92rem, calc(100% - 6rem));
   max-width: none;
-  height: 5.15rem;
+  min-height: 5.15rem;
+  height: auto;
   margin: 0 auto;
-  padding: 0;
+  padding: 0.35rem 0;
   border-bottom: 1px solid var(--sumi-rule);
 }
 
@@ -98,8 +99,8 @@
 .sumi-atelier {
   display: grid;
   grid-template-columns:
-    minmax(22.5rem, 0.95fr) minmax(34rem, 1.45fr)
-    minmax(10rem, 0.45fr);
+    minmax(0, 0.95fr) minmax(0, 1.45fr)
+    minmax(0, 0.45fr);
   gap: clamp(1.5rem, 3vw, 4.5rem);
   min-height: min(52rem, calc(100svh - 5.15rem));
   padding: clamp(2.5rem, 5vw, 5rem) 0 2rem;
@@ -312,7 +313,7 @@
 
 .sumi-editorial-head {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
   gap: 3rem;
   align-items: end;
   margin-bottom: 3rem;
@@ -438,7 +439,7 @@
 }
 
 .sumi-recipes {
-  grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
   gap: clamp(3rem, 8vw, 8rem);
   padding: clamp(3rem, 6vw, 6rem);
   background: var(--sumi-ink);
@@ -816,8 +817,20 @@
 }
 
 @media (max-width: 1100px) {
+  .sumi-home-page .sumi-header__inner,
+  .sumi-home {
+    width: min(100% - 1.5rem, 92rem);
+  }
+
+  .sumi-home-page .sumi-privacy-pill,
+  .sumi-home-page [data-open-command],
+  .sumi-home-page #sumi-theme-switcher,
+  .sumi-home-page #sumi-language-slot {
+    display: none;
+  }
+
   .sumi-atelier {
-    grid-template-columns: minmax(18rem, 0.9fr) minmax(27rem, 1.2fr);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr);
   }
 
   .sumi-atelier__phases {
@@ -842,20 +855,9 @@
 }
 
 @media (max-width: 760px) {
-  .sumi-home-page .sumi-header__inner,
-  .sumi-home {
-    width: min(100% - 1.5rem, 92rem);
-  }
-
   .sumi-home-page .sumi-header__inner {
-    height: 4.25rem;
-  }
-
-  .sumi-home-page .sumi-privacy-pill,
-  .sumi-home-page [data-open-command],
-  .sumi-home-page #sumi-theme-switcher,
-  .sumi-home-page #sumi-language-slot {
-    display: none;
+    min-height: 4.25rem;
+    height: auto;
   }
 
   .sumi-atelier {
