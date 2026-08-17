@@ -8,7 +8,30 @@
 import { WorkerBrowserConverter } from '@matbee/libreoffice-converter/browser';
 import type { InputFormat } from '@matbee/libreoffice-converter/browser';
 
-const LIBREOFFICE_LOCAL_PATH = import.meta.env.BASE_URL + 'libreoffice-wasm/';
+const LIBREOFFICE_LOCAL_PATH = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}libreoffice-wasm/`;
+
+const MANIFEST_VERSION = 1;
+const MAX_PART_SIZE = 20 * 1024 * 1024;
+const EXPECTED_ASSETS = new Set(['soffice.wasm.gz', 'soffice.data.gz']);
+
+interface AssetPart {
+  name: string;
+  size: number;
+  sha256: string;
+}
+
+interface ShardedAsset {
+  filename: string;
+  size: number;
+  sha256: string;
+  encoding: 'gzip';
+  parts: AssetPart[];
+}
+
+interface AssetsManifest {
+  version: number;
+  assets: ShardedAsset[];
+}
 
 export interface LoadProgress {
   phase: 'loading' | 'initializing' | 'converting' | 'complete' | 'ready';
@@ -24,6 +47,147 @@ let converterInstance: LibreOfficeConverter | null = null;
 const GZIP_MAGIC_FIRST = 0x1f;
 const GZIP_MAGIC_SECOND = 0x8b;
 
+function isSha256(value: unknown): value is string {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+}
+
+function validateManifest(value: unknown): AssetsManifest {
+  if (!value || typeof value !== 'object') {
+    throw new Error('LibreOffice asset manifest must be an object');
+  }
+  const manifest = value as Partial<AssetsManifest>;
+  if (
+    manifest.version !== MANIFEST_VERSION ||
+    !Array.isArray(manifest.assets)
+  ) {
+    throw new Error(`Unsupported LibreOffice asset manifest version`);
+  }
+  if (manifest.assets.length !== EXPECTED_ASSETS.size) {
+    throw new Error('LibreOffice asset manifest is incomplete');
+  }
+
+  const filenames = new Set<string>();
+  for (const asset of manifest.assets) {
+    if (
+      !asset ||
+      !EXPECTED_ASSETS.has(asset.filename) ||
+      filenames.has(asset.filename) ||
+      asset.encoding !== 'gzip' ||
+      !Number.isSafeInteger(asset.size) ||
+      asset.size <= 0 ||
+      !isSha256(asset.sha256) ||
+      !Array.isArray(asset.parts) ||
+      asset.parts.length === 0
+    ) {
+      throw new Error('LibreOffice asset manifest contains an invalid asset');
+    }
+    filenames.add(asset.filename);
+    const partNames = new Set<string>();
+    let declaredSize = 0;
+    const prefix = `${asset.filename}.${asset.sha256.slice(0, 16)}.part-`;
+    asset.parts.forEach((part, index) => {
+      const expectedName = `${prefix}${String(index).padStart(3, '0')}`;
+      if (
+        !part ||
+        part.name !== expectedName ||
+        part.name.includes('/') ||
+        part.name.includes('\\') ||
+        partNames.has(part.name) ||
+        !Number.isSafeInteger(part.size) ||
+        part.size <= 0 ||
+        part.size > MAX_PART_SIZE ||
+        !isSha256(part.sha256)
+      ) {
+        throw new Error(
+          `Invalid or reordered LibreOffice shard at index ${index}`
+        );
+      }
+      partNames.add(part.name);
+      declaredSize += part.size;
+    });
+    if (declaredSize !== asset.size) {
+      throw new Error(`LibreOffice shard sizes do not match ${asset.filename}`);
+    }
+  }
+  return manifest as AssetsManifest;
+}
+
+async function sha256(blob: Blob): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    await blob.arrayBuffer()
+  );
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function fetchManifest(basePath: string): Promise<AssetsManifest | null> {
+  const response = await fetch(`${basePath}assets-manifest.json`, {
+    cache: 'no-cache',
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch LibreOffice asset manifest: HTTP ${response.status}`
+    );
+  }
+  try {
+    return validateManifest(await response.json());
+  } catch (error) {
+    throw new Error(
+      `Invalid LibreOffice asset manifest: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
+    );
+  }
+}
+
+async function reconstructAsset(
+  basePath: string,
+  asset: ShardedAsset
+): Promise<Blob> {
+  const blobs: Blob[] = [];
+  for (const part of asset.parts) {
+    const response = await fetch(`${basePath}${part.name}`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch LibreOffice shard ${part.name}: HTTP ${response.status}`
+      );
+    }
+    const blob = await response.blob();
+    if (blob.size !== part.size) {
+      throw new Error(`LibreOffice shard size mismatch: ${part.name}`);
+    }
+    if ((await sha256(blob)) !== part.sha256) {
+      throw new Error(`LibreOffice shard hash mismatch: ${part.name}`);
+    }
+    blobs.push(blob);
+  }
+  const compressed = new Blob(blobs, { type: 'application/gzip' });
+  if (
+    compressed.size !== asset.size ||
+    (await sha256(compressed)) !== asset.sha256
+  ) {
+    throw new Error(
+      `Reconstructed LibreOffice asset is corrupt: ${asset.filename}`
+    );
+  }
+  return compressed;
+}
+
+async function blobAsDecompressedUrl(
+  blob: Blob,
+  mimeType: string
+): Promise<string> {
+  const head = new Uint8Array(await blob.slice(0, 2).arrayBuffer());
+  if (head[0] === GZIP_MAGIC_FIRST && head[1] === GZIP_MAGIC_SECOND) {
+    blob = await new Response(
+      blob.stream().pipeThrough(new DecompressionStream('gzip'))
+    ).blob();
+  }
+  return URL.createObjectURL(new Blob([blob], { type: mimeType }));
+}
+
 async function fetchAsDecompressedUrl(
   url: string,
   mimeType: string
@@ -33,16 +197,44 @@ async function fetchAsDecompressedUrl(
     throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
   }
 
-  let blob = await response.blob();
-  const head = new Uint8Array(await blob.slice(0, 2).arrayBuffer());
-  if (head[0] === GZIP_MAGIC_FIRST && head[1] === GZIP_MAGIC_SECOND) {
-    const decompressed = blob
-      .stream()
-      .pipeThrough(new DecompressionStream('gzip'));
-    blob = await new Response(decompressed).blob();
+  return blobAsDecompressedUrl(await response.blob(), mimeType);
+}
+
+export async function loadLibreOfficeAssetUrls(basePath: string): Promise<{
+  sofficeWasmUrl: string;
+  sofficeDataUrl: string;
+  sharded: boolean;
+}> {
+  const normalizedBasePath = `${basePath.replace(/\/+$/, '')}/`;
+  const manifest = await fetchManifest(normalizedBasePath);
+  if (!manifest) {
+    const [sofficeWasmUrl, sofficeDataUrl] = await Promise.all([
+      fetchAsDecompressedUrl(
+        `${normalizedBasePath}soffice.wasm.gz`,
+        'application/wasm'
+      ),
+      fetchAsDecompressedUrl(
+        `${normalizedBasePath}soffice.data.gz`,
+        'application/octet-stream'
+      ),
+    ]);
+    return { sofficeWasmUrl, sofficeDataUrl, sharded: false };
   }
 
-  return URL.createObjectURL(new Blob([blob], { type: mimeType }));
+  const asset = (filename: string): ShardedAsset => {
+    const match = manifest.assets.find((item) => item.filename === filename);
+    if (!match) throw new Error(`LibreOffice manifest is missing ${filename}`);
+    return match;
+  };
+  const [wasmBlob, dataBlob] = await Promise.all([
+    reconstructAsset(normalizedBasePath, asset('soffice.wasm.gz')),
+    reconstructAsset(normalizedBasePath, asset('soffice.data.gz')),
+  ]);
+  const [sofficeWasmUrl, sofficeDataUrl] = await Promise.all([
+    blobAsDecompressedUrl(wasmBlob, 'application/wasm'),
+    blobAsDecompressedUrl(dataBlob, 'application/octet-stream'),
+  ]);
+  return { sofficeWasmUrl, sofficeDataUrl, sharded: true };
 }
 
 export class LibreOfficeConverter {
@@ -75,16 +267,9 @@ export class LibreOfficeConverter {
         message: 'Loading conversion engine...',
       });
 
-      const [sofficeWasmUrl, sofficeDataUrl] = await Promise.all([
-        fetchAsDecompressedUrl(
-          `${this.basePath}soffice.wasm.gz`,
-          'application/wasm'
-        ),
-        fetchAsDecompressedUrl(
-          `${this.basePath}soffice.data.gz`,
-          'application/octet-stream'
-        ),
-      ]);
+      const { sofficeWasmUrl, sofficeDataUrl } = await loadLibreOfficeAssetUrls(
+        this.basePath
+      );
 
       this.converter = new WorkerBrowserConverter({
         sofficeJs: `${this.basePath}soffice.js`,

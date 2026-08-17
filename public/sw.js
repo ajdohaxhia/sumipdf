@@ -109,7 +109,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (isLocal && url.pathname.includes('/locales/')) {
+  if (
+    isLocal &&
+    url.pathname.endsWith('/libreoffice-wasm/assets-manifest.json')
+  ) {
+    event.respondWith(networkFirstStrategy(event.request));
+  } else if (isLocal && url.pathname.includes('/locales/')) {
     event.respondWith(networkFirstStrategy(event.request));
   } else if (shouldCache(url.pathname, isCDN)) {
     event.respondWith(cacheFirstStrategyWithDedup(event.request, isCDN));

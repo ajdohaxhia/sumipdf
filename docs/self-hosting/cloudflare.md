@@ -50,19 +50,32 @@ Or merge to `main` if that is your production branch.
 
 Set for **Production** (and Preview if you want correct preview canonicals):
 
-| Variable                 | Required    | Example / notes                                                 |
-| ------------------------ | ----------- | --------------------------------------------------------------- |
-| `NODE_VERSION`           | Yes         | `20.19.0`                                                       |
-| `SITE_URL`               | Yes for SEO | `https://sumi.yourdomain.com`                                   |
-| `VITE_SITE_URL`          | Yes for SEO | Same as `SITE_URL`                                              |
-| `VITE_REPO_URL`          | Optional    | `https://github.com/ajdohaxhia/sumipdf`                         |
-| `VITE_BRAND_NAME`        | Optional    | `Sumi PDF`                                                      |
-| `VITE_USE_CDN`           | Recommended | `true` — loads large WASM from CDN; avoids Pages file-size pain |
-| `ENABLE_GITHUB_STARS`    | Optional    | leave empty / unset (privacy default)                           |
-| `VITE_CORS_PROXY_URL`    | Optional    | Worker URL after you deploy the CORS proxy                      |
-| `VITE_CORS_PROXY_SECRET` | Optional    | Only if you enable HMAC on the worker                           |
+| Variable                 | Required    | Example / notes                            |
+| ------------------------ | ----------- | ------------------------------------------ |
+| `NODE_VERSION`           | Yes         | `20.19.0`                                  |
+| `SITE_URL`               | Yes for SEO | `https://sumi.yourdomain.com`              |
+| `VITE_SITE_URL`          | Yes for SEO | Same as `SITE_URL`                         |
+| `VITE_REPO_URL`          | Optional    | `https://github.com/ajdohaxhia/sumipdf`    |
+| `VITE_BRAND_NAME`        | Optional    | `Sumi PDF`                                 |
+| `ENABLE_GITHUB_STARS`    | Optional    | leave empty / unset (privacy default)      |
+| `VITE_CORS_PROXY_URL`    | Optional    | Worker URL after you deploy the CORS proxy |
+| `VITE_CORS_PROXY_SECRET` | Optional    | Only if you enable HMAC on the worker      |
 
 `CF_PAGES`, `CF_PAGES_URL`, and `CF_PAGES_COMMIT_SHA` are injected automatically by Pages.
+
+### LibreOffice assets are sharded automatically
+
+`npm run build` splits the two compressed LibreOffice engine files into
+content-addressed chunks below Cloudflare Pages' per-file limit. It writes and
+verifies `libreoffice-wasm/assets-manifest.json`, removes only the oversized
+copies in `dist`, and performs a final recursive size check. The source assets
+in `public/` are never modified.
+
+The browser loads the same-origin manifest and chunks lazily when a
+LibreOffice-backed converter is first used, verifies every SHA-256 hash,
+reconstructs the compressed engine locally, and then performs conversion in the
+browser. No R2 bucket or external asset CDN is required, and document bytes are
+never uploaded.
 
 ### 4. Deploy
 
@@ -85,7 +98,6 @@ npm ci
 # 2. Build with your public URL
 export SITE_URL="https://sumi.yourdomain.com"
 export VITE_SITE_URL="$SITE_URL"
-export VITE_USE_CDN=true
 npm run build
 
 # 3. Log in (opens browser)
@@ -98,7 +110,7 @@ npx wrangler pages deploy dist --project-name=sumi-pdf
 Or use the npm script:
 
 ```bash
-SITE_URL=https://sumi.yourdomain.com VITE_SITE_URL=https://sumi.yourdomain.com VITE_USE_CDN=true npm run deploy:pages
+SITE_URL=https://sumi.yourdomain.com VITE_SITE_URL=https://sumi.yourdomain.com npm run deploy:pages
 ```
 
 Root `wrangler.toml` sets `pages_build_output_dir = "dist"` and project name `sumi-pdf`.
@@ -169,6 +181,6 @@ HMAC (`PROXY_SECRET`) is optional and limited because any secret embedded in fro
 | Build OOM                             | Pages build memory; keep `NODE_OPTIONS` in `npm run build`, or use Wrangler direct upload from a larger machine |
 | LibreOffice / SharedArrayBuffer fails | Missing COOP/COEP (`public/_headers` not published)                                                             |
 | Broken tool links                     | Accidental SPA `_redirects`                                                                                     |
-| Huge upload / file limit              | Set `VITE_USE_CDN=true` so WASM is not all bundled into Pages                                                   |
+| Huge upload / file limit              | Run the full `npm run build`; it shards and validates LibreOffice assets automatically                          |
 | Camera blocked                        | Old `Permissions-Policy: camera=()` — fixed to `camera=(self)` in `_headers`                                    |
 | Wrong canonical URLs                  | Set both `SITE_URL` and `VITE_SITE_URL`                                                                         |

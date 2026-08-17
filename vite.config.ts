@@ -563,14 +563,6 @@ function sumiBrandHtmlPlugin(): Plugin {
 }
 
 export default defineConfig(() => {
-  const USE_CDN = process.env.VITE_USE_CDN === 'true';
-
-  if (USE_CDN) {
-    console.log('[Vite] Using CDN for WASM files (with local fallback)');
-  } else {
-    console.log('[Vite] Using local WASM files only');
-  }
-
   const staticCopyTargets = [
     {
       src: 'node_modules/bentopdf-viewer/dist/pdfium.wasm',

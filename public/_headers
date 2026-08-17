@@ -26,12 +26,9 @@
   Content-Type: application/wasm
   Cache-Control: public, max-age=31536000, immutable
 
-/libreoffice-wasm/soffice.wasm.gz
-  Content-Type: application/wasm
-  Content-Encoding: gzip
-  Cache-Control: public, max-age=31536000, immutable
+/libreoffice-wasm/assets-manifest.json
+  Cache-Control: no-cache
 
-/libreoffice-wasm/soffice.data.gz
+/libreoffice-wasm/*.part-:index
   Content-Type: application/octet-stream
-  Content-Encoding: gzip
   Cache-Control: public, max-age=31536000, immutable

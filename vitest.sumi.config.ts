@@ -28,6 +28,8 @@ export default defineConfig({
       'src/tests/priority-two-originals.test.ts',
       'src/tests/originals-privacy.test.ts',
       'src/tests/original-page-ui.test.ts',
+      'src/tests/pages-asset-sharding.test.ts',
+      'src/tests/libreoffice-shards.test.ts',
     ],
     testTimeout: 30000,
     hookTimeout: 30000,
