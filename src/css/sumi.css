@@ -120,8 +120,18 @@ html:not([data-theme='dark']) .bg-gray-700 {
   background-color: #e4dcd0 !important;
 }
 
-html[data-theme='light'] .text-white,
-html:not([data-theme='dark']) .text-white {
+html[data-theme='light'] p.text-white,
+html[data-theme='light'] h1.text-white,
+html[data-theme='light'] h2.text-white,
+html[data-theme='light'] h3.text-white,
+html[data-theme='light'] h4.text-white,
+html[data-theme='light']
+  span.text-white:not(.btn *):not(button *):not(a *):not(.category-filter *),
+html:not([data-theme='dark']) p.text-white,
+html:not([data-theme='dark']) h1.text-white,
+html:not([data-theme='dark']) h2.text-white,
+html:not([data-theme='dark']) h3.text-white,
+html:not([data-theme='dark']) h4.text-white {
   color: var(--sumi-ink) !important;
 }
 
@@ -156,11 +166,31 @@ html:not([data-theme='dark']) .bg-indigo-700 {
   color: var(--sumi-on-signal) !important;
 }
 
-html[data-theme='light'] .bg-indigo-600 .text-white,
-html:not([data-theme='dark']) .bg-indigo-600 .text-white,
-html[data-theme='light'] .bg-indigo-600,
-html:not([data-theme='dark']) .bg-indigo-600 {
-  color: var(--sumi-on-signal) !important;
+/* Ensure buttons, CTAs, active filters, and primary links ALWAYS have high-contrast readable text */
+.bg-indigo-600,
+.bg-indigo-500,
+.bg-indigo-700,
+.from-indigo-500,
+.from-indigo-600,
+.btn-primary,
+.category-filter.active,
+button[type='submit'],
+a.bg-gradient-to-b,
+button.bg-gradient-to-b,
+a[class*='bg-indigo-'],
+button[class*='bg-indigo-'],
+a[class*='from-indigo-'],
+button[class*='from-indigo-'] {
+  color: var(--sumi-on-signal, #ffffff) !important;
+}
+
+.bg-indigo-600 *,
+.bg-indigo-500 *,
+.from-indigo-500 *,
+.from-indigo-600 *,
+.btn-primary *,
+.category-filter.active * {
+  color: inherit !important;
 }
 
 html[data-theme='light'] .text-indigo-400,
@@ -236,8 +266,9 @@ html[data-theme='dark'] .bg-indigo-700 {
 .sumi-nav {
   display: none;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: 0.5rem 0.85rem;
   margin-left: 0.5rem;
 }
 
@@ -249,11 +280,11 @@ html[data-theme='dark'] .bg-indigo-700 {
 
 @media (min-width: 768px) and (max-width: 1100px) {
   .sumi-nav {
-    gap: 0.5rem 0.7rem;
+    gap: 0.35rem 0.55rem;
   }
 
   .sumi-nav a {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
 }
 
