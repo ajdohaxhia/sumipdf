@@ -515,14 +515,27 @@ html[data-theme='dark'] .bg-indigo-700 {
   backdrop-filter: blur(4px);
 }
 
+.category-filters-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+
+.category-filters-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .category-filter {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.45rem 0.9rem;
+  padding: 0.5rem 0.95rem;
+  min-height: 44px;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
   color: var(--sumi-ink);
   background-color: var(--sumi-surface);
   border: 1px solid var(--sumi-rule);
@@ -687,9 +700,23 @@ html[data-theme='dark'] .bg-indigo-700 {
 }
 
 .mobile-nav-link {
-  display: block;
-  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--sumi-radius);
+  font-weight: 500;
+  font-size: 0.95rem;
   color: var(--sumi-ink);
+  text-decoration: none;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link:active,
+.mobile-nav-link:focus {
+  background: var(--sumi-surface);
+  color: var(--sumi-signal);
 }
 
 .sumi-continue,
@@ -1010,4 +1037,33 @@ html[data-theme='dark'] .bg-indigo-700 {
 .sumi-finding[data-severity='High risk'],
 .sumi-finding[data-severity='Potentially unsafe'] {
   border-left: 3px solid var(--sumi-signal);
+}
+
+/* Mobile Touch & Responsive Optimizations */
+@media (max-width: 640px) {
+  input[type='text'],
+  input[type='number'],
+  input[type='search'],
+  input[type='password'],
+  input[type='email'],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .sumi-icon-btn,
+  .btn-touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .sumi-header__actions {
+    gap: 0.35rem;
+  }
+}
+
+.table-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
