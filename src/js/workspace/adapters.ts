@@ -1,6 +1,7 @@
 import { addWorkspaceFile, listWorkspaceItems } from './session';
 import { workspaceController } from './controller';
 import { stashFilesForTool } from '../ui/home-command';
+import { getToolById } from '../config/tool-registry';
 
 const TOOL_TO_FLOW: Record<string, string> = {
   'merge-pdf': 'merge-flow',
@@ -44,7 +45,7 @@ export function mountLegacyAdapter(): void {
   if (!host || document.getElementById('sumi-legacy-adapter')) return;
   const path = window.location.pathname.split('/').pop() || '';
   const toolId = path.replace(/\.html$/, '');
-  if (!toolId || toolId === 'index' || toolId === 'workspace') return;
+  if (!getToolById(toolId)) return;
 
   const section = document.createElement('section');
   section.id = 'sumi-legacy-adapter';

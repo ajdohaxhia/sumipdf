@@ -17,6 +17,7 @@ const textPage = readFileSync(
   resolve(__dirname, '../pages/edit-pdf-text.html'),
   'utf8'
 );
+const toolsPage = readFileSync(resolve(__dirname, '../../tools.html'), 'utf8');
 
 function ruleBody(css: string, selector: string): string {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -78,5 +79,14 @@ describe('Edit PDF Text surface', () => {
     expect(editor).toContain('z-index: 70');
     expect(textPage).toContain('{{> navbar }}');
     expect(textPage).not.toMatch(/color-scheme"\s+content="dark"/);
+  });
+});
+
+describe('tools directory filters', () => {
+  it('does not override category chips with leftover BentoPDF indigo', () => {
+    expect(toolsPage).not.toMatch(/\.category-filter\.active \{[^}]*#4f46e5/);
+    expect(toolsPage).not.toMatch(
+      /\.category-filter \{[^}]*background-color: #1f2937/
+    );
   });
 });

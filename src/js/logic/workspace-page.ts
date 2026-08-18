@@ -24,7 +24,19 @@ const init = async () => {
   initWorkspaceEntrance();
   await mountWorkspaceApp({ pane: paneFromLocation() });
   createIcons({ icons });
-  document.title = `${brand.name} — Workspace`;
+  const page =
+    window.location.pathname
+      .split('/')
+      .pop()
+      ?.replace(/\.html$/, '') || 'workspace';
+  const titles: Record<string, string> = {
+    workspace: `${brand.name} — Workspace`,
+    inspect: `Inspect — ${brand.name}`,
+    flow: `Flow — ${brand.name}`,
+    proof: `Proof — ${brand.name}`,
+    recipes: `Recipes — ${brand.name}`,
+  };
+  document.title = titles[page] || `${brand.name} — Workspace`;
 };
 
 void init();

@@ -6,10 +6,12 @@ import {
   removeWorkspaceItem,
   workspaceBytes,
 } from '@/js/workspace/session';
+import { mountLegacyAdapter } from '@/js/workspace/adapters';
 
 describe('local workspace', () => {
   afterEach(() => {
     clearWorkspace();
+    document.body.replaceChildren();
   });
 
   it('holds blobs in memory and revokes URLs on clear', () => {
@@ -31,5 +33,25 @@ describe('local workspace', () => {
     });
     expect(JSON.stringify(localStorage)).not.toContain(marker);
     expect(localStorage.getItem('sumi:workspace')).toBeNull();
+  });
+});
+
+describe('legacy adapter chrome', () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
+  it('does not paint classic-tool chrome on legal pages', () => {
+    window.history.pushState({}, '', '/terms.html');
+    document.body.innerHTML = '<div id="app"></div>';
+    mountLegacyAdapter();
+    expect(document.getElementById('sumi-legacy-adapter')).toBeNull();
+  });
+
+  it('offers workspace continuation on real tool pages', () => {
+    window.history.pushState({}, '', '/merge-pdf.html');
+    document.body.innerHTML = '<div id="app"></div>';
+    mountLegacyAdapter();
+    expect(document.getElementById('sumi-legacy-adapter')).toBeTruthy();
   });
 });
