@@ -55,6 +55,10 @@
     "name": "PDFエディター",
     "subtitle": "PDFへの注釈追加、ハイライト、黒塗り、コメント、図形や画像の挿入、検索、および表示が可能です。"
   },
+  "editPdfText": {
+    "name": "PDFテキストの編集",
+    "subtitle": "段落をクリックしてその場で編集。テキストは自動で再配置され、フォントやスタイルも変更できます。"
+  },
   "jpgToPdf": {
     "name": "JPGからPDF",
     "subtitle": "JPG、JPEG、およびJPEG2000(JP2/JPX)形式の画像からPDFを作成します。"

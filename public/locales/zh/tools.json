@@ -55,6 +55,10 @@
     "name": "PDF 编辑器",
     "subtitle": "注释、高亮、涂黑、评论、添加形状/图片、搜索和查看 PDF。"
   },
+  "editPdfText": {
+    "name": "编辑 PDF 文本",
+    "subtitle": "点击任意段落即可就地编辑，支持实时重排、字体和样式设置。"
+  },
   "jpgToPdf": {
     "name": "JPG 转 PDF",
     "subtitle": "从 JPG、JPEG 和 JPEG2000 (JP2/JPX) 图片创建 PDF。"

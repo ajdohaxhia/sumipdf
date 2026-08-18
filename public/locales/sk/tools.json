@@ -55,6 +55,10 @@
     "name": "PDF Editor",
     "subtitle": "Anotovať, zvýrazňovať, redigovať, komentovať, pridávať tvary/obrázky, vyhľadávať a prezerať PDF."
   },
+  "editPdfText": {
+    "name": "Upraviť text PDF",
+    "subtitle": "Kliknite na ľubovoľný odsek a upravte ho priamo na mieste s okamžitým preformátovaním textu, písmami a štýlmi."
+  },
   "jpgToPdf": {
     "name": "JPG do PDF",
     "subtitle": "Vytvoriť PDF z obrázkov JPG, JPEG a JPEG2000 (JP2/JPX)."

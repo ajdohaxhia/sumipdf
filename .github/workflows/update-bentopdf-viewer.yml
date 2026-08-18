@@ -24,10 +24,10 @@ jobs:
           fi
           echo "version=$CUR" >> "$GITHUB_OUTPUT"
 
-      - name: Read latest commit from our viewer fork (v2 branch)
+      - name: Read latest commit from our viewer fork
         id: upstream-version
         run: |
-          LATEST=$(git ls-remote https://github.com/alam00000/bentopdf-pdfium-viewer refs/heads/v2 | cut -c1-12)
+          LATEST=$(git ls-remote https://github.com/alam00000/bentopdf-pdfium-viewer refs/heads/main | cut -c1-12)
           echo "version=$LATEST" >> "$GITHUB_OUTPUT"
 
       - name: Should update?
@@ -53,13 +53,13 @@ jobs:
 
       - name: Clone our viewer fork
         if: steps.gate.outputs.run == 'true'
-        run: git clone --depth 1 --branch v2 https://github.com/alam00000/bentopdf-pdfium-viewer ./_fork/bentopdf-pdfium-viewer
+        run: git clone --depth 1 --branch main https://github.com/alam00000/bentopdf-pdfium-viewer ./_fork/bentopdf-pdfium-viewer
 
       - name: Setup Node
         if: steps.gate.outputs.run == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install upstream deps
@@ -127,7 +127,7 @@ jobs:
 
       - name: Cleanup upstream clone
         if: steps.gate.outputs.run == 'true'
-        run: rm -rf ./_upstream
+        run: rm -rf ./_fork
 
       - name: Create Pull Request
         if: steps.gate.outputs.run == 'true'
@@ -136,7 +136,7 @@ jobs:
           commit-message: "build(deps): bump bentopdf-viewer from ${{ steps.current-version.outputs.version }} to ${{ steps.upstream-version.outputs.version }}"
           title: "build(deps): bump bentopdf-viewer from ${{ steps.current-version.outputs.version }} to ${{ steps.upstream-version.outputs.version }}"
           body: |
-            - Build snippet from upstream embed-pdf-viewer via `npm run build:snippet`
+            - Build snippet from the BentoPDF viewer fork via `pnpm run build:snippet`
             - Pack tarball into `vendor/bentopdf-viewer/` and point dependency to it
             - Refresh package-lock.json
           branch: chore/update-bentopdf-viewer

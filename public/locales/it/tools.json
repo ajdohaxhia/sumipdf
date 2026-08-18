@@ -63,6 +63,10 @@
     "name": "Editor PDF",
     "subtitle": "Annota, evidenzia, redigi, commenta, aggiungi forme/immagini, cerca e visualizza PDF."
   },
+  "editPdfText": {
+    "name": "Modifica testo PDF",
+    "subtitle": "Clicca su un paragrafo qualsiasi e modificalo direttamente con ricomposizione del testo in tempo reale, caratteri e stili."
+  },
   "jpgToPdf": {
     "name": "JPG in PDF",
     "subtitle": "Crea un PDF da immagini JPG, JPEG e JPEG2000 (JP2/JPX)."
