@@ -161,6 +161,7 @@ const ENGINE_OVERRIDE: Record<string, EngineId> = {
   'font-to-outline': 'ghostscript',
   'deskew-pdf': 'pymupdf',
   'edit-pdf': 'embedpdf',
+  'edit-pdf-text': 'embedpdf',
   'word-to-pdf': 'libreoffice',
   'excel-to-pdf': 'libreoffice',
   'powerpoint-to-pdf': 'libreoffice',
@@ -206,6 +207,8 @@ const EXPERIMENTAL_IDS = new Set(['watch-folder']);
 
 const RELATED: Record<string, string[]> = {
   'merge-pdf': ['split-pdf', 'organize-pdf', 'pdf-workflow'],
+  'edit-pdf': ['edit-pdf-text', 'sign-pdf', 'redact-pdf'],
+  'edit-pdf-text': ['edit-pdf', 'sign-pdf', 'form-filler'],
   'compress-pdf': ['linearize-pdf', 'sanitize-pdf', 'pdf-to-pdfa'],
   'organize-pdf': ['merge-pdf', 'split-pdf', 'rotate-pdf'],
   'sign-pdf': ['digital-sign-pdf', 'flatten-pdf', 'encrypt-pdf'],

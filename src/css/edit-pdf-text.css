@@ -1,15 +1,15 @@
 #text-editor-app {
-  --ecbg: #111827;
-  --ecpanel: #1f2937;
-  --ecpanel2: #374151;
-  --ecline: #4b5563;
-  --ectext: #f3f4f6;
-  --ecmuted: #9ca3af;
-  --ecaccent: #6366f1;
-  --ecstage: #374151;
+  --ecbg: var(--sumi-paper);
+  --ecpanel: var(--sumi-surface);
+  --ecpanel2: color-mix(in srgb, var(--sumi-surface) 88%, var(--sumi-ink) 12%);
+  --ecline: var(--sumi-rule);
+  --ectext: var(--sumi-ink);
+  --ecmuted: var(--sumi-ash);
+  --ecaccent: var(--sumi-signal);
+  --ecstage: var(--sumi-surface);
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 70;
   display: flex;
   flex-direction: column;
   background: var(--ecbg);
@@ -50,7 +50,7 @@
   user-select: none;
 }
 #text-editor-app .btn:hover {
-  background: #4b5563;
+  background: color-mix(in srgb, var(--ecpanel2) 70%, var(--ecaccent));
 }
 #text-editor-app .btn:disabled {
   opacity: 0.4;
@@ -61,6 +61,7 @@
   font-size: 15px;
   background: var(--ecaccent);
   border-color: var(--ecaccent);
+  color: var(--sumi-on-signal);
 }
 #text-editor-app .sep {
   width: 1px;
@@ -117,6 +118,7 @@
 }
 #text-editor-app .segmented button.on {
   background: var(--ecaccent);
+  color: var(--sumi-on-signal);
 }
 #text-editor-app .segmented.small button {
   padding: 3px 8px;
