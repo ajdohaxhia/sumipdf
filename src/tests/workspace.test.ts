@@ -7,6 +7,7 @@ import {
   workspaceBytes,
 } from '@/js/workspace/session';
 import { mountLegacyAdapter } from '@/js/workspace/adapters';
+import { workspaceController } from '@/js/workspace/controller';
 
 describe('local workspace', () => {
   afterEach(() => {
@@ -53,5 +54,17 @@ describe('legacy adapter chrome', () => {
     document.body.innerHTML = '<div id="app"></div>';
     mountLegacyAdapter();
     expect(document.getElementById('sumi-legacy-adapter')).toBeTruthy();
+  });
+});
+
+describe('workspace pane location', () => {
+  afterEach(() => {
+    window.history.pushState({}, '', '/');
+  });
+
+  it('writes the pane hash when the current hash is empty', () => {
+    window.history.pushState({}, '', '/workspace.html');
+    workspaceController.setPane('flow');
+    expect(window.location.hash).toBe('#flow');
   });
 });
