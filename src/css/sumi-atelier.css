@@ -345,7 +345,7 @@
 
 .sumi-original-index a {
   display: grid;
-  grid-template-columns: 3rem minmax(11rem, 0.75fr) minmax(15rem, 1.25fr) 2rem;
+  grid-template-columns: 3rem minmax(0, 0.75fr) minmax(0, 1.25fr) 2rem;
   gap: 1.5rem;
   align-items: center;
   min-height: 5.2rem;
@@ -851,6 +851,18 @@
 
   .sumi-directory .category-tools {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sumi-flow-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sumi-flow-strip a:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .sumi-flow-strip a:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--sumi-rule);
   }
 }
 

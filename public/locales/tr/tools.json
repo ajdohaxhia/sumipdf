@@ -55,6 +55,10 @@
     "name": "PDF Düzenleyici",
     "subtitle": "Açıklama ekleyin, vurgulayın, düzenleyin, yorum yapın, şekil/resim ekleyin, arama yapın ve PDF'leri görüntüleyin."
   },
+  "editPdfText": {
+    "name": "PDF Metni Düzenle",
+    "subtitle": "Herhangi bir paragrafa tıklayın ve canlı yeniden akış, yazı tipleri ve stillerle yerinde düzenleyin."
+  },
   "jpgToPdf": {
     "name": "JPG'den PDF'ye",
     "subtitle": "Bir veya daha fazla JPG görselinden PDF oluşturun."

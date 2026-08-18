@@ -5,6 +5,7 @@ import { formatBytes, downloadFile } from '../utils/helpers.js';
 import { makeUniqueFileKey } from '../utils/deduplicate-filename.js';
 import { batchDecryptIfNeeded } from '../utils/password-prompt.js';
 import { getEditorDisabledCategories } from '../utils/disabled-tools.js';
+import { editorFontFallback } from '../config/editor-fonts.js';
 
 const embedPdfWasmUrl = new URL(
   'bentopdf-viewer/dist/pdfium.wasm',
@@ -12,7 +13,47 @@ const embedPdfWasmUrl = new URL(
 ).href;
 
 import type { EmbedPdfContainer } from 'bentopdf-viewer';
-import type { DocManagerPlugin } from '@/types';
+import type {
+  AnnotationPluginLite,
+  DocManagerPlugin,
+  FreeTextSystemFontAnnotation,
+} from '@/types';
+
+const FREETEXT_SUBTYPE = 3;
+
+function collectSystemFontFreeTexts(
+  annotationPlugin: AnnotationPluginLite | null
+): FreeTextSystemFontAnnotation[] {
+  if (!annotationPlugin) return [];
+  try {
+    const state = annotationPlugin.getState();
+    const out: FreeTextSystemFontAnnotation[] = [];
+    for (const tracked of Object.values(state.byUid)) {
+      const obj = tracked.object;
+      if (obj.type !== FREETEXT_SUBTYPE) continue;
+      if (obj.intent === 'FreeTextCallout') continue;
+      if (!obj.fontPostScriptName || !obj.fontPostScriptName.trim()) continue;
+      if (!obj.id || obj.pageIndex == null || !obj.rect) continue;
+      if ((obj.rotation ?? 0) !== 0) continue;
+      out.push({
+        id: obj.id,
+        pageIndex: obj.pageIndex,
+        contents: obj.contents ?? '',
+        fontSize: obj.fontSize ?? 12,
+        fontColor: obj.fontColor ?? '#000000',
+        textAlign: obj.textAlign ?? 0,
+        verticalAlign: obj.verticalAlign ?? 0,
+        opacity: obj.opacity ?? 1,
+        backgroundColor: obj.color ?? obj.backgroundColor,
+        rect: obj.rect,
+        fontPostScriptName: obj.fontPostScriptName,
+      });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
 
 let viewerInstance: EmbedPdfContainer | null = null;
 let docManagerPlugin: DocManagerPlugin | null = null;
@@ -143,6 +184,7 @@ async function handleFiles(files: FileList) {
         target: pdfContainer,
         worker: true,
         wasmUrl: embedPdfWasmUrl,
+        fontFallback: editorFontFallback,
         export: {
           defaultFileName: firstFile.name,
         },
@@ -218,7 +260,31 @@ async function handleFiles(files: FileList) {
         try {
           const exportPlugin = registry.getPlugin('export').provides();
           const arrayBuffer = await exportPlugin.saveAsCopy().toPromise();
-          const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+          let outBytes = new Uint8Array(arrayBuffer);
+          let annotationPlugin: AnnotationPluginLite | null = null;
+          try {
+            annotationPlugin = registry
+              .getPlugin('annotation')
+              .provides() as unknown as AnnotationPluginLite;
+          } catch {
+            annotationPlugin = null;
+          }
+          const customFontAnnots = collectSystemFontFreeTexts(annotationPlugin);
+          if (customFontAnnots.length > 0) {
+            try {
+              const { embedFreeTextSystemFonts } =
+                await import('../utils/freetext-font-embed.js');
+              outBytes = await embedFreeTextSystemFonts(
+                outBytes,
+                customFontAnnots
+              );
+            } catch (err) {
+              console.error('Font embed pass failed:', err);
+            }
+          }
+          const blob = new Blob([new Uint8Array(outBytes)], {
+            type: 'application/pdf',
+          });
           downloadFile(blob, currentFileName);
         } catch (err) {
           console.error('Error downloading PDF:', err);

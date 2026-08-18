@@ -55,6 +55,10 @@
     "name": "PDF-Editor",
     "subtitle": "Annotieren, hervorheben, schwärzen, kommentieren, Formen/Bilder hinzufügen, suchen und PDFs anzeigen."
   },
+  "editPdfText": {
+    "name": "PDF-Text bearbeiten",
+    "subtitle": "Auf einen beliebigen Absatz klicken und ihn direkt bearbeiten – mit Live-Umbruch, Schriftarten und Formatierung."
+  },
   "jpgToPdf": {
     "name": "JPG zu PDF",
     "subtitle": "Eine PDF aus JPG, JPEG und JPEG2000 (JP2/JPX) Bildern erstellen."

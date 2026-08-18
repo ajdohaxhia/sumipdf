@@ -91,6 +91,13 @@ const baseCategories = [
           'Annotate, highlight, redact, comment, add shapes/images, search, and view PDFs.',
       },
       {
+        href: import.meta.env.BASE_URL + 'edit-pdf-text.html',
+        name: 'Edit PDF Text',
+        icon: 'ph-cursor-text',
+        subtitle:
+          'Click any paragraph and edit it in place with live reflow, fonts, and styling.',
+      },
+      {
         href: import.meta.env.BASE_URL + 'bookmark.html',
         name: 'Edit Bookmarks',
         icon: 'ph-bookmark',

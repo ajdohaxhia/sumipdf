@@ -717,6 +717,7 @@ export default defineConfig(() => {
           'split-pdf': resolve(__dirname, 'src/pages/split-pdf.html'),
           'compress-pdf': resolve(__dirname, 'src/pages/compress-pdf.html'),
           'edit-pdf': resolve(__dirname, 'src/pages/edit-pdf.html'),
+          'edit-pdf-text': resolve(__dirname, 'src/pages/edit-pdf-text.html'),
           'jpg-to-pdf': resolve(__dirname, 'src/pages/jpg-to-pdf.html'),
           'sign-pdf': resolve(__dirname, 'src/pages/sign-pdf.html'),
           'crop-pdf': resolve(__dirname, 'src/pages/crop-pdf.html'),

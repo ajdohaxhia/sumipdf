@@ -55,6 +55,10 @@
     "name": "PDF-editor",
     "subtitle": "Annotér, fremhæv, redigér, kommentér, tilføj former/billeder, søg og vis PDF’er."
   },
+  "editPdfText": {
+    "name": "Redigér PDF-tekst",
+    "subtitle": "Klik på et hvilket som helst afsnit, og redigér det direkte med live-ombrydning, skrifttyper og formatering."
+  },
   "jpgToPdf": {
     "name": "JPG til PDF",
     "subtitle": "Opret en PDF fra JPG, JPEG og JPEG2000 (JP2/JPX) billeder."

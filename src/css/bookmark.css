@@ -1,5 +1,5 @@
 body {
-  color: #374151;
+  color: var(--sumi-ink);
 }
 
 .sortable-ghost {
@@ -25,12 +25,14 @@ body {
 }
 
 .modal-content {
-  background: white;
+  background: var(--sumi-paper);
+  color: var(--sumi-ink);
   border-radius: 0.5rem;
   max-width: 500px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--sumi-rule);
 }
 
 .modal-minimized {

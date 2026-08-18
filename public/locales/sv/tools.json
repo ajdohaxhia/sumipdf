@@ -55,6 +55,10 @@
     "name": "PDF-redigerare",
     "subtitle": "Kommentera, markera, redigera, kommentera, lägg till former/bilder, sök och visa PDF:er."
   },
+  "editPdfText": {
+    "name": "Redigera PDF-text",
+    "subtitle": "Klicka på valfritt stycke och redigera det på plats med direkt textomflöde, typsnitt och stilar."
+  },
   "jpgToPdf": {
     "name": "JPG till PDF",
     "subtitle": "Skapa en PDF från JPG, JPEG och JPEG2000 (JP2/JPX)-bilder."

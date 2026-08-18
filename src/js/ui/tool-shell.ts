@@ -69,7 +69,8 @@ function mountContinueWith(toolId: string): void {
 export function initToolShell(): void {
   hidePolarStorefront();
   const toolId = currentToolIdFromPath();
-  if (toolId !== 'home') {
+  const tool = getToolById(toolId);
+  if (tool) {
     recordRecentTool(toolId);
     mountContinueWith(toolId);
     mountLegacyAdapter();
@@ -83,10 +84,7 @@ export function initToolShell(): void {
   }
 
   const live = document.getElementById('sumi-live-status');
-  if (live && toolId !== 'home') {
-    const tool = getToolById(toolId);
-    if (tool) {
-      live.textContent = `${tool.name}. ${t('nav.localBadge') || 'Processed on this device'}.`;
-    }
+  if (live && tool) {
+    live.textContent = `${tool.name}. ${t('nav.localBadge') || 'Processed on this device'}.`;
   }
 }
