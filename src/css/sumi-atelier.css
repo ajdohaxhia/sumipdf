@@ -347,7 +347,7 @@
   display: grid;
   grid-template-columns: 3rem minmax(0, 0.75fr) minmax(0, 1.25fr) 2rem;
   gap: 1.5rem;
-  align-items: center;
+  align-items: baseline;
   min-height: 5.2rem;
   padding: 1rem 0;
   border-top: 1px solid var(--sumi-rule);
@@ -363,6 +363,7 @@
   font-family: var(--font-serif);
   font-size: 0.82rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .sumi-original-index a > strong {
@@ -379,6 +380,7 @@
 
 .sumi-original-index a > i {
   justify-self: end;
+  align-self: center;
   color: var(--sumi-ash);
   font-size: 1.15rem;
 }
@@ -454,13 +456,14 @@
 .sumi-recipe-list {
   display: grid;
   align-content: start;
+  gap: 0.15rem;
 }
 
 .sumi-recipe-list a {
   display: grid;
   grid-template-columns: minmax(10rem, 0.55fr) minmax(0, 1.45fr);
   gap: 1rem;
-  padding: 1rem 0;
+  padding: 1.15rem 0;
   border-top: 1px solid color-mix(in srgb, var(--sumi-paper) 22%, transparent);
   color: var(--sumi-paper);
   text-decoration: none;
@@ -477,8 +480,8 @@
 }
 
 .sumi-recipe-list span {
-  color: color-mix(in srgb, var(--sumi-paper) 63%, transparent);
-  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--sumi-paper) 72%, transparent);
+  font-size: 0.88rem;
   line-height: 1.45;
 }
 

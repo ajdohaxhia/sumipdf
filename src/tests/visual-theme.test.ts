@@ -89,4 +89,37 @@ describe('tools directory filters', () => {
       /\.category-filter \{[^}]*background-color: #1f2937/
     );
   });
+
+  it('loads the shared shell so search, theme, and nav work', () => {
+    expect(toolsPage).toContain('src/js/main.ts');
+    expect(toolsPage).toContain('src/js/mobileMenu.ts');
+    expect(toolsPage).toContain('href="${tool.name}.html"');
+    expect(toolsPage).not.toContain('href="/${tool.name}.html"');
+  });
+});
+
+describe('light-theme contrast remaps', () => {
+  it('maps every leftover text-white utility to ink', () => {
+    expect(sumi).toMatch(
+      /html:not\(\[data-theme='dark'\]\) \.text-white \{[^}]*--sumi-ink/
+    );
+  });
+
+  it('keeps vermilion CTAs on cream type after the text-white remap', () => {
+    expect(sumi).toMatch(
+      /html:not\(\[data-theme='dark'\]\) \.bg-indigo-600,[\s\S]*?color: var\(--sumi-on-signal\)/
+    );
+    expect(sumi).toMatch(
+      /html:not\(\[data-theme='dark'\]\) \.category-filter\.active,[\s\S]*?color: var\(--sumi-on-signal\)/
+    );
+  });
+
+  it('makes FAQ summaries and form fields readable on paper', () => {
+    expect(sumi).toMatch(
+      /html:not\(\[data-theme='dark'\]\) details > summary,[\s\S]*?color: var\(--sumi-ink\)/
+    );
+    expect(sumi).toMatch(
+      /html:not\(\[data-theme='dark'\]\) input,[\s\S]*?color: var\(--sumi-ink\)/
+    );
+  });
 });

@@ -14,7 +14,6 @@ export function mountThemeSwitcher(target: HTMLElement | null): void {
 
   const select = document.createElement('select');
   select.id = 'sumi-theme-select';
-  select.className = 'sumi-icon-btn';
   select.setAttribute('aria-label', 'Theme');
   const pref = getThemePreference();
   for (const option of [

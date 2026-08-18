@@ -348,8 +348,8 @@ footer a {
 
 .btn-gradient:hover {
   box-shadow:
-    0 10px 15px -3px rgba(79, 70, 229, 0.3),
-    0 4px 6px -4px rgba(79, 70, 229, 0.3);
+    0 10px 15px -3px color-mix(in srgb, var(--sumi-signal) 30%, transparent),
+    0 4px 6px -4px color-mix(in srgb, var(--sumi-signal) 30%, transparent);
 }
 
 .btn-gradient:focus {

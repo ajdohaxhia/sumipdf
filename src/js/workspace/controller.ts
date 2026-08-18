@@ -58,8 +58,8 @@ class WorkspaceController {
 
   setPane(pane: WorkspacePane): void {
     this.pane = pane;
-    const hash = pane === 'inspect' ? '#inspect' : `#${pane}`;
-    if (typeof history !== 'undefined' && !hash.includes(location.hash)) {
+    const hash = `#${pane}`;
+    if (typeof history !== 'undefined' && location.hash !== hash) {
       try {
         history.replaceState(null, '', hash);
       } catch {
