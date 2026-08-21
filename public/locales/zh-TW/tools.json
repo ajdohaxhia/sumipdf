@@ -55,6 +55,10 @@
     "name": "PDF 編輯器",
     "subtitle": "註解、螢光標註、塗黑、評論、新增圖形或圖片、搜尋與檢視 PDF。"
   },
+  "editPdfText": {
+    "name": "編輯 PDF 文字",
+    "subtitle": "點擊任意段落即可就地編輯，支援即時重排、字型與樣式設定。"
+  },
   "jpgToPdf": {
     "name": "JPG 轉 PDF",
     "subtitle": "從一張或多張 JPG、JPEG 及 JPEG2000（JP2/JPX）圖片建立 PDF。"

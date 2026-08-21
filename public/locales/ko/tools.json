@@ -55,6 +55,10 @@
     "name": "PDF 편집기",
     "subtitle": "주석, 하이라이트, 마스킹, 댓글, 도형/이미지 추가, 검색 및 보기."
   },
+  "editPdfText": {
+    "name": "PDF 텍스트 편집",
+    "subtitle": "아무 단락이나 클릭해 실시간 리플로우, 글꼴, 스타일과 함께 바로 편집하세요."
+  },
   "jpgToPdf": {
     "name": "JPG를 PDF로",
     "subtitle": "JPG, JPEG, JPEG2000(JP2/JPX) 이미지로 PDF를 만듭니다."

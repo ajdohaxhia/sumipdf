@@ -55,6 +55,10 @@
     "name": "PDF Bewerken",
     "subtitle": "PDF's annoteren, markeren, redigeren, commentaar toevoegen, vormen/afbeelding toevoegen, doorzoeken and weergeven."
   },
+  "editPdfText": {
+    "name": "PDF-tekst Bewerken",
+    "subtitle": "Klik op een alinea en bewerk deze direct, met live tekstomloop, lettertypen en opmaak."
+  },
   "jpgToPdf": {
     "name": "JPG naar PDF",
     "subtitle": "Een of meer JPG-afbeeldingen opslaan als PDF."

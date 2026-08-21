@@ -55,6 +55,10 @@
     "name": "Editor de PDF",
     "subtitle": "Anotar, destacar, redigir, comentar, adicionar formas/imagens, pesquisar e visualizar PDFs."
   },
+  "editPdfText": {
+    "name": "Editar texto do PDF",
+    "subtitle": "Clique em qualquer parágrafo e edite-o no local com reorganização do texto em tempo real, fontes e estilos."
+  },
   "jpgToPdf": {
     "name": "JPG para PDF",
     "subtitle": "Crie um PDF a partir de uma ou mais imagens JPG."

@@ -55,6 +55,10 @@
     "name": "Éditeur PDF",
     "subtitle": "Annoter, surligner, masquer, commenter, ajouter des formes ou images, rechercher et afficher des PDF."
   },
+  "editPdfText": {
+    "name": "Modifier le texte d'un PDF",
+    "subtitle": "Cliquer sur un paragraphe et le modifier directement, avec remise en page instantanée, polices et styles."
+  },
   "jpgToPdf": {
     "name": "JPG vers PDF",
     "subtitle": "Créer un PDF à partir d’une ou plusieurs images JPG."

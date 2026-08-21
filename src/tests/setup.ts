@@ -22,13 +22,12 @@ if (typeof globalThis.DOMMatrix === 'undefined') {
   globalThis.DOMMatrix = TestDOMMatrix as unknown as typeof DOMMatrix;
 }
 
+const hasDom = typeof window !== 'undefined';
+
 afterEach(() => {
-  if (typeof document !== 'undefined' && document.body) {
-    document.body.innerHTML = '';
-  }
-  if (typeof document !== 'undefined' && document.head) {
-    document.head.innerHTML = '';
-  }
+  if (!hasDom) return;
+  document.body.innerHTML = '';
+  document.head.innerHTML = '';
 });
 
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
@@ -37,7 +36,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
-if (typeof globalThis.window !== 'undefined') {
+if (hasDom) {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation((query) => ({

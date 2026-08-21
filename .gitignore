@@ -56,3 +56,7 @@ test
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Sibling checkouts of the engine/viewer forks
+bentopdf-pdfium-viewer/
+bentopdf-pymupdf-wasm/

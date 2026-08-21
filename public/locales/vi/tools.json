@@ -55,6 +55,10 @@
     "name": "Trình chỉnh sửa PDF",
     "subtitle": "Ghi chú, tô sáng, chỉnh sửa, bình luận, thêm hình dạng/hình ảnh, tìm kiếm và xem PDF."
   },
+  "editPdfText": {
+    "name": "Chỉnh sửa văn bản PDF",
+    "subtitle": "Nhấp vào bất kỳ đoạn văn nào và chỉnh sửa ngay tại chỗ với tính năng tự động dàn lại văn bản, phông chữ và kiểu dáng."
+  },
   "jpgToPdf": {
     "name": "JPG sang PDF",
     "subtitle": "Tạo PDF từ hình ảnh JPG, JPEG và JPEG2000 (JP2/JPX)."

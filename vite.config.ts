@@ -6,7 +6,6 @@ import type { Connect, Plugin } from 'vite';
 // import basicSsl from '@vitejs/plugin-basic-ssl';
 import tailwindcss from '@tailwindcss/vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import viteCompression from 'vite-plugin-compression';
 import handlebars from 'vite-plugin-handlebars';
 import { resolve } from 'path';
@@ -563,12 +562,13 @@ function sumiBrandHtmlPlugin(): Plugin {
 }
 
 export default defineConfig(() => {
-  const staticCopyTargets = [
-    {
-      src: 'node_modules/bentopdf-viewer/dist/pdfium.wasm',
-      dest: 'embedpdf',
-    },
-  ];
+  const USE_CDN = process.env.VITE_USE_CDN === 'true';
+
+  if (USE_CDN) {
+    console.log('[Vite] Using CDN for WASM files (with local fallback)');
+  } else {
+    console.log('[Vite] Using local WASM files only');
+  }
 
   return {
     base: (process.env.BASE_URL || '/').replace(/\/?$/, '/'),
@@ -611,9 +611,6 @@ export default defineConfig(() => {
           global: false,
           process: true,
         },
-      }),
-      viteStaticCopy({
-        targets: staticCopyTargets,
       }),
       viteCompression({
         algorithm: 'brotliCompress',
@@ -717,6 +714,7 @@ export default defineConfig(() => {
           'split-pdf': resolve(__dirname, 'src/pages/split-pdf.html'),
           'compress-pdf': resolve(__dirname, 'src/pages/compress-pdf.html'),
           'edit-pdf': resolve(__dirname, 'src/pages/edit-pdf.html'),
+          'edit-pdf-text': resolve(__dirname, 'src/pages/edit-pdf-text.html'),
           'jpg-to-pdf': resolve(__dirname, 'src/pages/jpg-to-pdf.html'),
           'sign-pdf': resolve(__dirname, 'src/pages/sign-pdf.html'),
           'crop-pdf': resolve(__dirname, 'src/pages/crop-pdf.html'),
