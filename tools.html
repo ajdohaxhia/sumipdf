@@ -160,6 +160,8 @@
     {{> footer }}
 
     <script type="module" src="/src/js/utils/lucide-init.ts"></script>
+    <script type="module" src="/src/js/main.ts"></script>
+    <script type="module" src="/src/js/mobileMenu.ts"></script>
     <script type="module">
       const tools = [
         // Converters
@@ -832,7 +834,7 @@
         grid.innerHTML = filtered
           .map(
             (tool) => `
-                <a href="/${tool.name}.html" class="tool-card">
+                <a href="${tool.name}.html" class="tool-card">
                     <i class="ph ph-${tool.icon} text-4xl text-indigo-400 mb-2"></i>
                     <h3 class="font-semibold text-white text-sm">${tool.title}</h3>
                 </a>
@@ -861,30 +863,5 @@
 
       renderTools();
     </script>
-
-    <style>
-      .category-filter {
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        background-color: #1f2937;
-        color: #9ca3af;
-        border: 1px solid #374151;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.875rem;
-        font-weight: 500;
-      }
-
-      .category-filter:hover {
-        background-color: #374151;
-        color: #fff;
-      }
-
-      .category-filter.active {
-        background-color: #4f46e5;
-        color: #fff;
-        border-color: #4f46e5;
-      }
-    </style>
   </body>
 </html>

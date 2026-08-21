@@ -3123,9 +3123,11 @@ function drawOverlay() {
       if (para.id === editingId) continue;
       const inBlock = !!para.blockId && para.editable && !para.invisible;
       if (para.invisible) continue;
-      if (!para.editable) continue;
       const div = document.createElement('div');
-      div.className = 'para-box' + (inBlock ? ' in-block' : '');
+      div.className =
+        'para-box' +
+        (para.editable ? '' : ' locked') +
+        (inBlock ? ' in-block' : '');
       applyPlacement(div, paraPlacement(liveShift(para)), BOX_PAD);
       if (para.editable) {
         div.addEventListener('mousedown', (e) => {
@@ -3137,6 +3139,25 @@ function drawOverlay() {
           beginEdit(para, { x: e.clientX, y: e.clientY });
         });
         attachParaLongPress(div, para);
+      } else {
+        const msg =
+          para.lockReason === 2
+            ? '🔒 Scanned page: the visible words are an image — the text ' +
+              'underneath is an invisible, scrambled OCR layer. Editing it ' +
+              'would corrupt the page. Re-OCR the scan to edit it as text.'
+            : para.lockReason === 3
+              ? '🔒 Locked: this text sits inside a drawing container shared ' +
+                "with other artwork. PDFium cannot rewrite a container's own " +
+                'content stream, so editing it would leave the original ' +
+                'showing underneath your change.'
+              : '🔒 Locked: this text has no reliable character encoding — ' +
+                'rebuilding it would corrupt the glyphs (Acrobat locks these too).';
+        div.addEventListener('mouseenter', () => showLockTip(div, msg));
+        div.addEventListener('mouseleave', hideLockTip);
+        div.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          toast(msg);
+        });
       }
       ov.appendChild(div);
     }
@@ -3765,18 +3786,6 @@ function openEditor(spec, caret) {
         openPv = lockedPv;
         renderLockedLines(ed, para.runs, lockedPv, para, para.box.x);
         singleLine = false;
-        const wantChars = para.runs.reduce(
-          (n, r) => n + (r.text ? r.text.length : 0),
-          0
-        );
-        const gotChars = ed.textContent.replace(/[\u200B\u2060]/g, '').length;
-        if (wantChars > 0 && gotChars < wantChars * 0.98) {
-          ed.textContent = '';
-          delete ed.dataset.locked;
-          ed.style.textAlign = '';
-          openPv = null;
-          lockedPv = null;
-        }
       } else {
         lockedPv = null;
       }
@@ -3982,42 +3991,6 @@ function openEditor(spec, caret) {
     state.editing.composing = false;
     if (state.editing.locked) schedulePreview();
   });
-  ed.addEventListener('dblclick', (e) => {
-    const sel = window.getSelection();
-    if (!sel || !sel.anchorNode || !ed.contains(sel.anchorNode)) return;
-    const map = [];
-    const walk = (n) => {
-      for (const c of n.childNodes) {
-        if (c.nodeType === Node.TEXT_NODE) {
-          for (let k = 0; k < c.textContent.length; k++)
-            map.push({ node: c, offset: k, ch: c.textContent[k] });
-        } else if (c.nodeName !== 'BR') {
-          walk(c);
-        }
-      }
-    };
-    walk(ed);
-    if (!map.length) return;
-    let idx = map.findIndex(
-      (m) => m.node === sel.anchorNode && m.offset === sel.anchorOffset
-    );
-    if (idx < 0) idx = map.findIndex((m) => m.node === sel.anchorNode);
-    if (idx < 0) return;
-    if (!isWordChar(map[idx].ch) && idx > 0 && isWordChar(map[idx - 1].ch))
-      idx--;
-    if (!isWordChar(map[idx].ch)) return;
-    let from = idx;
-    let to = idx;
-    while (from > 0 && isWordChar(map[from - 1].ch)) from--;
-    while (to + 1 < map.length && isWordChar(map[to + 1].ch)) to++;
-    const range = document.createRange();
-    range.setStart(map[from].node, map[from].offset);
-    range.setEnd(map[to].node, map[to].offset + 1);
-    sel.removeAllRanges();
-    sel.addRange(range);
-    e.preventDefault();
-  });
-
   ed.addEventListener('input', () => {
     if (!state.editing) return;
     unpristine();
@@ -5160,26 +5133,10 @@ function updateGlassSurface(es, pv, runs) {
   const fullH = pv.height + 2 * padM;
   const pxW = Math.round(fullW * scale);
   const pxH = Math.round(fullH * scale);
-  let styleH = 19;
-  for (const r of runs || []) {
-    styleH = (styleH * 31 + ((r.rgba >>> 0) | 0)) | 0;
-    styleH = (styleH * 31 + (r.bold ? 2 : 1)) | 0;
-    styleH = (styleH * 31 + (r.italic ? 2 : 1)) | 0;
-    styleH = (styleH * 31 + (r.underline ? 2 : 1)) | 0;
-    styleH = (styleH * 31 + (r.strike ? 2 : 1)) | 0;
-    styleH = (styleH * 31 + ((r.script | 0) + 2)) | 0;
-    styleH = (styleH * 31 + ((r.renderMode | 0) + 2)) | 0;
-    styleH = (styleH * 31 + ((r.strokeRgba >>> 0) | 0)) | 0;
-    styleH = (styleH * 31 + Math.round((r.strokeWidth ?? 1) * 100)) | 0;
-    styleH = (styleH * 31 + Math.round((r.size ?? 0) * 100)) | 0;
-    for (let i = 0; i < (r.family || '').length; i++)
-      styleH = (styleH * 31 + r.family.charCodeAt(i)) | 0;
-  }
-
   const keys = [];
   let certain = true;
   for (const ln of pv.lines) {
-    let h = styleH;
+    let h = 17;
     h = (h * 31 + Math.round(ln.baseline * 100)) | 0;
     h = (h * 31 + Math.round((ln.x || 0) * 100)) | 0;
     h = (h * 31 + Math.round((ln.size || 0) * 100)) | 0;
@@ -5435,6 +5392,23 @@ function applyLockedGeom(es, pv) {
   if (need > parseFloat(es.el.style.width)) es.el.style.width = need + 'px';
   es.el.scrollLeft = 0;
   es.editable.scrollLeft = 0;
+}
+
+function showLockTip(anchor2, msg) {
+  hideLockTip();
+  const tip = document.createElement('div');
+  tip.id = 'locktip';
+  tip.textContent = msg;
+  document.body.appendChild(tip);
+  const r = anchor2.getBoundingClientRect();
+  tip.style.left =
+    Math.max(8, Math.min(window.innerWidth - tip.offsetWidth - 8, r.left)) +
+    'px';
+  tip.style.top =
+    (r.top > 70 ? r.top - tip.offsetHeight - 6 : r.bottom + 6) + 'px';
+}
+function hideLockTip() {
+  document.getElementById('locktip')?.remove();
 }
 
 function beginEdit(para, caret) {
@@ -5799,13 +5773,9 @@ function endEdit(commit) {
         if (window.__sanctityProbe)
           (window.__sanctityWhy ||= []).push(runsDiffer.why);
         snapshotEdit('edit text', e.para);
-        const prevBottomEdit = e.para.box
-          ? e.para.box.top - e.para.box.h
-          : -1e30;
         const updated = P().commitParagraph(e.para.id, runs, e.para.format);
         if (updated) {
           replaceParagraph(e.para.id, updated);
-          cascadeParagraphGrowth(updated, prevBottomEdit);
           state.selection = { kind: 'para', para: updated };
           state.dirty = true;
           if (!e.para.sharesObjects && !e.para.unwrapsForms) {
@@ -5952,37 +5922,6 @@ function runsDiffer(a, b) {
   return false;
 }
 
-function cascadeParagraphGrowth(updated, prevBottom) {
-  if (!updated?.box || !(prevBottom > -1e29)) return;
-  const newBottom = updated.box.top - updated.box.h;
-  const delta = prevBottom - newBottom;
-  if (!(Math.abs(delta) > 0.5)) return;
-  const L = updated.box.x;
-  const R = updated.box.x + updated.box.w;
-  const span = Math.max(1, R - L);
-  const movers = [];
-  for (const q of state.paragraphs) {
-    if (!q || q.id === updated.id || !q.box) continue;
-    if (!q.editable || q.vertical || q.invisible) continue;
-    if (Math.abs((q.rotation || 0) - (updated.rotation || 0)) > 0.01) continue;
-    if (q.box.top > prevBottom + 0.5) continue;
-    const l = q.box.x;
-    const r = q.box.x + q.box.w;
-    const overlap = Math.min(R, r) - Math.max(L, l);
-    if (overlap < 0.35 * Math.min(span, Math.max(1, r - l))) continue;
-    movers.push(q);
-  }
-  for (const q of movers) {
-    if (P().moveParagraph(q.id, 0, -delta)) {
-      const moved = {
-        ...q,
-        box: { ...q.box, top: q.box.top - delta },
-      };
-      replaceParagraph(q.id, moved);
-    }
-  }
-}
-
 function refreshAfterMutation(dirtyRect) {
   if (P()._pageStale) {
     refreshModel();
@@ -6075,12 +6014,6 @@ function editorSelectionRange(ed) {
   pre.setEnd(range.startContainer, range.startOffset);
   const start = pre.toString().length;
   return { start, end: start + range.toString().length };
-}
-
-const WORD_CHAR = /[\p{L}\p{N}_'\u2019\uFFFD\uFFFC]/u;
-
-function isWordChar(ch) {
-  return !!ch && WORD_CHAR.test(ch);
 }
 
 function flattenEditorChars(ed) {
@@ -6266,7 +6199,6 @@ function styleLockedRange(es, sr, mutate) {
     applyDocFonts(es.para, ed);
     es.preview = pv;
     applyLockedGeom(es, pv);
-    updateGlassSurface(es, pv, out);
     drawOverlay();
     if (hadFocus) lockedSelSet(ed, sr.start, sr.end);
     es.lastSel = { start: sr.start, end: sr.end, locked: true };
@@ -6432,11 +6364,9 @@ function changeFormat(mutate) {
     ? runs
     : para.runs.map((r, i) => ({ ...r, rgba: r.rgba >>> 0, sourceIndex: i }));
   snapshotEdit('edit text', para);
-  const prevBottomFmt = para.box ? para.box.top - para.box.h : -1e30;
   const updated = P().commitParagraph(para.id, safe, fmt);
   if (updated) {
     replaceParagraph(updated.id, updated);
-    cascadeParagraphGrowth(updated, prevBottomFmt);
     state.selection = { kind: 'para', para: updated };
     if (state.editing) {
       state.editing.para = updated;
@@ -6990,10 +6920,6 @@ function stagePointHandlers() {
         t.closest?.('#inspector') ||
         t.closest?.('#toolbar') ||
         t.closest?.('#findbar') ||
-        t.closest?.('#contextbar') ||
-        t.closest?.('.dockpanel') ||
-        t.closest?.('.dockrail') ||
-        t.closest?.('.dsheet') ||
         t.closest?.('.para-box') ||
         t.closest?.('.para-handle') ||
         t.closest?.('.edit-move') ||
@@ -8959,7 +8885,6 @@ function goToPage(i) {
 }
 
 async function openFile(file, sourceUrl = null, knownBytes) {
-  endEdit(false);
   if (state.extWatch) {
     clearInterval(state.extWatch);
     state.extWatch = null;
@@ -9121,7 +9046,6 @@ function wireUI() {
     '#737373',
     '#d1d1d1',
     '#ed5924',
-    '#f2b705',
     '#3b6ef5',
     '#cc8cf7',
   ];
@@ -9196,18 +9120,8 @@ function wireUI() {
     updateChrome();
   });
 
-  $('contextbar')?.addEventListener('mousedown', (e) => {
-    if (e.target.closest('button, .swatch, label')) e.preventDefault();
-  });
-
-  $('rotL').addEventListener('click', () => {
-    settleEditorForParaOp();
-    rotateSelection(90);
-  });
-  $('rotR').addEventListener('click', () => {
-    settleEditorForParaOp();
-    rotateSelection(-90);
-  });
+  $('rotL').addEventListener('click', () => rotateSelection(90));
+  $('rotR').addEventListener('click', () => rotateSelection(-90));
   $('flipH').addEventListener('click', () =>
     objectOp((h) => P().flipObject(h, true))
   );
@@ -9329,17 +9243,13 @@ function wireUI() {
   $('pStrokeW').addEventListener('change', () => applyPathStroke());
   $('front').addEventListener('click', () => arrangeSel('front'));
   $('back').addEventListener('click', () => arrangeSel('back'));
-  $('dupe').addEventListener('click', () => {
-    settleEditorForParaOp();
-    duplicateSelection();
-  });
+  $('dupe').addEventListener('click', duplicateSelection);
   $('addImage').addEventListener('click', () => $('imgFile').click());
   $('imgFile').addEventListener('change', (e) => {
     if (e.target.files[0]) addImageFromFile(e.target.files[0]);
     e.target.value = '';
   });
   $('del').addEventListener('click', () => {
-    settleEditorForParaOp(false);
     if (state.selection?.kind === 'object') {
       snapshotEdit('delete');
       P().historyRemoveObject(state.selection.handle);
@@ -9705,22 +9615,6 @@ function toggleStyle(t) {
   });
 }
 
-function settleEditorForParaOp(commit = true) {
-  if (!state.editing) return;
-  const para = state.editing.para;
-  endEdit(commit);
-  if (!state.selection && para) {
-    const again =
-      state.paragraphs.find((p) => p.id === para.id) ||
-      state.paragraphs.find(
-        (p) =>
-          Math.abs(p.box.x - para.box.x) < 1 &&
-          Math.abs(p.box.top - para.box.top) < 1
-      );
-    if (again) state.selection = { kind: 'para', para: again };
-  }
-}
-
 function rotateSelection(deg) {
   const sel = state.selection;
   if (sel?.kind === 'object') {
@@ -9756,24 +9650,12 @@ function rotateSelection(deg) {
     }
   }
   if (!handles.length) return;
-  const keepPara = sel?.kind === 'para' ? sel.para : null;
   snapshotEdit('rotate');
   for (const h of handles) noteMatrix(h);
   P().rotateObjectsAbout(handles, deg, cx, cy);
   state.dirty = true;
   refreshModel();
   state.selection = null;
-  if (keepPara) {
-    const want = keepPara.runs.map((r) => r.text).join('');
-    const again =
-      state.paragraphs.find((p) => p.id === keepPara.id) ||
-      (want
-        ? state.paragraphs.find(
-            (p) => p.runs.map((r) => r.text).join('') === want
-          )
-        : null);
-    if (again) state.selection = { kind: 'para', para: again };
-  }
   renderPage();
   updateChrome();
 }

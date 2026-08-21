@@ -559,7 +559,6 @@
 
 /* Print Styles */
 @media print {
-
   /* Reset all backgrounds, margins, and padding */
   html,
   body {
@@ -584,10 +583,10 @@
   nav,
   footer,
   #back-to-tools,
-  .bg-gray-800>h1.text-2xl,
-  .bg-gray-800>p.text-gray-400,
-  #markdown-editor-container~h1,
-  #markdown-editor-container~p {
+  .bg-gray-800 > h1.text-2xl,
+  .bg-gray-800 > p.text-gray-400,
+  #markdown-editor-container ~ h1,
+  #markdown-editor-container ~ p {
     display: none !important;
   }
 
@@ -600,7 +599,7 @@
   .py-8,
   .px-4,
   #markdown-editor-container,
-  [class*="container"] {
+  [class*='container'] {
     padding: 0 !important;
     margin: 0 !important;
     background: white !important;
@@ -658,8 +657,8 @@
     page-break-after: avoid;
   }
 
-  .md-editor-preview>h1:first-child,
-  .md-editor-preview>*:first-child {
+  .md-editor-preview > h1:first-child,
+  .md-editor-preview > *:first-child {
     margin-top: 0 !important;
   }
 
@@ -814,4 +813,49 @@
   .md-editor-actions {
     gap: 0.375rem;
   }
+}
+
+/* Sumi atelier tokens: keep the markdown studio readable on paper/ink themes. */
+.md-editor-title,
+.md-editor-modal-title,
+.md-editor-settings-group h3 {
+  color: var(--sumi-ink);
+}
+
+.md-editor-btn-secondary {
+  color: var(--sumi-ink);
+  background: var(--sumi-surface);
+  border: 1px solid var(--sumi-rule);
+}
+
+.md-editor-btn-secondary:hover {
+  background: var(--sumi-paper);
+  color: var(--sumi-signal);
+}
+
+.md-editor-btn-primary {
+  color: var(--sumi-on-signal);
+  background: var(--sumi-signal);
+}
+
+.md-editor-btn-primary:hover {
+  filter: brightness(0.94);
+  background: var(--sumi-signal);
+}
+
+.md-editor-modal {
+  background: var(--sumi-paper);
+  border-color: var(--sumi-rule);
+  color: var(--sumi-ink);
+}
+
+.md-editor-modal-close:hover,
+.md-editor-checkbox:hover {
+  color: var(--sumi-signal);
+}
+
+.md-editor-settings-group select {
+  color: var(--sumi-ink);
+  background: var(--sumi-surface);
+  border-color: var(--sumi-rule);
 }

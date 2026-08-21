@@ -138,19 +138,61 @@ html:not([data-theme='dark']) .bg-gray-700 {
   background-color: #e4dcd0 !important;
 }
 
-html[data-theme='light'] p.text-white,
-html[data-theme='light'] h1.text-white,
-html[data-theme='light'] h2.text-white,
-html[data-theme='light'] h3.text-white,
-html[data-theme='light'] h4.text-white,
-html[data-theme='light']
-  span.text-white:not(.btn *):not(button *):not(a *):not(.category-filter *),
-html:not([data-theme='dark']) p.text-white,
-html:not([data-theme='dark']) h1.text-white,
-html:not([data-theme='dark']) h2.text-white,
-html:not([data-theme='dark']) h3.text-white,
-html:not([data-theme='dark']) h4.text-white {
+html[data-theme='light'] .text-white,
+html:not([data-theme='dark']) .text-white {
   color: var(--sumi-ink) !important;
+}
+
+html[data-theme='light'] input,
+html[data-theme='light'] textarea,
+html[data-theme='light'] select,
+html:not([data-theme='dark']) input,
+html:not([data-theme='dark']) textarea,
+html:not([data-theme='dark']) select {
+  color: var(--sumi-ink);
+}
+
+html[data-theme='light'] input::placeholder,
+html[data-theme='light'] textarea::placeholder,
+html:not([data-theme='dark']) input::placeholder,
+html:not([data-theme='dark']) textarea::placeholder {
+  color: var(--sumi-ash);
+  opacity: 1;
+}
+
+html[data-theme='light'] details > summary,
+html:not([data-theme='dark']) details > summary,
+html[data-theme='light'] .faq-question,
+html:not([data-theme='dark']) .faq-question {
+  color: var(--sumi-ink);
+}
+
+details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details > summary svg {
+  transition: transform 0.2s ease;
+}
+
+details[open] > summary svg:not(.icon) {
+  transform: rotate(180deg);
+}
+
+html[data-theme='light'] details[open] > summary,
+html:not([data-theme='dark']) details[open] > summary,
+html[data-theme='light'] details[open] > summary .text-white,
+html:not([data-theme='dark']) details[open] > summary .text-white,
+html[data-theme='light'] .faq-item.open .faq-question,
+html:not([data-theme='dark']) .faq-item.open .faq-question,
+html[data-theme='light'] .faq-item.open .faq-question .text-white,
+html:not([data-theme='dark']) .faq-item.open .faq-question .text-white {
+  color: var(--sumi-signal) !important;
 }
 
 html[data-theme='light'] .text-gray-200,
@@ -181,6 +223,28 @@ html:not([data-theme='dark']) .bg-indigo-500,
 html[data-theme='light'] .bg-indigo-700,
 html:not([data-theme='dark']) .bg-indigo-700 {
   background-color: var(--sumi-signal) !important;
+  color: var(--sumi-on-signal) !important;
+}
+
+html[data-theme='light'] .btn-gradient,
+html:not([data-theme='dark']) .btn-gradient,
+html[data-theme='light'] .category-filter.active,
+html:not([data-theme='dark']) .category-filter.active,
+html[data-theme='light'] button[type='submit'].bg-indigo-600,
+html:not([data-theme='dark']) button[type='submit'].bg-indigo-600 {
+  color: var(--sumi-on-signal) !important;
+}
+
+html[data-theme='light'] .bg-indigo-600 .text-white,
+html:not([data-theme='dark']) .bg-indigo-600 .text-white,
+html[data-theme='light'] .bg-indigo-500 .text-white,
+html:not([data-theme='dark']) .bg-indigo-500 .text-white,
+html[data-theme='light'] .bg-indigo-700 .text-white,
+html:not([data-theme='dark']) .bg-indigo-700 .text-white,
+html[data-theme='light'] .btn-gradient .text-white,
+html:not([data-theme='dark']) .btn-gradient .text-white,
+html[data-theme='light'] .category-filter.active .text-white,
+html:not([data-theme='dark']) .category-filter.active .text-white {
   color: var(--sumi-on-signal) !important;
 }
 
@@ -326,12 +390,17 @@ html[data-theme='dark'] .bg-indigo-700 {
   color: var(--sumi-signal);
 }
 
+.sumi-nav a[aria-current='page'] {
+  color: var(--sumi-signal);
+  box-shadow: inset 0 -2px 0 var(--sumi-signal);
+}
+
 .sumi-header__actions {
   margin-left: auto;
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 0.4rem;
+  gap: 0.55rem;
 }
 
 #sumi-theme-switcher,
@@ -436,12 +505,6 @@ html[data-theme='dark'] .bg-indigo-700 {
   display: inline-flex;
 }
 
-@media (max-width: 1099px) {
-  .sumi-privacy-pill {
-    display: none;
-  }
-}
-
 @media (max-width: 760px) {
   #sumi-theme-switcher,
   #sumi-language-slot {
@@ -486,7 +549,7 @@ html[data-theme='dark'] .bg-indigo-700 {
   padding: 0.25rem 0.5rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1100px) {
   .sumi-privacy-pill {
     display: inline-flex;
   }
@@ -805,10 +868,14 @@ html[data-theme='dark'] .bg-indigo-700 {
   color: var(--sumi-signal);
 }
 
-.category-header {
+button.category-header {
   color: var(--sumi-ink);
   font-family: var(--font-serif);
   font-size: 1.35rem;
+}
+
+button.category-header:hover {
+  color: var(--sumi-signal);
 }
 
 .sumi-workspace {
@@ -900,6 +967,11 @@ html[data-theme='dark'] .bg-indigo-700 {
 .mobile-nav-link:focus {
   background: var(--sumi-surface);
   color: var(--sumi-signal);
+}
+
+.mobile-nav-link[aria-current='page'] {
+  color: var(--sumi-signal);
+  background: color-mix(in srgb, var(--sumi-signal) 10%, transparent);
 }
 
 .sumi-continue,

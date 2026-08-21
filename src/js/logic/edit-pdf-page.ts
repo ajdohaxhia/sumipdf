@@ -6,10 +6,9 @@ import { makeUniqueFileKey } from '../utils/deduplicate-filename.js';
 import { batchDecryptIfNeeded } from '../utils/password-prompt.js';
 import { getEditorDisabledCategories } from '../utils/disabled-tools.js';
 import { editorFontFallback } from '../config/editor-fonts.js';
-import { needsFontEmbedding } from '../utils/freetext-script.js';
 
 const embedPdfWasmUrl = new URL(
-  'bentopdf-pdfium/editcore.wasm',
+  'bentopdf-viewer/dist/pdfium.wasm',
   import.meta.url
 ).href;
 
@@ -22,7 +21,7 @@ import type {
 
 const FREETEXT_SUBTYPE = 3;
 
-function collectAllFreeTexts(
+function collectSystemFontFreeTexts(
   annotationPlugin: AnnotationPluginLite | null
 ): FreeTextSystemFontAnnotation[] {
   if (!annotationPlugin) return [];
@@ -33,7 +32,9 @@ function collectAllFreeTexts(
       const obj = tracked.object;
       if (obj.type !== FREETEXT_SUBTYPE) continue;
       if (obj.intent === 'FreeTextCallout') continue;
+      if (!obj.fontPostScriptName || !obj.fontPostScriptName.trim()) continue;
       if (!obj.id || obj.pageIndex == null || !obj.rect) continue;
+      if ((obj.rotation ?? 0) !== 0) continue;
       out.push({
         id: obj.id,
         pageIndex: obj.pageIndex,
@@ -45,8 +46,7 @@ function collectAllFreeTexts(
         opacity: obj.opacity ?? 1,
         backgroundColor: obj.color ?? obj.backgroundColor,
         rect: obj.rect,
-        fontPostScriptName: obj.fontPostScriptName ?? '',
-        rotation: obj.rotation ?? 0,
+        fontPostScriptName: obj.fontPostScriptName,
       });
     }
     return out;
@@ -269,26 +269,7 @@ async function handleFiles(files: FileList) {
           } catch {
             annotationPlugin = null;
           }
-          const allFreeTexts = collectAllFreeTexts(annotationPlugin);
-          let pending = allFreeTexts;
-          if (pending.length > 0) {
-            try {
-              const { flattenFreeTextToPageText } =
-                await import('../utils/freetext-flatten.js');
-              const res = await flattenFreeTextToPageText(outBytes, pending);
-              if (res.flattened > 0) {
-                outBytes = res.bytes;
-                pending = [];
-              }
-            } catch (err) {
-              console.error('Flatten pass failed:', err);
-            }
-          }
-          const customFontAnnots = pending.filter(
-            (a) =>
-              a.fontPostScriptName.trim() !== '' ||
-              needsFontEmbedding(a.contents)
-          );
+          const customFontAnnots = collectSystemFontFreeTexts(annotationPlugin);
           if (customFontAnnots.length > 0) {
             try {
               const { embedFreeTextSystemFonts } =

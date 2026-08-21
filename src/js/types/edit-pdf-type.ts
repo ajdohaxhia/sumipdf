@@ -57,5 +57,4 @@ export interface FreeTextSystemFontAnnotation {
   backgroundColor?: string;
   rect: EditorAnnotationRect;
   fontPostScriptName: string;
-  rotation?: number;
 }

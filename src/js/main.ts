@@ -25,6 +25,7 @@ import {
 import { brand } from './config/brand.js';
 import { initTheme } from './ui/theme.js';
 import { mountThemeSwitcher } from './ui/theme-switcher.js';
+import { initCurrentNav, markCurrentNav } from './ui/current-nav.js';
 import { initCommandPalette } from './ui/command-palette.js';
 import { initHomeDrop } from './ui/home-command.js';
 import { initWorkspaceTray } from './ui/workspace-tray.js';
@@ -36,6 +37,7 @@ declare const __BRAND_NAME__: string;
 const init = async () => {
   initTheme();
   mountThemeSwitcher(document.getElementById('sumi-theme-switcher'));
+  initCurrentNav();
   await initI18n();
   await loadRuntimeConfig();
   injectLanguageSwitcher();
@@ -1195,6 +1197,7 @@ const init = async () => {
 
   // Rewrite links after all dynamic content is fully loaded
   rewriteLinks();
+  markCurrentNav();
 };
 
 window.addEventListener('load', init);

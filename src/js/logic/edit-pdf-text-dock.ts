@@ -729,15 +729,6 @@ export function setupFormatDock(): void {
     updateOffset();
   }
 
-  const publishDockHeight = () => {
-    app.style.setProperty(
-      '--ecdock',
-      `${Math.round(inspector.getBoundingClientRect().height)}px`
-    );
-  };
-  new ResizeObserver(publishDockHeight).observe(inspector);
-  publishDockHeight();
-
   setupPagePill();
   refresh();
 }

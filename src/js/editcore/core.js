@@ -146,96 +146,46 @@ export function scriptFallbackFamilies(cps) {
         'Kohinoor Devanagari',
         'Devanagari MT',
         'ITF Devanagari',
-        'Nirmala UI',
-        'Mangal',
         'Noto Sans Devanagari',
         'Arial Unicode MS',
       ],
     ],
     [
       [[0x0980, 0x09ff]],
-      [
-        'Kohinoor Bangla',
-        'Bangla MN',
-        'Nirmala UI',
-        'Vrinda',
-        'Noto Sans Bengali',
-        'Arial Unicode MS',
-      ],
+      ['Kohinoor Bangla', 'Bangla MN', 'Noto Sans Bengali', 'Arial Unicode MS'],
     ],
     [
       [[0x0a00, 0x0a7f]],
-      [
-        'Gurmukhi MN',
-        'Nirmala UI',
-        'Raavi',
-        'Noto Sans Gurmukhi',
-        'Arial Unicode MS',
-      ],
+      ['Gurmukhi MN', 'Noto Sans Gurmukhi', 'Arial Unicode MS'],
     ],
     [
       [[0x0a80, 0x0aff]],
       [
         'Kohinoor Gujarati',
         'Gujarati MT',
-        'Nirmala UI',
-        'Shruti',
         'Noto Sans Gujarati',
         'Arial Unicode MS',
       ],
     ],
     [
       [[0x0b80, 0x0bff]],
-      [
-        'Tamil MN',
-        'InaiMathi',
-        'Nirmala UI',
-        'Latha',
-        'Noto Sans Tamil',
-        'Arial Unicode MS',
-      ],
+      ['Tamil MN', 'InaiMathi', 'Noto Sans Tamil', 'Arial Unicode MS'],
     ],
     [
       [[0x0c00, 0x0c7f]],
-      [
-        'Kohinoor Telugu',
-        'Telugu MN',
-        'Nirmala UI',
-        'Gautami',
-        'Noto Sans Telugu',
-        'Arial Unicode MS',
-      ],
+      ['Kohinoor Telugu', 'Telugu MN', 'Noto Sans Telugu', 'Arial Unicode MS'],
     ],
     [
       [[0x0c80, 0x0cff]],
-      [
-        'Kannada MN',
-        'Nirmala UI',
-        'Tunga',
-        'Noto Sans Kannada',
-        'Arial Unicode MS',
-      ],
+      ['Kannada MN', 'Noto Sans Kannada', 'Arial Unicode MS'],
     ],
     [
       [[0x0d00, 0x0d7f]],
-      [
-        'Malayalam MN',
-        'Nirmala UI',
-        'Kartika',
-        'Noto Sans Malayalam',
-        'Arial Unicode MS',
-      ],
+      ['Malayalam MN', 'Noto Sans Malayalam', 'Arial Unicode MS'],
     ],
     [
       [[0x0e00, 0x0e7f]],
-      [
-        'Thonburi',
-        'Sukhumvit Set',
-        'Leelawadee UI',
-        'Tahoma',
-        'Noto Sans Thai',
-        'Arial Unicode MS',
-      ],
+      ['Thonburi', 'Sukhumvit Set', 'Noto Sans Thai', 'Arial Unicode MS'],
     ],
     [
       [
@@ -246,59 +196,15 @@ export function scriptFallbackFamilies(cps) {
       [
         'PingFang SC',
         'Hiragino Sans',
-        'Hiragino Sans GB',
-        'Songti SC',
-        'STHeiti',
         'Apple SD Gothic Neo',
-        'Microsoft YaHei',
-        'Yu Gothic',
-        'Meiryo',
-        'SimSun',
-        'MS Gothic',
-        'Malgun Gothic',
         'Noto Sans CJK SC',
-        'Noto Sans SC',
         'Arial Unicode MS',
       ],
     ],
     [
       [[0xac00, 0xd7af]],
-      [
-        'Apple SD Gothic Neo',
-        'AppleGothic',
-        'Malgun Gothic',
-        'Batang',
-        'Noto Sans KR',
-        'Noto Sans CJK KR',
-        'Arial Unicode MS',
-      ],
+      ['Apple SD Gothic Neo', 'Noto Sans KR', 'Arial Unicode MS'],
     ],
-    [
-      [[0x0b00, 0x0b7f]],
-      ['Oriya MN', 'Nirmala UI', 'Kalinga', 'Noto Sans Oriya'],
-    ],
-    [
-      [[0x0d80, 0x0dff]],
-      ['Sinhala MN', 'Nirmala UI', 'Iskoola Pota', 'Noto Sans Sinhala'],
-    ],
-    [
-      [[0x0e80, 0x0eff]],
-      ['Lao MN', 'Lao Sangam MN', 'Leelawadee UI', 'Noto Sans Lao'],
-    ],
-    [
-      [[0x1000, 0x109f]],
-      ['Myanmar MN', 'Myanmar Sangam MN', 'Myanmar Text', 'Noto Sans Myanmar'],
-    ],
-    [
-      [[0x1780, 0x17ff]],
-      ['Khmer MN', 'Khmer Sangam MN', 'Leelawadee UI', 'Noto Sans Khmer'],
-    ],
-    [
-      [[0x0530, 0x058f]],
-      ['Mshtakan', 'Sylfaen', 'Noto Sans Armenian', 'Arial Unicode MS'],
-    ],
-    [[[0x10a0, 0x10ff]], ['Noto Sans Georgian', 'Sylfaen', 'Arial Unicode MS']],
-    [[[0x1200, 0x137f]], ['Kefa', 'Nyala', 'Noto Sans Ethiopic']],
   ];
   const out = [];
   for (const cp of cps) {
@@ -330,35 +236,13 @@ export class PdfEngine {
 
   _makeProvider() {
     const M = this.M;
-    const norm = (s) =>
-      s
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '')
-        .replace(/(psmt|mt|ps)$/, '');
-    const normLookup = (fam, styleKey, want) => {
-      const target = norm(fam);
-      if (!target) return null;
-      let anyStyle = null;
-      for (const [k, b] of PdfEngine.localFonts) {
-        if (!b || !b.length) continue;
-        const bar = k.indexOf('|');
-        const kf = bar < 0 ? k : k.slice(0, bar);
-        if (norm(kf) !== target) continue;
-        if (want.length && !sfntCovers(b, want)) continue;
-        const ks = bar < 0 ? '' : k.slice(bar + 1);
-        if (ks === styleKey) return b;
-        if (!anyStyle) anyStyle = b;
-      }
-      return anyStyle;
-    };
     return M.addFunction(
       (ctx, familyPtr, bold, italic, cps, n, outData, outSize) => {
         let fam = M.UTF8ToString(familyPtr);
         fam = fam.replace(/ (serif|mono)$/, '');
         const want = [];
         for (let i = 0; i < n; i++) want.push(M.HEAPU32[(cps >> 2) + i]);
-        const styleKey = (bold ? 1 : 0) + '' + (italic ? 1 : 0);
-        const sk = '|' + styleKey;
+        const sk = '|' + (bold ? 1 : 0) + (italic ? 1 : 0);
         const names = [fam, ...scriptFallbackFamilies(want)];
         let bytes = null;
         for (const nm of names) {
@@ -371,7 +255,6 @@ export class PdfEngine {
           }
           if (bytes) break;
         }
-        if (!bytes) bytes = normLookup(fam, styleKey, want);
         if (!bytes || !bytes.length) return 0;
         const buf = M._ec_buffer_alloc(bytes.length);
         if (!buf) return 0;
